@@ -3,9 +3,20 @@
   "version": "1.0.0",
   "description": "A REST API server for Motolink app",
   "main": "./dist/server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+	"test": "SET ENV=test & tsc & db-migrate --env test up & jasmine & db-migrate --env test reset",
+	"build": "tsc",
+	"start": "tsc & nodemon --config nodemon.json ./src/server.ts",
+	"lint": "eslint ./src/**/*.ts ./migrations/**/*.js",
+	"lint:f": "eslint ./src/**/*.ts ./migrations/**/*.js --fix",
+	"jasmine": "jasmine",
+	"migUp": "db-migrate up",
+	"migUp:t": "SET ENV=test & db-migrate --env test up",
+	"migDown": "db-migrate up",
+	"migDown:t": "SET ENV=test & db-migrate --env test reset",
+	"migDown:t-all": "SET ENV=test & db-migrate --env test reset"
+},
   "author": "Ahmed G. Mohamed",
   "license": "ISC",
   "devDependencies": {
