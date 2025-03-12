@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:motolink/features/driver/authentication/presentation/views/sign_in.dart';
+import 'package:motolink/features/rider/authentication/presentation/views/rider_sign_up.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,8 +11,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: SignIn(),
-        debugShowCheckedModeBanner: false, theme: ThemeData.dark());
+        debugShowCheckedModeBanner: false, theme: ThemeData.dark(),
+      home: RiderSignUp(),
+    );
 
   }
 }
