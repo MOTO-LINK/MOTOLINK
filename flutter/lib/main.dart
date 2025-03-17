@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motolink/features/general/profile_page/presentation/views/offers_view.dart';
 import 'package:motolink/features/general/profile_page/presentation/views/recent_rides_view.dart';
 
 void main() {
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false, theme: ThemeData.dark(),
-      home: RecentRidesView(),
+      home: OffersView(),
     );
 
   }
