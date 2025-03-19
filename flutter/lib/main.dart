@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:motolink/features/general/profile_page/presentation/views/offers_view.dart';
-import 'package:motolink/features/general/profile_page/presentation/views/recent_rides_view.dart';
+import 'package:motolink/features/rider/authentication/presentation/views/rider_sign_up.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false, theme: ThemeData.dark(),
-      home: OffersView(),
+      home: RiderSignUp(),
     );
 
   }
