@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motolink/features/driver/authentication/presentation/views/driver_sign_up.dart';
 import 'package:motolink/features/rider/authentication/presentation/views/rider_sign_up.dart';
 
 void main() {
@@ -19,8 +20,3 @@ class MyApp extends StatelessWidget {
 }
 
  
-
-
-
-
-
