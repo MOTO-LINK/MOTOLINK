@@ -1,0 +1,30 @@
+import React from "react"
+import {createBrowserRouter, createRoutesFromElements, Route} from "react-router-dom"
+import Start from "../Pages/Start"
+import Home from "../Pages/Home"
+import SignUpRider1 from "../Pages/SignUpRider1"
+import SignDriver1 from "../Pages/SignDrivar1"
+import HomeRider from "../Pages/HomeRider"
+import SignUp from "../Pages/SignUp"
+import Login from "../Pages/Login"
+import Booking from "../Pages/Booking"
+import SelectDriver from "../Pages/SelectDriver"
+import OtpPage from "../Pages/OtpPage"
+export const router=createBrowserRouter(
+     createRoutesFromElements(
+        <>
+         <Route>
+            <Route path="/" element={<Start/>} />
+            <Route path="/home" element={<Home/>} />
+            <Route path="/SignUpRider1" element={<SignUpRider1/>} />
+            <Route path="/SignDriver1" element={<SignDriver1/>} />
+            <Route path="/HomeRider" element={<HomeRider/>} />
+            <Route path="/SignUp" element={<SignUp/>} />
+            <Route path="/Login" element={<Login/>} />
+            <Route path="/Booking" element={<Booking/>} />
+            <Route path="/SelectDriver" element={<SelectDriver/>} />
+            <Route path="/OtpPage" element={<OtpPage/>} />
+         </Route>
+        </>
+     )
+)

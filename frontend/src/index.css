@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face{
+  font-family: rbold;
+  src:url("./assets/fonts/Roboto-Black.ttf");
+}
+@font-face{
+  font-family: retrabold;
+  src:url("./assets/fonts/Roboto-Bold.ttf");
+}
+@font-face{
+  font-family: reatralight;
+  src:url("./assets/fonts/Roboto-ExtraLight.ttf");
+}
+@font-face{
+  font-family: rmedium;
+  src:url("./assets/fonts/Roboto-Medium.ttf");
+}
+@font-face{
+  font-family: rregular;
+  src:url("./assets/fonts/Roboto-Regular.ttf");
+}
+@font-face{
+  font-family: rsemibold;
+  src:url("./assets/fonts/Roboto-SemiBold.ttf");
+}
+@font-face{
+  font-family: rthin;
+  src:url("./assets/fonts/Roboto-Thin.ttf");
+}
+@font-face {
+    font-family:iblack ;
+    src: url("./assets/fonts/Inter_18pt-Black.ttf");
+}
+@font-face {
+    font-family:ibold ;
+    src: url("./assets/fonts/Inter_18pt-Bold.ttf");
+}
+@font-face {
+    font-family:iextrabold ;
+    src: url("./assets/fonts/Inter_18pt-ExtraBold.ttf");
+}
+@font-face {
+    font-family:iextralight ;
+    src: url("./assets/fonts//Inter_18pt-ExtraLight.ttf");
+}
+@font-face {
+    font-family:ilight ;
+    src: url("./assets/fonts/Inter_18pt-Light.ttf");
+}
+@font-face {
+    font-family:imedium ;
+    src: url("./assets/fonts/Inter_18pt-Medium.ttf");
+}
+@font-face {
+    font-family:isemibold ;
+    src: url("./assets/fonts/Inter_18pt-SemiBold.ttf");
+}
+@font-face {
+    font-family:ithin ;
+    src: url("./assets/fonts/Inter_18pt-Thin.ttf");
+}
+body{
+    background-color: #000000e3;
+    font-family: imedium;
+}
+
+@keyframes moveBike {
+    0% {
+      transform: translateX(360%);
+    }
+    100% {
+      transform: translateX(150%);
+    }
+  }
+  
+  @keyframes roadLines {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  @keyframes twinkle {
+    0% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.5;
+    }
+  }
+  
+  .animate-move-bike {
+    animation: moveBike 2s linear infinite;
+  }
+  
+  .animate-road-lines {
+    animation: roadLines 2s linear infinite;
+  }
+  
+  .animate-twinkle {
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  
+  .bg-star-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='1' fill='white'/%3E%3C/svg%3E");
+    background-size: 2%;
+  }
+  .MuiInputLabel-root {
+    color: white !important;
+  }
+  
+  .MuiInputLabel-root.Mui-focused {
+    color: white !important;
+  }
+  .css-1toxriw-MuiList-root-MuiMenu-list {
+
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+
+}
