@@ -10,19 +10,23 @@ import Login from "../Pages/Login"
 import Booking from "../Pages/Booking"
 import SelectDriver from "../Pages/SelectDriver"
 import OtpPage from "../Pages/OtpPage"
+import HomeDriver from "../Pages/HomeDriver"
+import TrackOrder from "../Pages/TrackOrder"
 export const router=createBrowserRouter(
      createRoutesFromElements(
         <>
          <Route>
-            <Route path="/" element={<Start/>} />
             <Route path="/home" element={<Home/>} />
+            <Route path="/" element={<Start/>} />
             <Route path="/SignUpRider1" element={<SignUpRider1/>} />
             <Route path="/SignDriver1" element={<SignDriver1/>} />
             <Route path="/HomeRider" element={<HomeRider/>} />
-            <Route path="/SignUp" element={<SignUp/>} />
-            <Route path="/Login" element={<Login/>} />
             <Route path="/Booking" element={<Booking/>} />
             <Route path="/SelectDriver" element={<SelectDriver/>} />
+            <Route path="/HomeDriver" element={<HomeDriver/>} />
+            <Route path="/TrackOrder" element={<TrackOrder/>} />
+            <Route path="/Login" element={<Login/>} />
+            <Route path="/SignUp" element={<SignUp/>} />
             <Route path="/OtpPage" element={<OtpPage/>} />
          </Route>
         </>

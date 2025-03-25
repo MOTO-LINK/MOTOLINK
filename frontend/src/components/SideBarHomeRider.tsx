@@ -393,28 +393,28 @@ const SearchForm: React.FC = () => {
                     
                     "& .MuiOutlinedInput-root": {
                     "& fieldset": {
-                        borderColor: "#D7B634", // لون الإطار في الحالة العادية
-                        borderRadius: "8px", // حواف مستديرة
+                        borderColor: "#D7B634", 
+                        borderRadius: "8px", 
                     },
                     "&:hover fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند التمرير
+                        borderColor: "#D7B634", 
                     },
                     "&.Mui-focused fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند التركيز
+                        borderColor: "#D7B634", 
                     },
                     "&.Mui-error fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند الخطأ
+                        borderColor: "#D7B634", 
                     },
                     },
                     "& .MuiInputBase-input": {
-                    color: "white", // لون النص
-                    padding: "12px 14px", // تعديل التباعد الداخلي
+                    color: "white", 
+                    padding: "12px 14px", 
                     },
                     "& .MuiInputLabel-root": {
-                    color: "#D7B634", // لون النص عند عدم التركيز
+                    color: "#D7B634",  
                     },
                     "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#D7B634", // لون النص عند التركيز
+                    color: "#D7B634", 
                     },
                 }}
                 InputProps={{
@@ -444,28 +444,28 @@ const SearchForm: React.FC = () => {
                 sx={{
                     "& .MuiOutlinedInput-root": {
                     "& fieldset": {
-                        borderColor: "#D7B634", // لون الإطار في الحالة العادية
-                        borderRadius: "8px", // حواف مستديرة
+                        borderColor: "#D7B634", 
+                        borderRadius: "8px", 
                     },
                     "&:hover fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند التمرير
+                        borderColor: "#D7B634", 
                     },
                     "&.Mui-focused fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند التركيز
+                        borderColor: "#D7B634", 
                     },
                     "&.Mui-error fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند الخطأ
+                        borderColor: "#D7B634", 
                     },
                     },
                     "& .MuiInputBase-input": {
-                    color: "white", // لون النص
-                    padding: "12px 14px", // تعديل التباعد الداخلي
+                    color: "white", 
+                    padding: "12px 14px", 
                     },
                     "& .MuiInputLabel-root": {
-                    color: "#D7B634", // لون النص عند عدم التركيز
+                    color: "#D7B634",
                     },
                     "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#D7B634", // لون النص عند التركيز
+                    color: "#D7B634",
                     },
                 }}
                 InputProps={{
@@ -500,28 +500,28 @@ const SearchForm: React.FC = () => {
                 sx={{
                     "& .MuiOutlinedInput-root": {
                     "& fieldset": {
-                        borderColor: "#D7B634", // لون الإطار في الحالة العادية
-                        borderRadius: "8px", // حواف مستديرة
+                        borderColor: "#D7B634", 
+                        borderRadius: "8px", 
                     },
                     "&:hover fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند التمرير
+                        borderColor: "#D7B634", 
                     },
                     "&.Mui-focused fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند التركيز
+                        borderColor: "#D7B634", 
                     },
                     "&.Mui-error fieldset": {
-                        borderColor: "#D7B634", // لون الإطار عند الخطأ
+                        borderColor: "#D7B634", 
                     },
                     },
                     "& .MuiInputBase-input": {
-                    color: "white", // لون النص
-                    padding: "12px 14px", // تعديل التباعد الداخلي
+                    color: "white", 
+                    padding: "12px 14px", 
                     },
                     "& .MuiInputLabel-root": {
-                    color: "#D7B634", // لون النص عند عدم التركيز
+                    color: "#D7B634",  
                     },
                     "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#D7B634", // لون النص عند التركيز
+                    color: "#D7B634",  
                     },
                 }}
                 InputProps={{

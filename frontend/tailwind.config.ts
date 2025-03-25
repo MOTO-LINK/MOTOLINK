@@ -13,10 +13,12 @@ export default {
         'beige-2': '#F0DF9D',
         "beige-3":"#A7A7A7",
         "text":"black",
+        "textWhite":"white",
         "bg":"#00000023",
         "bg1":"#00000050",
         "borderColor":"#BEB58F",
-        "btn":"#D7B634"
+        "btn":"#D7B634",
+        "bglight":"#252525",
       }
     },
   },
