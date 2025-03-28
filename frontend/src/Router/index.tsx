@@ -12,6 +12,7 @@ import SelectDriver from "../Pages/SelectDriver"
 import OtpPage from "../Pages/OtpPage"
 import HomeDriver from "../Pages/HomeDriver"
 import TrackOrder from "../Pages/TrackOrder"
+import Chats from "../Pages/Chats"
 export const router=createBrowserRouter(
      createRoutesFromElements(
         <>
@@ -25,6 +26,7 @@ export const router=createBrowserRouter(
             <Route path="/SelectDriver" element={<SelectDriver/>} />
             <Route path="/HomeDriver" element={<HomeDriver/>} />
             <Route path="/TrackOrder" element={<TrackOrder/>} />
+            <Route path="/Chats" element={<Chats/>} />
             <Route path="/Login" element={<Login/>} />
             <Route path="/SignUp" element={<SignUp/>} />
             <Route path="/OtpPage" element={<OtpPage/>} />

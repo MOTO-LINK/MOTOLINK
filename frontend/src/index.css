@@ -126,3 +126,12 @@ body{
     padding-bottom: 0px !important;
 
 }
+
+.animate-pulse {
+  animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
