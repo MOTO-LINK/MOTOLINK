@@ -4,30 +4,34 @@ import { ChatUser } from '../lib/validationUserCard';
 import { IoMdCheckmark } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
 import { IoMdSend } from "react-icons/io";
+import { AttachmentMenu } from './AttachmentMenu';
+import { CustomEmojiPicker } from './EmojiPicker';
 type ChatMessage = {
   id: string;
   content: string;
   senderId: string;
   timestamp: Date;
   status: 'sent' | 'delivered' | 'read' | 'deleted';
-  type?: string;
+  type?: 'text' | 'image' | 'document'; 
   unreadCount?: number;
   edited?: boolean;
   replyTo?: string;
   previewContent?: string;
   originalContent?: string; 
   editTimestamp?: Date; 
+  file?: File; 
 };
+
 interface ChatWindowProps {
   user: ChatUser;
   messages: ChatMessage[];
   contacts: ChatUser[];
-  onSend: (content: string, replyTo?: string) => void;
+  onSend: (content: string, replyTo?: string, file?: File) => void;
   onEdit: (messageId: string, newContent: string) => void;
   onDelete: (messageId: string) => void;
   onForward: (messageId: string, toUserId: string) => void;
 }
-// git commit -m "Chats.tsx,AttachmentMenu.tsx,ChatWindow.tsx,EmojiPicker.tsx,LayoutChats.tsx,NewChat.tsx,UserCard.tsx,UserGrid.tsx,mockUsers.ts,useChat.ts,validationUserCard.ts"
+
 export const ChatWindow = ({ 
   user, 
   messages, 
@@ -44,9 +48,48 @@ export const ChatWindow = ({
   const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
   const [forwardingMessage, setForwardingMessage] = useState<ChatMessage | null>(null);
   const [showContacts, setShowContacts] = useState(false);
-  
+  const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const useObjectURL = (file: File | undefined) => {
+    const [url, setUrl] = useState<string | null>(null);
+  
+    useEffect(() => {
+      if (!file) return;
+  
+      const objectUrl = URL.createObjectURL(file);
+      setUrl(objectUrl);
+  
+      return () => {
+        URL.revokeObjectURL(objectUrl);
+      };
+    }, [file]);
+  
+    return url;
+  };
+
+  const handleAttachmentSelect = (file: File, type: 'image' | 'document') => {
+    setShowAttachmentMenu(false);
+    if (!file) return; 
+    const message: ChatMessage = {
+      id: Date.now().toString(),
+      content: type === 'image' ? '[Image]' : `[Document: ${file.name}]`,
+      senderId: 'current-user-id',
+      timestamp: new Date(),
+      status: 'sent',
+      type,
+      file 
+    };
+    
+    onSend(message.content, undefined, file); 
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setNewMessage(prev => prev + emoji);
+    setShowEmojiPicker(false);
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -219,7 +262,7 @@ export const ChatWindow = ({
 
       <div className="flex-1 overflow-y-auto p-4 bg-bglight">
         <AnimatePresence>
-          {messages.map((message) => (
+          {messages.map((message) => (   
             <motion.div
               key={message.id}
               initial={{ opacity: 0, y: 10 }}
@@ -275,7 +318,7 @@ export const ChatWindow = ({
                       animate={{ opacity: 1 }}
                       className={`absolute flex space-x-1 ${
                         message.senderId === 'current-user-id' 
-                          ? '-left-12 top-0' 
+                          ? '-left-96 -top-16' 
                           : '-right-12 top-0'
                       }`}
                     >
@@ -377,6 +420,30 @@ export const ChatWindow = ({
                   )}
                 </div>
               )}
+              {message.type === 'image' && message.file && (
+                <div className="mt-2">
+                  <img 
+                     src={useObjectURL(message.file)|| undefined} 
+                    alt="Sent image"
+                    className="max-w-xs max-h-48 rounded-lg"
+                    onLoad={() => URL.revokeObjectURL(URL.createObjectURL(message.file!))}
+                  />
+                </div>
+              )}
+              {message.type === 'document' && message.file && (
+                <div className="mt-2 p-3 bg-gray-100 rounded-lg flex items-center">
+                  <svg className="w-8 h-8 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <div>
+                    <p className="font-medium">{message.file.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {(message.file.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                </div>
+              )}
+             
             </motion.div>
           ))}
         </AnimatePresence>
@@ -450,20 +517,26 @@ export const ChatWindow = ({
             </button>
           </div>
         )}
-
+        
         <div className="flex items-center">
-          <button className="mx-2 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
-          
-          <button className="mx-2 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-            </svg>
-          </button>
-          
+            <button 
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="mx-2 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+  
+            <button 
+              onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
+              className="mx-2 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            </button>
+                    
           <input
             ref={inputRef}
             type="text"
@@ -492,6 +565,18 @@ export const ChatWindow = ({
             </svg>
           </button>
         </div>
+        {showAttachmentMenu && (
+          <AttachmentMenu 
+            onSelect={handleAttachmentSelect} 
+            onClose={() => setShowAttachmentMenu(false)}
+          />
+        )}
+        {showEmojiPicker && (
+          <CustomEmojiPicker 
+            onSelect={handleEmojiSelect}
+            onClose={() => setShowEmojiPicker(false)}
+          />
+        )}
       </div>
     </div>
   );

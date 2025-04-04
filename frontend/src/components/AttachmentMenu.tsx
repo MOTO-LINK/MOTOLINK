@@ -2,6 +2,7 @@ import { useDropzone } from 'react-dropzone';
 
 interface AttachmentMenuProps {
   onSelect: (file: File, type: 'image' | 'document') => void;
+  onClose: () => void;
 }
 
 export const AttachmentMenu = ({ onSelect }: AttachmentMenuProps) => {
@@ -27,7 +28,7 @@ export const AttachmentMenu = ({ onSelect }: AttachmentMenuProps) => {
         </p>
       </div>
       <button 
-        onClick={() => {/* Camera implementation would go here */}}
+        onClick={() => {}}
         className="flex items-center p-2 hover:bg-gray-100 rounded w-full mt-2"
       >
         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

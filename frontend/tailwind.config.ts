@@ -16,6 +16,7 @@ export default {
         'beige-2': '#F0DF9D',
         "beige-3":"#A7A7A7",
         "text":"black",
+        "radio":"#303F4A",
         "textWhite":"white",
         "textgray":"#6b7280",
         "bg":"#00000023",
@@ -23,6 +24,10 @@ export default {
         "borderColor":"#BEB58F",
         "btn":"#D7B634",
         "bglight":"#252525",
+        "red":"#CC5D64",
+        "linear1":"#FBC91AE0",
+        "linear2":"#F8A777D9",
+        "yello":"#eab308"
       }
     },
   },

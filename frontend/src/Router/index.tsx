@@ -13,6 +13,15 @@ import OtpPage from "../Pages/OtpPage"
 import HomeDriver from "../Pages/HomeDriver"
 import TrackOrder from "../Pages/TrackOrder"
 import Chats from "../Pages/Chats"
+import Notifications from "../Pages/Notifications"
+import Profile from "../Pages/Profile"
+import PersonalDetails from "../Pages/PersonalDetails"
+import Wallet from "../Pages/Wallet"
+import RecentRides from "../Pages/RecentRides"
+import OffersPage from "../Pages/Offers"
+import SupportPage from "../Pages/Support"
+import SupportContactUs from "../Pages/SupportContactUs"
+import SupportMessage from "../Pages/SupportMessage"
 export const router=createBrowserRouter(
      createRoutesFromElements(
         <>
@@ -26,7 +35,17 @@ export const router=createBrowserRouter(
             <Route path="/SelectDriver" element={<SelectDriver/>} />
             <Route path="/HomeDriver" element={<HomeDriver/>} />
             <Route path="/TrackOrder" element={<TrackOrder/>} />
+            <Route path="/Notifications" element={<Notifications/>} />
+            <Route path="/Profile" element={<Profile/>} />
+            <Route path="/PersonalDetails" element={<PersonalDetails/>} />
+            <Route path="/Wallet" element={<Wallet/>} />
             <Route path="/Chats" element={<Chats/>} />
+            <Route path="/RecentRides" element={<RecentRides/>} />
+            <Route path="/OffersPage" element={<OffersPage/>} />
+            <Route path="/SupportPage" element={<SupportPage/>} />
+            <Route path="/SupportContactUs" element={<SupportContactUs/>} />
+            <Route path="/SupportMessage" element={<SupportMessage/>} />
+
             <Route path="/Login" element={<Login/>} />
             <Route path="/SignUp" element={<SignUp/>} />
             <Route path="/OtpPage" element={<OtpPage/>} />
