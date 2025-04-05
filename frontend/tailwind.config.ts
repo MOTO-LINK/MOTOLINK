@@ -22,6 +22,7 @@ export default {
         "bg":"#00000023",
         "bg1":"#00000050",
         "borderColor":"#BEB58F",
+        "borderColorlight":"#BEB58F50",
         "btn":"#D7B634",
         "bglight":"#252525",
         "red":"#CC5D64",

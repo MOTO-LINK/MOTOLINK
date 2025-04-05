@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { FaArrowLeft } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function OtpPage() {
   const { register, handleSubmit } = useForm();
@@ -81,14 +82,15 @@ export default function OtpPage() {
               />
             ))}
           </div>
-
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            type="submit"
-            className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded-md"
-          >
-            Continue
-          </motion.button>
+           <Link to={"/HomeRider"}>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              type="submit"
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-5 rounded-md"
+            >
+              Continue
+            </motion.button>
+           </Link>
         </form>
       </motion.div>
     </div>

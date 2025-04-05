@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { FaCar, FaWheelchair } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function SignUp() {
   const [selectedRole, setSelectedRole] = useState<"Driver" | "Rider" | null>(
@@ -51,13 +52,14 @@ export default function SignUp() {
             <span className="mt-2">Rider</span>
           </button>
         </div>
-
+        <Link to={"/SignUpRider1"}>
         <motion.button
           whileTap={{ scale: 0.9 }}
           className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded-md mt-4"
         >
           Next
         </motion.button>
+        </Link>  
 
         <div className="text-center text-gray-400 mt-4">
           Already have an account?{" "}

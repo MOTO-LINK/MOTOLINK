@@ -31,10 +31,10 @@ const BookRider = () => {
             <p className='bg-[#FFF1C5] w-[9px] h-[9px] rounded-full'></p>
          </div>
          <p className='bg-[#40381C] w-[700px] h-[.5px] rounded-[20px] ml-10 mb-10'></p>
-         <Link to={"/"} className="w-[100%] m-auto ml-5 " >
+         <Link to={"/SignUp"} className="w-[100%] m-auto ml-5 " >
              <Button variant="contained"  sx={{backgroundColor:"#D7B634",paddingX:35,paddingY:1.5,borderRadius:3,fontSize:23,fontWeight:700,marginBottom:5,textTransform:"capitalize",color:"black"}}>Next</Button> 
          </Link>
-         <p className='text-xl mb-5 text-white'>Already have an account? <Link to={"/"} className='text-[#D7B634]'>login</Link> </p>
+         <p className='text-xl mb-5 text-white'>Already have an account? <Link to={"/Login"} className='text-[#D7B634]'>login</Link> </p>
      </div>
     </>
   )

@@ -17,6 +17,8 @@ import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import PersonIcon from '@mui/icons-material/Person';
+import { MdLocalOffer } from "react-icons/md";
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   AccountCircle,
   Wallet,
@@ -26,10 +28,15 @@ import {
   ExitToApp,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
+import { Link, useNavigate } from 'react-router-dom';
+import { FaHistory } from 'react-icons/fa';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const [openLogoutDialog, setOpenLogoutDialog] = React.useState(false);
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -44,6 +51,19 @@ function ResponsiveAppBar() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+  const handleLogoutClick = () => {
+    setOpenLogoutDialog(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    setOpenLogoutDialog(false);
+    handleCloseUserMenu(); 
+    navigate("/"); 
+  };
+
+  const handleLogoutCancel = () => {
+    setOpenLogoutDialog(false);
   };
 
   return (
@@ -111,8 +131,10 @@ function ResponsiveAppBar() {
               <Box sx={{display:"flex",fontFamily:"rmedium"}} >
                 
                 <MenuItem  onClick={handleCloseUserMenu}>
+                    <Link to={"/Notifications"}>    
                     <Typography color='#000000' sx={{ textAlign: 'center',display:"flex",gap:.2,alignItems:"center",justifyContent:"center",marginRight:3,fontSize:20,fontFamily:"rmedium" }}>
                           <NotificationsNoneIcon fontSize='medium' />  Notifications</Typography>
+                    </Link>
                 </MenuItem>
                 <motion.div
                     initial={{ opacity: 0, y: -20 }} 
@@ -121,6 +143,8 @@ function ResponsiveAppBar() {
                     whileHover={{ scale: 1.05 }} 
                     whileTap={{ scale: 0.95 }}
                   >
+                    <Link to={"/SignUpRider1"}>
+                    
                   <Button
                     variant="contained"
                     sx={{
@@ -142,6 +166,7 @@ function ResponsiveAppBar() {
                         <path d="M9 18V16H16V2H9V0H16C16.55 0 17.0208 0.195833 17.4125 0.5875C17.8042 0.979167 18 1.45 18 2V16C18 16.55 17.8042 17.0208 17.4125 17.4125C17.0208 17.8042 16.55 18 16 18H9ZM7 14L5.625 12.55L8.175 10H0V8H8.175L5.625 5.45L7 4L12 9L7 14Z" fill="#D7B634"/>
                     </svg>
                   </Button>
+                    </Link>
                 </motion.div>
               </Box>
           </Box>
@@ -177,6 +202,7 @@ function ResponsiveAppBar() {
               >
               <Box sx={{backgroundColor:"black",width:"25rem",paddingY:2}}> 
               {/* Profile Section */}
+              <Link to={"/Profile"}>
               <MenuItem onClick={handleCloseUserMenu}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2,}}>
                   <Avatar alt="Profile" src={download} />
@@ -190,22 +216,25 @@ function ResponsiveAppBar() {
                   </Box>
                 </Box>
               </MenuItem>
+              </Link>
 
               {/* Buttons Section */}
-              
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Button className='hover:bg-beige-1 duration-500'
-                  startIcon={<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M18.7101 12.5783C18.4621 13.0034 18.3856 13.387 18.4806 13.7289C18.5914 14.128 19.0049 14.3616 19.404 14.2508C19.7632 14.151 19.9884 13.806 19.9489 13.447C19.9614 13.4152 19.9804 13.3776 20.0057 13.3342C20.0186 13.3128 20.0343 13.2899 20.0529 13.2654L20.0786 13.2297C20.5411 12.5423 20.8935 11.8024 21.1357 11.0101C21.3779 10.2178 21.4994 9.40733 21.5001 8.5788C21.5039 7.41301 21.2722 6.29697 20.8049 5.23066C20.3546 4.20325 19.718 3.29393 18.8951 2.50271C18.0744 1.71365 17.1316 1.10291 16.0667 0.67049C14.9659 0.223497 13.813 0 12.6079 0C11.5565 0 10.5409 0.17203 9.5611 0.51609C8.61341 0.84887 7.74798 1.32487 6.96481 1.9441C6.18689 2.55919 5.53554 3.27947 5.01075 4.10495C4.47409 4.94912 4.10119 5.8545 3.89206 6.82109C3.76545 7.40088 3.70198 7.98799 3.70166 8.5824C3.70166 9.74953 3.92743 10.8681 4.37898 11.9382C4.81753 12.9775 5.43721 13.8977 6.23802 14.6988C7.04383 15.5049 7.97169 16.1289 9.0216 16.5706C10.113 17.0298 11.2616 17.2594 12.4673 17.2594C13.1325 17.2594 13.9361 17.1302 14.8782 16.8717C15.2984 16.7564 15.7178 16.6194 16.1364 16.4606C16.1909 16.4401 16.2478 16.4298 16.3071 16.4297C16.3716 16.4294 16.433 16.4414 16.4913 16.4657L19.1699 17.4164C19.2902 17.4647 19.4151 17.4955 19.5444 17.5086L19.6204 17.5125C19.931 17.5125 20.1962 17.4026 20.4159 17.1829C20.6356 16.9632 20.7454 16.6981 20.7454 16.3875L20.7432 16.3305C20.7359 16.2339 20.7183 16.1392 20.6906 16.0464C20.5721 15.6495 20.1543 15.4238 19.7574 15.5423C19.5681 15.5988 19.4178 15.7234 19.3252 15.8813L17.0473 15.0726C16.809 14.9763 16.5618 14.9287 16.3056 14.9297C16.0646 14.93 15.8309 14.9728 15.6044 15.0581C15.2301 15.2001 14.8558 15.3225 14.4814 15.4252C14.1653 15.5119 13.8415 15.5853 13.51 15.6454C13.0913 15.7214 12.7438 15.7594 12.4673 15.7594C11.4634 15.7594 10.5087 15.5689 9.6033 15.188C8.73417 14.8223 7.96604 14.3058 7.2989 13.6383C6.63621 12.9754 6.12356 12.2143 5.76097 11.355C5.3881 10.4714 5.20166 9.54747 5.20166 8.5832C5.20192 8.09643 5.25408 7.6148 5.35814 7.13829C5.52953 6.34612 5.83569 5.60325 6.27661 4.9097C6.71054 4.22712 7.25006 3.6308 7.89515 3.12074C8.54716 2.60521 9.26811 2.20875 10.058 1.93137C10.877 1.64379 11.727 1.5 12.6079 1.5C13.6177 1.5 14.5825 1.68676 15.5023 2.06028C16.389 2.42034 17.1734 2.92825 17.8555 3.58401C18.5353 4.23762 19.0605 4.98718 19.431 5.83271C19.8135 6.70558 20.0032 7.62048 20.0001 8.5774C19.9995 9.257 19.8999 9.92177 19.7012 10.5717C19.5045 11.2154 19.219 11.817 18.8448 12.3763C18.7979 12.4394 18.753 12.5067 18.7101 12.5783Z" fill="#967A0D"/>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M1.45998 9.0101C1.66143 8.6482 2.11815 8.5181 2.48007 8.7196C2.84198 8.921 2.97207 9.3778 2.77061 9.7397C2.21241 10.7425 1.9573 11.8173 2.00529 12.964C2.05329 14.1107 2.39732 15.1603 3.03737 16.113C3.12262 16.2418 3.18643 16.3565 3.22881 16.457C3.31591 16.6637 3.33981 16.8628 3.30053 17.0545L2.87189 19.2753L4.87288 18.4921C5.24788 18.3442 5.62091 18.3486 5.99195 18.5053C6.86303 18.8434 7.71909 19.0124 8.56014 19.0124C9.76717 19.0137 10.8925 18.7116 11.9362 18.1063C12.2945 17.8985 12.7534 18.0205 12.9613 18.3788C13.1691 18.7371 13.0471 19.196 12.6888 19.4038C11.4119 20.1444 10.0357 20.5139 8.56014 20.5124C7.52763 20.5124 6.48639 20.3078 5.43643 19.8987L5.41588 19.8904L2.79431 20.9164C2.65987 20.9725 2.5222 21.0003 2.3813 20.9999C2.11362 21.0022 1.87509 20.9199 1.66573 20.753L1.65135 20.7413C1.49411 20.6095 1.38136 20.4469 1.31309 20.2534C1.24483 20.0599 1.23031 19.8638 1.26955 19.6649L1.79228 16.9496C0.994957 15.7628 0.5664 14.4552 0.506613 13.0267C0.44682 11.5982 0.76461 10.2594 1.45998 9.0101Z" fill="#967A0D"/>
-                    </svg>
-                    }
-                  fullWidth
-                  sx={{ justifyContent: "flex-start",color:"#967A0D" }}
-                >
-                  chat
-                </Button>
-              </MenuItem>
+               <Link to={"/Chats"}>
+                <MenuItem onClick={handleCloseUserMenu}>
+                  <Button className='hover:bg-beige-1 duration-500'
+                    startIcon={<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M18.7101 12.5783C18.4621 13.0034 18.3856 13.387 18.4806 13.7289C18.5914 14.128 19.0049 14.3616 19.404 14.2508C19.7632 14.151 19.9884 13.806 19.9489 13.447C19.9614 13.4152 19.9804 13.3776 20.0057 13.3342C20.0186 13.3128 20.0343 13.2899 20.0529 13.2654L20.0786 13.2297C20.5411 12.5423 20.8935 11.8024 21.1357 11.0101C21.3779 10.2178 21.4994 9.40733 21.5001 8.5788C21.5039 7.41301 21.2722 6.29697 20.8049 5.23066C20.3546 4.20325 19.718 3.29393 18.8951 2.50271C18.0744 1.71365 17.1316 1.10291 16.0667 0.67049C14.9659 0.223497 13.813 0 12.6079 0C11.5565 0 10.5409 0.17203 9.5611 0.51609C8.61341 0.84887 7.74798 1.32487 6.96481 1.9441C6.18689 2.55919 5.53554 3.27947 5.01075 4.10495C4.47409 4.94912 4.10119 5.8545 3.89206 6.82109C3.76545 7.40088 3.70198 7.98799 3.70166 8.5824C3.70166 9.74953 3.92743 10.8681 4.37898 11.9382C4.81753 12.9775 5.43721 13.8977 6.23802 14.6988C7.04383 15.5049 7.97169 16.1289 9.0216 16.5706C10.113 17.0298 11.2616 17.2594 12.4673 17.2594C13.1325 17.2594 13.9361 17.1302 14.8782 16.8717C15.2984 16.7564 15.7178 16.6194 16.1364 16.4606C16.1909 16.4401 16.2478 16.4298 16.3071 16.4297C16.3716 16.4294 16.433 16.4414 16.4913 16.4657L19.1699 17.4164C19.2902 17.4647 19.4151 17.4955 19.5444 17.5086L19.6204 17.5125C19.931 17.5125 20.1962 17.4026 20.4159 17.1829C20.6356 16.9632 20.7454 16.6981 20.7454 16.3875L20.7432 16.3305C20.7359 16.2339 20.7183 16.1392 20.6906 16.0464C20.5721 15.6495 20.1543 15.4238 19.7574 15.5423C19.5681 15.5988 19.4178 15.7234 19.3252 15.8813L17.0473 15.0726C16.809 14.9763 16.5618 14.9287 16.3056 14.9297C16.0646 14.93 15.8309 14.9728 15.6044 15.0581C15.2301 15.2001 14.8558 15.3225 14.4814 15.4252C14.1653 15.5119 13.8415 15.5853 13.51 15.6454C13.0913 15.7214 12.7438 15.7594 12.4673 15.7594C11.4634 15.7594 10.5087 15.5689 9.6033 15.188C8.73417 14.8223 7.96604 14.3058 7.2989 13.6383C6.63621 12.9754 6.12356 12.2143 5.76097 11.355C5.3881 10.4714 5.20166 9.54747 5.20166 8.5832C5.20192 8.09643 5.25408 7.6148 5.35814 7.13829C5.52953 6.34612 5.83569 5.60325 6.27661 4.9097C6.71054 4.22712 7.25006 3.6308 7.89515 3.12074C8.54716 2.60521 9.26811 2.20875 10.058 1.93137C10.877 1.64379 11.727 1.5 12.6079 1.5C13.6177 1.5 14.5825 1.68676 15.5023 2.06028C16.389 2.42034 17.1734 2.92825 17.8555 3.58401C18.5353 4.23762 19.0605 4.98718 19.431 5.83271C19.8135 6.70558 20.0032 7.62048 20.0001 8.5774C19.9995 9.257 19.8999 9.92177 19.7012 10.5717C19.5045 11.2154 19.219 11.817 18.8448 12.3763C18.7979 12.4394 18.753 12.5067 18.7101 12.5783Z" fill="#967A0D"/>
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M1.45998 9.0101C1.66143 8.6482 2.11815 8.5181 2.48007 8.7196C2.84198 8.921 2.97207 9.3778 2.77061 9.7397C2.21241 10.7425 1.9573 11.8173 2.00529 12.964C2.05329 14.1107 2.39732 15.1603 3.03737 16.113C3.12262 16.2418 3.18643 16.3565 3.22881 16.457C3.31591 16.6637 3.33981 16.8628 3.30053 17.0545L2.87189 19.2753L4.87288 18.4921C5.24788 18.3442 5.62091 18.3486 5.99195 18.5053C6.86303 18.8434 7.71909 19.0124 8.56014 19.0124C9.76717 19.0137 10.8925 18.7116 11.9362 18.1063C12.2945 17.8985 12.7534 18.0205 12.9613 18.3788C13.1691 18.7371 13.0471 19.196 12.6888 19.4038C11.4119 20.1444 10.0357 20.5139 8.56014 20.5124C7.52763 20.5124 6.48639 20.3078 5.43643 19.8987L5.41588 19.8904L2.79431 20.9164C2.65987 20.9725 2.5222 21.0003 2.3813 20.9999C2.11362 21.0022 1.87509 20.9199 1.66573 20.753L1.65135 20.7413C1.49411 20.6095 1.38136 20.4469 1.31309 20.2534C1.24483 20.0599 1.23031 19.8638 1.26955 19.6649L1.79228 16.9496C0.994957 15.7628 0.5664 14.4552 0.506613 13.0267C0.44682 11.5982 0.76461 10.2594 1.45998 9.0101Z" fill="#967A0D"/>
+                      </svg>
+                      }
+                    fullWidth
+                    sx={{ justifyContent: "flex-start",color:"#967A0D" }}
+                  >
+                    chat
+                  </Button>
+                </MenuItem>
+               </Link>
+
               <MenuItem onClick={handleCloseUserMenu}>
                 <Button className='hover:bg-beige-1 duration-500'
                   startIcon={<svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -226,6 +255,7 @@ function ResponsiveAppBar() {
                 </Button>
               </MenuItem>
               
+              <Link to={"/SupportPage"}>
               <MenuItem onClick={handleCloseUserMenu}>
                 <Button className='hover:bg-beige-1 duration-500'
                   startIcon={<SupportAgentIcon sx={{width:24,height:25}} />}
@@ -235,8 +265,10 @@ function ResponsiveAppBar() {
                  Contact Us
                 </Button>
               </MenuItem>
+              </Link>
               
               {/* Cash Box Section */}
+              <Link to={"/Wallet"}>
               <MenuItem onClick={handleCloseUserMenu}>
                 <Box
                   sx={{
@@ -254,39 +286,82 @@ function ResponsiveAppBar() {
                   </Typography>
                 </Box>
               </MenuItem>
+              </Link>
+              
+              {/* Recent Rides Section */}
+              <Link to={"/RecentRides"}>
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Button className='hover:bg-beige-1 duration-500'
+                  startIcon={<FaHistory className='w-5 h-5' />}
+                  fullWidth
+                  sx={{ justifyContent: "flex-start" ,color:"#967A0D" }}
+                >
+                  Recent Rides
+                </Button>
+              </MenuItem>
+              </Link>
+
 
               {/* Account Management Section */}
+              <Link to={"/OffersPage"}>
               <MenuItem onClick={handleCloseUserMenu}>
                 <Button className='hover:bg-beige-1 duration-500'
-                  startIcon={<PersonIcon sx={{width:24,height:25}} />}
+                  startIcon={<LocalOffer sx={{width:24,height:25}} />}
                   fullWidth
                   sx={{ justifyContent: "flex-start" ,color:"#967A0D" }}
                 >
-                  Manage Account
+                  Offers
                 </Button>
               </MenuItem>
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Button className='hover:bg-beige-1 duration-500'
-                  startIcon={<LocalOffer sx={{color:"#967A0D",width:24,height:25}} />}
-                  fullWidth
-                  sx={{ justifyContent: "flex-start" ,color:"#967A0D" }}
-                >
-                  Promotions
-                </Button>
-              </MenuItem>
+              </Link>
 
-              {/* Logout Section */}
+              <Link to={"/SettingPage"}>
               <MenuItem onClick={handleCloseUserMenu}>
-                <Button
-                  startIcon={<ExitToApp />}
+                <Button className='hover:bg-beige-1 duration-500'
+                  startIcon={<SettingsIcon sx={{color:"#967A0D",width:24,height:25}} />}
                   fullWidth
-                  sx={{ justifyContent: "flex-start", color: "error.main" }}
+                  sx={{ justifyContent: "flex-start" ,color:"#967A0D" }}
                 >
-                  Logout
+                  Settings
                 </Button>
               </MenuItem>
+              </Link>
+
+              <Box>
+                <MenuItem onClick={handleLogoutClick}>
+                  <Button
+                    startIcon={<ExitToApp />}
+                    fullWidth
+                    sx={{ justifyContent: "flex-start", color: "error.main" }}
+                  >
+                    Logout
+                  </Button>
+                </MenuItem>
+              </Box>
+
+              <Dialog
+                open={openLogoutDialog}
+                onClose={handleLogoutCancel}
+                aria-labelledby="logout-dialog-title"
+                aria-describedby="logout-dialog-description"
+              >
+                <DialogTitle id="logout-dialog-title">Confirm Logout</DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="logout-dialog-description">
+                    Are you sure you want to log out? You will need to log in again to continue using the app.
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleLogoutCancel} color="inherit">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleLogoutConfirm} color="error" variant="contained">
+                    Logout
+                  </Button>
+                </DialogActions>
+              </Dialog>
+    
               </Box> 
-
               </Menu>
             </motion.div>
 

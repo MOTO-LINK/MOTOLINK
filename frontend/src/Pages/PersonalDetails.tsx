@@ -41,7 +41,7 @@ export default function PersonalDetails() {
       transition={{ duration: 0.8 }}
     >
       <motion.div 
-        className="w-full max-w-2xl  p-10 rounded-3xl shadow-xl shadow-gold-1"
+        className="w-full max-w-2xl  p-10 rounded-3xl shadow-xl shadow-gold-1 border-2 border-gold-1"
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6 }}

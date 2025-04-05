@@ -98,7 +98,7 @@ const SideBarTrackOrder: React.FC = () => {
               control={control}
               render={({ field }) => (
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link to="/Booking">
+                  <Link to="/HomeRider">
                     <Button
                       type="submit"
                       variant="contained"

@@ -22,6 +22,7 @@ import OffersPage from "../Pages/Offers"
 import SupportPage from "../Pages/Support"
 import SupportContactUs from "../Pages/SupportContactUs"
 import SupportMessage from "../Pages/SupportMessage"
+import SettingPage from "../Pages/SettingPage"
 export const router=createBrowserRouter(
      createRoutesFromElements(
         <>
@@ -45,6 +46,7 @@ export const router=createBrowserRouter(
             <Route path="/SupportPage" element={<SupportPage/>} />
             <Route path="/SupportContactUs" element={<SupportContactUs/>} />
             <Route path="/SupportMessage" element={<SupportMessage/>} />
+            <Route path="/SettingPage" element={<SettingPage/>} />
 
             <Route path="/Login" element={<Login/>} />
             <Route path="/SignUp" element={<SignUp/>} />

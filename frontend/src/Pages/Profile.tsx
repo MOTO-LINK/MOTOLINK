@@ -1,12 +1,13 @@
-import { useState } from "react";
-import { Avatar, List, ListItem, ListItemAvatar, ListItemText, IconButton, Typography, Box, Container } from "@mui/material";
+import React, { useState } from "react";
+import { Avatar, List, ListItem, ListItemAvatar, ListItemText, IconButton, Typography, Box, Container, MenuItem, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import { FaUserCog, FaWallet, FaHistory, FaTags, FaBell, FaHeadset, FaCog, FaSignOutAlt, FaCamera } from "react-icons/fa";
 import { color, motion } from "framer-motion";
 import { z } from "zod";
-import { Link } from "react-router-dom";  
+import { Link, useNavigate } from "react-router-dom";  
 import { IoIosArrowForward } from "react-icons/io";
 import tailwindConfig from "../../tailwind.config";
 import ResponsiveAppBar from "../components/Navbar";
+import { ExitToApp } from "@mui/icons-material";
 
 const userSchema = z.object({
   name: z.string(),
@@ -18,15 +19,43 @@ const colors=tailwindConfig.theme.extend.colors;
 const menuItems = [
   { title: "Personal Details", icon: <FaUserCog />, link: "/PersonalDetails", color: colors["btn"] },
   { title: "Wallet", icon: <FaWallet />, link: "/wallet" , color: colors["btn"] },
-  { title: "Recent Rides", icon: <FaHistory />, link: "/recent-rides" , color: colors["btn"] },
-  { title: "Offers", icon: <FaTags />, link: "/offers" , color: colors["btn"] },
-  { title: "Notifications", icon: <FaBell />, link: "/notifications" , color: colors["btn"] },
-  { title: "Support", icon: <FaHeadset />, link: "/support" , color: colors["btn"] },
-  { title: "Settings", icon: <FaCog />, link: "/settings" , color: colors["btn"] },
-  { title: "Log out", icon: <FaSignOutAlt />, link: "/logout", color: colors["red"] },
+  { title: "Recent Rides", icon: <FaHistory />, link: "/RecentRides" , color: colors["btn"] },
+  { title: "Offers", icon: <FaTags />, link: "/OffersPage" , color: colors["btn"] },
+  { title: "Notifications", icon: <FaBell />, link: "/Notifications" , color: colors["btn"] },
+  { title: "Support", icon: <FaHeadset />, link: "/SupportPage" , color: colors["btn"] },
+  { title: "Settings", icon: <FaCog />, link: "/SettingPage" , color: colors["btn"] },
 ];
 
 export default function Profile() {
+    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+    const [openLogoutDialog, setOpenLogoutDialog] = React.useState(false);
+    const navigate = useNavigate();
+    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorElNav(event.currentTarget);
+    };
+    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorElUser(event.currentTarget);
+
+    };
+    const handleCloseNavMenu = () => {
+      setAnchorElNav(null);
+    };
+    const handleCloseUserMenu = () => {
+      setAnchorElUser(null);
+    };
+    const handleLogoutClick = () => {
+      setOpenLogoutDialog(true);
+    };
+    const handleLogoutConfirm = () => {
+      setOpenLogoutDialog(false);
+      handleCloseUserMenu(); 
+      navigate("/"); 
+    };
+    const handleLogoutCancel = () => {
+      setOpenLogoutDialog(false);
+    };
+
   const [user, setUser] = useState({
     name: "Mohamed Ahmed",
     role: "Rider",
@@ -127,6 +156,38 @@ export default function Profile() {
           </motion.div>
         ))}
       </List>
+      <motion.div initial={{ opacity: 0, x: -20 }}  animate={{ opacity: 1, x: 0 }}  transition={{ duration: 0.3, delay: 0.8 }} whileHover={{ scale: 1.05 }}whileTap={{ scale: 0.95 }} className="w-full max-w-2xl cursor-pointer border-b border-gray-700 hover:bg-gray-800 transition  flex items-center" onClick={handleLogoutClick}>
+        <MenuItem>
+          <Button
+            startIcon={<ExitToApp />}
+            fullWidth
+            sx={{ justifyContent: "flex-start", color: "error.main" }}>
+            Logout
+          </Button>
+        </MenuItem>
+      </motion.div>
+      <Dialog
+        open={openLogoutDialog}
+        onClose={handleLogoutCancel}
+        aria-labelledby="logout-dialog-title"
+        aria-describedby="logout-dialog-description"
+      >
+        <DialogTitle id="logout-dialog-title">Confirm Logout</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="logout-dialog-description">
+            Are you sure you want to log out? You will need to log in again to continue using the app.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleLogoutCancel} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={handleLogoutConfirm} color="error" variant="contained">
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </Container>
     </>
   );
