@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS "Riders" (
-	"RiderID" INT,
-	"Rating" FLOAT,
-	CONSTRAINT "FK_Riders_Users" FOREIGN KEY ("RiderID") REFERENCES "Users"("UserID") ON DELETE CASCADE
-);

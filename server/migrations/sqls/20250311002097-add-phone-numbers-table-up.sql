@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS "PhoneNumbers" (
-	"UserID" INT,
-	"PhoneNumber" CHAR(11) NOT NULL,
-	CONSTRAINT "FK_PhoneNumber_User" FOREIGN KEY ("UserID") REFERENCES "Users"("UserID") ON DELETE CASCADE
-);
