@@ -126,7 +126,9 @@ body{
     padding-bottom: 0px !important;
 
 }
-
+:disabled{
+  color: "white" !important;
+}
 .animate-pulse {
   animation: pulse 0.5s ease-in-out;
 }

@@ -27,8 +27,8 @@ export const router=createBrowserRouter(
      createRoutesFromElements(
         <>
          <Route>
-            <Route path="/home" element={<Home/>} />
-            <Route path="/" element={<Start/>} />
+            <Route path="/" element={<Home/>} />
+            <Route path="/Start" element={<Start/>} />
             <Route path="/SignUpRider1" element={<SignUpRider1/>} />
             <Route path="/SignDriver1" element={<SignDriver1/>} />
             <Route path="/HomeRider" element={<HomeRider/>} />
@@ -37,17 +37,12 @@ export const router=createBrowserRouter(
             <Route path="/HomeDriver" element={<HomeDriver/>} />
             <Route path="/TrackOrder" element={<TrackOrder/>} />
             <Route path="/Notifications" element={<Notifications/>} />
-            <Route path="/Profile" element={<Profile/>} />
             <Route path="/PersonalDetails" element={<PersonalDetails/>} />
             <Route path="/Wallet" element={<Wallet/>} />
             <Route path="/Chats" element={<Chats/>} />
-            <Route path="/RecentRides" element={<RecentRides/>} />
-            <Route path="/OffersPage" element={<OffersPage/>} />
             <Route path="/SupportPage" element={<SupportPage/>} />
             <Route path="/SupportContactUs" element={<SupportContactUs/>} />
             <Route path="/SupportMessage" element={<SupportMessage/>} />
-            <Route path="/SettingPage" element={<SettingPage/>} />
-
             <Route path="/Login" element={<Login/>} />
             <Route path="/SignUp" element={<SignUp/>} />
             <Route path="/OtpPage" element={<OtpPage/>} />

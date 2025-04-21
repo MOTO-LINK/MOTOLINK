@@ -42,7 +42,9 @@ const SignUpRider1: React.FC = () => {
     fontFamily: "ithin"
   };
  
-  const range = (start: number, end: number) => Array.from({ length: end - start + 1 }, (_, i) => i + start);
+  const range = (start: number, end: number) =>Array.from({ length: end - start + 1 }, (_, i) => i + start);
+    
+  
 
   return (
     <>
@@ -178,23 +180,23 @@ const SignUpRider1: React.FC = () => {
               );
             })}
           </div>
-           <Link to="/OtpPage" >
-            <Button type="submit" variant="contained"
-              sx={{
-                backgroundColor: colors.btn,
-                px: 9,
-                py: 1,
-                borderRadius: 3,
-                fontSize: 23,
-                fontWeight: 600,
-                textTransform: "capitalize",
-                color: colors.text,
-                width: "100%",
-              
-              }}>
-              Continue
-            </Button>
-          </Link>
+          
+          <Button type="submit" variant="contained"
+            sx={{
+              backgroundColor: colors.btn,
+              px: 9,
+              py: 1,
+              borderRadius: 3,
+              fontSize: 23,
+              fontWeight: 600,
+              textTransform: "capitalize",
+              color: colors.text,
+              width: "100%",
+            
+            }}>
+            Continue
+          </Button>
+        
         </form>
 
         <p className='text-lg mt-10 mb-10 text-center text-white'>

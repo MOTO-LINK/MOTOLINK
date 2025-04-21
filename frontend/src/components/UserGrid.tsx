@@ -73,7 +73,7 @@ export const UserGrid = ({ users, onSelect }: UserGridProps) => {
 
   return (
     <div className="container mx-auto">
-      <div className="sticky top-0 z-10 p-5 border-b">
+      <div className="sticky top-0 z-10 p-5 ">
         <div className="bg-textWhite rounded-[4px] px-4 py-3 border-b-[2.5px] border-b-gold-1 flex items-center">
           <svg className="w-5 h-5 text-gold-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

@@ -8,7 +8,9 @@ const HomeDriver = () => {
           <ResponsiveAppBar/>
           <div className="flex items-start justify-between min-h-screen bg-gray-900">
               <SideBarHomeDriver />
-              <MapComponent />
+              <div className="w-[940px] h-[580px] mr-5">
+                    <MapComponent from="Cairo" to="Giza" className="w-[100%] h-[100%]" />
+              </div>
           </div>
         </div>
   )

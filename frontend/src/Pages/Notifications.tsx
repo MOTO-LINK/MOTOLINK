@@ -88,35 +88,6 @@ const highlightText = (text: string, query: string): JSX.Element | string => {
       <div className="w-full max-w-2xl">
         <div className="flex justify-between items-center mb-10 mt-5">
           <h1 className="text-2xl font-bold">Notification</h1>
-          <div className="flex gap-2">
-            <TextField
-              variant="outlined"
-              label="search"
-              placeholder="Search notifications..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              sx={{ backgroundColor:colors.bg,color:colors.textWhite, borderRadius: "20px", width: "280px",
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: colors["gold-1"],borderRadius: "40px",width: "280px",},
-                  "&:hover fieldset": { borderColor: colors["gold-1"] },
-                  "&.Mui-focused fieldset": { borderColor: colors["gold-1"] },
-                },
-                "& .MuiInputBase-input::placeholder": { color: colors.textWhite },
-                input: { color: colors.textWhite,textIndent: "10px" },
-                label: { color: colors.textgray,textIndent: "10px" },}}
-            />
-            <IconButton>
-                  <MoreVertIcon className="text-gray-400" />
-            </IconButton>
-          </div>
-        </div>
-
-        <div className="flex gap-2 mb-4 overflow-auto">
-        {["All", "New", "Old", "Important", "Archived", "Frequent"].map((category) => (
-          <button key={category} className={`flex flex-1 items-center justify-center text-center rounded-md px-3 py-2 transition-colors ${filter === category ? "bg-btn text-text" : "bg-btn text-text opacity-45"}`} onClick={() => setFilter(category)}>
-            {category}
-          </button>
-        ))}
         </div>
 
         <div className="space-y-4 ">
@@ -140,18 +111,12 @@ const highlightText = (text: string, query: string): JSX.Element | string => {
                   <p className="text-gray-400 text-sm">{highlightText(notification.message, search)}</p>
                   <span className="text-gray-500 text-xs">{notification.time}</span>
                 </div>
-                <IconButton onClick={(e) => handleMenuOpen(e, notification.id)}>
-                  <MoreVertIcon className="text-gray-400" />
-                </IconButton>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={handleDelete}>Delete</MenuItem>
-      </Menu>
     </div>
     </>
   );

@@ -19,6 +19,7 @@ export default {
         "radio":"#303F4A",
         "textWhite":"white",
         "textgray":"#6b7280",
+        "textgray400":"#9ca3af",
         "bg":"#00000023",
         "bg1":"#00000050",
         "borderColor":"#BEB58F",
@@ -26,9 +27,14 @@ export default {
         "btn":"#D7B634",
         "bglight":"#252525",
         "red":"#CC5D64",
+        "redlight":"#CC5D69",
         "linear1":"#FBC91AE0",
         "linear2":"#F8A777D9",
-        "yello":"#eab308"
+        "yello":"#eab308",
+        "bluee":"#0F77BF",
+        "bluelight":"#1B70AB",
+        "graydark800":"#1f2937",
+        "graydark700":"#374151"
       }
     },
   },

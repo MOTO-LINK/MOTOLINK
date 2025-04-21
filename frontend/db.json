@@ -73,4 +73,19 @@
         {"id": 49, "name": "Said Youssef", "rating": 4.1, "trips": 200, "location": "Mansoura", "image": "https://i.pravatar.cc/150?img=49"},
         {"id": 50, "name": "Kamal Ali", "rating": 4.0, "trips": 190, "location": "Tanta", "image": "https://i.pravatar.cc/150?img=50"}
       ]
+      ,
+        "users": [
+          { "id": 1, "name": "Ali", "avatar": "https://i.pravatar.cc/150?img=1" },
+          { "id": 2, "name": "Sara", "avatar": "https://i.pravatar.cc/150?img=2" }
+        ],
+        "messages": [
+          {
+            "id": 1,
+            "senderId": 1,
+            "content": "Hello from Ali",
+            "timestamp": "2023-04-09T10:00:00Z"
+          }
+        ]
+      
+      
   }

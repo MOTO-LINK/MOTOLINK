@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Select,
@@ -23,254 +23,145 @@ import { useForm, Controller, FieldErrors, Control } from "react-hook-form";
 import { GiPathDistance } from "react-icons/gi";
 import { CiClock1 } from "react-icons/ci";
 import { RiMoneyDollarCircleLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
-import axios from "axios";
-interface Props {
-    control: Control<{
-      service: string;
-      pick: string;
-      from: string;
-      to: string;
-      Book:string;
-      distance:string;
-      time:string;
-      price:string;
-      driverName:string;
-    }>;
-    errors: FieldErrors<{
-      service: string;
-      pick: string;
-      from: string;
-      to: string;
-      Book:string;
-      distance:string;
-      time:string;
-      price:string;
-      driverName:string;
-    }>;
-  }
+import { Autocomplete, useLoadScript } from "@react-google-maps/api";
 
-  interface Service {
-    id: string;
-    name: string;
-  }
-
-  // json-server --watch db.json --port 3001   اني هكتب السطر ديه في terminal عشان يشتغل select
-
-   const ServiceSelect: React.FC<Props> = ({ control, errors }) => {
-    const [services, setServices] = useState<Service[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-  
-    useEffect(() => {
-      const fetchServices = async () => {
-        try {
-          const response = await axios.get('http://localhost:3001/products'); 
-          setServices(response.data); 
-        } catch (err) {
-          setError('Failed to fetch services'); 
-        } finally {
-          setLoading(false); 
-        }
-      };
-  
-      fetchServices();
-    }, []);
-  
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <FormControl
-          fullWidth
-          sx={{
-            mb: 5,
-            mt: 2,
-            backgroundColor: '#CEB13F',
-            borderRadius: '8px',
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                borderColor: 'black',
-              },
-              '&:hover fieldset': {
-                borderColor: 'black',
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: 'black',
-              },
-            },
-          }}
-          className="mb-10"
-        >
-          <InputLabel
-            id="service-label"
-            sx={{
-              color: 'black',
-              '&.Mui-focused': {
-                color: 'black',
-              },
-            }}
-          >
-            Select Service
-          </InputLabel>
-          <Controller
-            name="service"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <Select
-                {...field}
-                labelId="service-label"
-                label="Select Service"
-                sx={{
-                  color: 'black',
-                  '& .MuiSvgIcon-root': {
-                    color: 'black',
-                  },
-                }}
-              >
-                {loading ? (
-                  <MenuItem disabled>Loading...</MenuItem>
-                ) : error ? (
-                  <MenuItem disabled>{error}</MenuItem>
-                ) : (
-                  services.map((service) => (
-                    <MenuItem key={service.id} value={service.id}>
-                      {service.name}
-                    </MenuItem>
-                  ))
-                )}
-              </Select>
-            )}
-          />
-          {errors.service && (
-            <p className="text-red-500 text-sm mt-1">{errors.service.message}</p>
-          )}
-        </FormControl>
-      </motion.div>
-       );
-};
-
-const TimingSelection: React.FC = () => {
-return (
-    <motion.div
-    initial={{ opacity: 0, y: -20 }} 
-    animate={{ opacity: 1, y: 0 }} 
-    transition={{ duration: 0.5 }} 
-    >
-    <div>
-        <Typography
-        sx={{color: "#D7B634", mb: 2 }}
-        >
-        Select Timing
-        </Typography>
-        <RadioGroup
-        aria-labelledby="demo-radio-buttons-group-label"
-        defaultValue=""
-        name="radio-buttons-group"
-        sx={{ display: "flex", flexDirection: "row", gap: 2 }} 
-        >
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Box
-            sx={{
-                border: "1.4px solid #D7B634",
-                paddingX: 1,
-                borderRadius: 2,
-                width:"150px",
-                transition: "all 0.3s ease",
-                flex:1,
-                "&:hover": {
-                borderColor: "#FFA500",
-                boxShadow: "0 0 8px rgba(255, 165, 0, 0.6)",
-                },
-            }}
-            >
-            <FormControlLabel
-                value="Book Now"
-                control={
-                <Radio
-                    sx={{
-                    color: "#D7B634",
-                    "&.Mui-checked": {
-                        color: "#FFA500",
-                    },
-                    }}
-                />
-                }
-                label={
-                <Typography sx={{ color: "#D7B634", fontSize: 14 }}>
-                    Book Now
-                </Typography>
-                }
-            />
-            </Box>
-        </motion.div>
-
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Box
-            sx={{
-                border: "1.4px solid #D7B634",
-                paddingX: 1,
-                width:"210px",
-                borderRadius: 2,
-                transition: "all 0.3s ease",
-                flex:1,
-                "&:hover": {
-                borderColor: "#FFA500",
-                boxShadow: "0 0 8px rgba(255, 165, 0, 0.6)",
-                },
-            }}
-            >
-            <FormControlLabel
-                value="Schedule For Later"
-                control={
-                <Radio
-                    sx={{
-                    color: "#D7B634",
-                    "&.Mui-checked": {
-                        color: "#FFA500",
-                    },
-                    }}
-                />
-                }
-                label={
-                <Typography sx={{ color: "#D7B634", fontSize: 14 }}>
-                    Schedule For Later
-                </Typography>
-                }
-            />
-            </Box>
-        </motion.div>
-
-        </RadioGroup>
-    </div>
-    </motion.div>
-);
-};
-
-  
-  
 const schema = z.object({
-  service: z.string().min(1, "Please select a service"),
   pick: z.string().min(1, "Pick From Map"),
   from: z.string().min(1, "From is required"),
   to: z.string().min(1, "To is required"),
-  Book: z.string().min(1, "Book is required"),
   distance: z.string().min(1, "Distance is required"),
   time: z.string().min(1, "Time is required"),
   price: z.string().min(1, "Price is required"),
   driverName: z.string().min(1, "Driver name is required"),
-
 });
 
 type FormData = z.infer<typeof schema>;
+const libraries: ("places")[] = ["places"];
+
+type CustomTextFieldProps = {
+  name: string;
+  label: string;
+  defaultValue: string;
+  control: any;
+  errors: any;
+  icon: React.ReactNode;
+  onPlaceSelect?: (place: string) => void; 
+  isLoaded: boolean;
+};
+
+export const CustomTextField: React.FC<CustomTextFieldProps> = ({name,label,defaultValue,control,errors,icon,onPlaceSelect,isLoaded}) => {
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      defaultValue={defaultValue}
+      render={({ field: { onChange, ...fieldProps } }) => (
+        <>
+          {isLoaded ? (
+              <Autocomplete
+              onLoad={(ref) => (autocompleteRef.current = ref)}
+              onPlaceChanged={() => {
+                const place = autocompleteRef.current?.getPlace();
+                if (place && place.formatted_address) {
+                  onChange(place.formatted_address);
+                  onPlaceSelect?.(place.formatted_address);
+                }
+              }}
+              >
+              <TextField
+                {...fieldProps}
+                onChange={(e) => onChange(e.target.value)}
+                fullWidth
+                label={label}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#D7B634",
+                      borderRadius: "8px",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#D7B634",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#D7B634",
+                    },
+                    "&.Mui-error fieldset": {
+                      borderColor: "#D7B634",
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    color: "white",
+                    padding: "12px 14px",
+                  },
+                  "& .MuiInputLabel-root": { color: "#D7B634" },
+                  "& .MuiInputLabel-root.Mui-focused": { color: "#D7B634" },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <IconButton>
+                      {icon}
+                    </IconButton>
+                  ),
+                }}
+              />
+            </Autocomplete>
+          ) : (
+            <TextField
+            {...fieldProps}
+            onChange={(e) => onChange(e.target.value)}
+            fullWidth
+            label={label}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#D7B634",
+                    borderRadius: "8px",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#D7B634",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#D7B634",
+                  },
+                  "&.Mui-error fieldset": {
+                    borderColor: "#D7B634",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  color: "white",
+                  padding: "12px 14px",
+                },
+                "& .MuiInputLabel-root": { color: "#D7B634" },
+                "& .MuiInputLabel-root.Mui-focused": { color: "#D7B634" },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <IconButton>
+                    {icon}
+                  </IconButton>
+                ),
+              }}
+            />
+          )}
+          {errors[name] && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors[name]?.message as string}
+            </p>
+          )}
+        </>
+      )}
+    />
+  );
+};
+
 
 const SearchForm: React.FC = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -282,10 +173,20 @@ const SearchForm: React.FC = () => {
     },
   });
 
+  const from = watch("from");
+  const to = watch("to");
 
   const onSubmit = (data: FormData) => {
     console.log("Form Data:", data);
   };
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: "AIzaSyDDTnpX_GjM81nqZ2VGCSA3-dUCYbY2pNo",
+    libraries:["places"],
+  });
+
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading Maps...</div>;
+
 
 
   return (
@@ -370,190 +271,52 @@ const SearchForm: React.FC = () => {
 
         </motion.div>
       </div>
-
-      {/* Select Service */}
-      <form onSubmit={handleSubmit(onSubmit)}>
-          <ServiceSelect control={control} errors={errors} />
-      </form>
-
-      {/* From */}
-      <div className="mb-6 flex items-center gap-2"> 
-        {/* form */}
-        <div className="">
-            <Controller
-            name="from"
-            control={control}
-            defaultValue="El Sheikh Zayed"
-            render={({ field }) => (
-                <TextField
-                {...field}
-                fullWidth
-                label="From"
-                sx={{
-                    
-                    "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                        borderColor: "#D7B634", 
-                        borderRadius: "8px", 
-                    },
-                    "&:hover fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    "&.Mui-focused fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    "&.Mui-error fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    },
-                    "& .MuiInputBase-input": {
-                    color: "white", 
-                    padding: "12px 14px", 
-                    },
-                    "& .MuiInputLabel-root": {
-                    color: "#D7B634",  
-                    },
-                    "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#D7B634", 
-                    },
-                }}
-                InputProps={{
-                    startAdornment: (
-                      <IconButton>
-                        <LocationOnIcon style={{ color: "#D7B634",marginLeft:-15,marginRight:-20 }} />
-                      </IconButton>
-                    ),
-                  }}
-                />
-            )}
+      {/* from ,pick */}
+      <div className="mb-6 flex items-center gap-2">
+          <div className="">
+          <CustomTextField
+              name="from"
+              label="From"
+              defaultValue="El Sheikh Zayed"
+              control={control}
+              errors={errors}
+              icon={<LocationOnIcon style={{ color: "#D7B634", marginLeft: -15, marginRight: -20 }} />}
+              isLoaded={isLoaded} 
             />
-            {errors.from && (
-            <p className="text-red-500 text-sm mt-1">{errors.from.message}</p>
-            )}
-        </div>
-        {/*pick  */}
-        <div className="">
-            <Controller
-            name="pick"
-            control={control}
-            defaultValue="Pick From Map"
-            render={({ field }) => (
-                <TextField
-                {...field}
-                fullWidth
-                sx={{
-                    "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                        borderColor: "#D7B634", 
-                        borderRadius: "8px", 
-                    },
-                    "&:hover fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    "&.Mui-focused fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    "&.Mui-error fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    },
-                    "& .MuiInputBase-input": {
-                    color: "white", 
-                    padding: "12px 14px", 
-                    },
-                    "& .MuiInputLabel-root": {
-                    color: "#D7B634",
-                    },
-                    "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#D7B634",
-                    },
-                }}
-                InputProps={{
-                    startAdornment: (
-                      <IconButton>
-                        <MyLocationIcon style={{ color: "#D7B634",marginLeft:-15,marginRight:-20 }} />
-                      </IconButton>
-                    ),
-                  }}
-               
-                />
-            )}
+          </div>
+
+          <div className="">
+            <CustomTextField
+              name="pick"
+              label=""
+              defaultValue="Pick From Map"
+              control={control}
+              errors={errors}
+              icon={<MyLocationIcon style={{ color: "#D7B634", marginLeft: -15, marginRight: -20 }} />}
+              isLoaded={isLoaded} 
             />
-            {errors.pick && (
-            <p className="text-red-500 text-sm mt-1">{errors.pick.message}</p>
-            )}
-        </div>
+          </div>
       </div>
-
       {/* to */}
       <div className="mb-3 flex items-center gap-2 mt-12">
-        <div className="flex-1"> 
-            <Controller
-            name="to"
-            control={control}
-            defaultValue="6 October "
-            render={({ field }) => (
-                <TextField
-                {...field}
-                fullWidth
-                label="to"
-                sx={{
-                    "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                        borderColor: "#D7B634", 
-                        borderRadius: "8px", 
-                    },
-                    "&:hover fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    "&.Mui-focused fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    "&.Mui-error fieldset": {
-                        borderColor: "#D7B634", 
-                    },
-                    },
-                    "& .MuiInputBase-input": {
-                    color: "white", 
-                    padding: "12px 14px", 
-                    },
-                    "& .MuiInputLabel-root": {
-                    color: "#D7B634",  
-                    },
-                    "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#D7B634",  
-                    },
-                }}
-                InputProps={{
-                    startAdornment: (
-                      <IconButton>
-                        <svg style={{ color: "#D7B634",marginLeft:-15,marginRight:-20 }} width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9.16667 19.1665V17.4998C7.43056 17.3054 5.94097 16.5866 4.69792 15.3436C3.45486 14.1005 2.73611 12.6109 2.54167 10.8748H0.875V9.20817H2.54167C2.73611 7.47206 3.45486 5.98248 4.69792 4.73942C5.94097 3.49637 7.43056 2.77762 9.16667 2.58317V0.916504H10.8333V2.58317C12.5694 2.77762 14.059 3.49637 15.3021 4.73942C16.5451 5.98248 17.2639 7.47206 17.4583 9.20817H19.125V10.8748H17.4583C17.2639 12.6109 16.5451 14.1005 15.3021 15.3436C14.059 16.5866 12.5694 17.3054 10.8333 17.4998V19.1665H9.16667ZM10 15.8748C11.6111 15.8748 12.9861 15.3054 14.125 14.1665C15.2639 13.0276 15.8333 11.6526 15.8333 10.0415C15.8333 8.43039 15.2639 7.05539 14.125 5.9165C12.9861 4.77762 11.6111 4.20817 10 4.20817C8.38889 4.20817 7.01389 4.77762 5.875 5.9165C4.73611 7.05539 4.16667 8.43039 4.16667 10.0415C4.16667 11.6526 4.73611 13.0276 5.875 14.1665C7.01389 15.3054 8.38889 15.8748 10 15.8748Z" fill="#FFCC03"/>
-                        </svg>
-                      </IconButton>
-                    ),
-                  }}
-               
-                />
-            )}
-            />
-            {errors.to && (
-            <p className="text-red-500 text-sm mt-1">{errors.to.message}</p>
-            )}
-            <p className="w-[100%] h-[1.2px] bg-beige-3 mt-7"></p>
-        </div>
+          <div className="flex-1">
+            <CustomTextField  name="to"
+              label="to"
+              defaultValue="6 October"
+              control={control}
+              isLoaded={isLoaded} 
+              errors={errors} icon={
+                        <svg style={{ color: "#D7B634", marginLeft: -15, marginRight: -20 }} width="20" height="20" viewBox="0 0 20 20"  fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9.16667 19.1665V17.4998C7.43056 17.3054 5.94097 16.5866 4.69792 15.3436C3.45486 14.1005 2.73611 12.6109 2.54167 10.8748H0.875V9.20817H2.54167C2.73611 7.47206 3.45486 5.98248 4.69792 4.73942C5.94097 3.49637 7.43056 2.77762 9.16667 2.58317V0.916504H10.8333V2.58317C12.5694 2.77762 14.059 3.49637 15.3021 4.73942C16.5451 5.98248 17.2639 7.47206 17.4583 9.20817H19.125V10.8748H17.4583C17.2639 12.6109 16.5451 14.1005 15.3021 15.3436C14.059 16.5866 12.5694 17.3054 10.8333 17.4998V19.1665H9.16667ZM10 15.8748C11.6111 15.8748 12.9861 15.3054 14.125 14.1665C15.2639 13.0276 15.8333 11.6526 15.8333 10.0415C15.8333 8.43039 15.2639 7.05539 14.125 5.9165C12.9861 4.77762 11.6111 4.20817 10 4.20817C8.38889 4.20817 7.01389 4.77762 5.875 5.9165C4.73611 7.05539 4.16667 8.43039 4.16667 10.0415C4.16667 11.6526 4.73611 13.0276 5.875 14.1665C7.01389 15.3054 8.38889 15.8748 10 15.8748Z" fill="#FFCC03"/>
+                        </svg> }/>
+                    <p className="w-[100%] h-[1.2px] bg-beige-3 mt-7"></p>
+          </div>
       </div>
-
-      <div className="flex items-center justify-start w-[100%] mb-10">
-         <TimingSelection />
-      </div>
-      <p className="w-[100%] h-[1.2px] bg-beige-3 mt-7"></p>
 
       <motion.div
       initial={{ opacity: 0, y: -20 }} 
       animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.5 }} 
-    >
+      transition={{ duration: 0.5 }} >
       <Box
         component="form"
         onSubmit={handleSubmit(onSubmit)}
@@ -633,7 +396,6 @@ const SearchForm: React.FC = () => {
                   whileHover={{ scale: 1.05 }} 
                   whileTap={{ scale: 0.95 }} 
                 >
-                  <Link to={"/SelectDriver"}>
                     <Button
                       type="submit"
                       variant="contained"
@@ -652,8 +414,7 @@ const SearchForm: React.FC = () => {
                       }}
                     >
                       {field.value}
-                    </Button>
-                  </Link>
+                    </Button>  
                 </motion.div>
               )}
             />

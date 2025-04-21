@@ -12,13 +12,9 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import download from "../assets/images/download.jpeg"
-import BookmarksIcon from '@mui/icons-material/Bookmarks';
-import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import PersonIcon from '@mui/icons-material/Person';
-import { MdLocalOffer } from "react-icons/md";
-import SettingsIcon from '@mui/icons-material/Settings';
+import PeopleIcon from '@mui/icons-material/People';
 import {
   AccountCircle,
   Wallet,
@@ -202,7 +198,7 @@ function ResponsiveAppBar() {
               >
               <Box sx={{backgroundColor:"black",width:"25rem",paddingY:2}}> 
               {/* Profile Section */}
-              <Link to={"/Profile"}>
+              <Link to={"/PersonalDetails"}>
               <MenuItem onClick={handleCloseUserMenu}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2,}}>
                   <Avatar alt="Profile" src={download} />
@@ -235,6 +231,7 @@ function ResponsiveAppBar() {
                 </MenuItem>
                </Link>
 
+              <Link to={"/Wallet"}>
               <MenuItem onClick={handleCloseUserMenu}>
                 <Button className='hover:bg-beige-1 duration-500'
                   startIcon={<svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -251,22 +248,12 @@ function ResponsiveAppBar() {
                   fullWidth
                   sx={{ justifyContent: "flex-start",color:"#967A0D" }}
                 >
-                  Payment
-                </Button>
-              </MenuItem>
-              
-              <Link to={"/SupportPage"}>
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Button className='hover:bg-beige-1 duration-500'
-                  startIcon={<SupportAgentIcon sx={{width:24,height:25}} />}
-                  fullWidth
-                  sx={{ justifyContent: "flex-start",color:"#967A0D" }}
-                >
-                 Contact Us
+                  Wallet
                 </Button>
               </MenuItem>
               </Link>
-              
+
+
               {/* Cash Box Section */}
               <Link to={"/Wallet"}>
               <MenuItem onClick={handleCloseUserMenu}>
@@ -287,42 +274,15 @@ function ResponsiveAppBar() {
                 </Box>
               </MenuItem>
               </Link>
-              
-              {/* Recent Rides Section */}
-              <Link to={"/RecentRides"}>
+
+              <Link to={"/SupportPage"}>
               <MenuItem onClick={handleCloseUserMenu}>
                 <Button className='hover:bg-beige-1 duration-500'
-                  startIcon={<FaHistory className='w-5 h-5' />}
+                  startIcon={<PeopleIcon sx={{width:24,height:25}} />}
                   fullWidth
-                  sx={{ justifyContent: "flex-start" ,color:"#967A0D" }}
+                  sx={{ justifyContent: "flex-start",color:"#967A0D" }}
                 >
-                  Recent Rides
-                </Button>
-              </MenuItem>
-              </Link>
-
-
-              {/* Account Management Section */}
-              <Link to={"/OffersPage"}>
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Button className='hover:bg-beige-1 duration-500'
-                  startIcon={<LocalOffer sx={{width:24,height:25}} />}
-                  fullWidth
-                  sx={{ justifyContent: "flex-start" ,color:"#967A0D" }}
-                >
-                  Offers
-                </Button>
-              </MenuItem>
-              </Link>
-
-              <Link to={"/SettingPage"}>
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Button className='hover:bg-beige-1 duration-500'
-                  startIcon={<SettingsIcon sx={{color:"#967A0D",width:24,height:25}} />}
-                  fullWidth
-                  sx={{ justifyContent: "flex-start" ,color:"#967A0D" }}
-                >
-                  Settings
+                 Support
                 </Button>
               </MenuItem>
               </Link>

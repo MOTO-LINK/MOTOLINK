@@ -1,26 +1,43 @@
-import React, { useState } from "react";
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import React, { useEffect, useRef, useState } from "react";
+import { GoogleMap, Marker, useLoadScript, DirectionsRenderer } from "@react-google-maps/api";
 import { motion } from "framer-motion";
 
+type Props = {
+  from: string;
+  to: string;
+  className?: string;
+};
 
-const MapComponent: React.FC = () => {
+const MapComponent: React.FC<Props> = ({ from, to,className }) => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyDDTnpX_GjM81nqZ2VGCSA3-dUCYbY2pNo", 
+    libraries: ["places"],
   });
 
-  const [markerPosition, setMarkerPosition] = useState({
-    lat: 30.0444, // خط العرض القاهرة
-    lng: 31.2357, // خط الطول القاهرة
-  });
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
 
+  const getRoute = async () => {
+    if (!from || !to) return;
 
-  const handleMapClick = (event: google.maps.MapMouseEvent) => {
-    if (event.latLng) {
-      const lat = event.latLng.lat();
-      const lng = event.latLng.lng();
-      setMarkerPosition({ lat, lng });
-    }
+    const directionsService = new google.maps.DirectionsService();
+    directionsService.route(
+      {
+        origin: from,
+        destination: to,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK && result) {
+          setDirections(result);
+        }
+      }
+    );
   };
+
+  useEffect(() => {
+    if (isLoaded) getRoute();
+  }, [from, to, isLoaded]);
 
   if (!isLoaded) return <div>Loading...</div>;
 
@@ -29,22 +46,27 @@ const MapComponent: React.FC = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-3 bg-black text-white rounded-lg shadow-lg mr-5 mt-4"
+      className={`p-3 bg-black text-white rounded-lg shadow-lg mr-5 mt-4 ${className}`}
     >
-
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        className=" overflow-hidden rounded-lg">
-        <GoogleMap
-          mapContainerStyle={{ width: "940px", height: "580px" }}
-          zoom={12}
-          center={markerPosition}
-          onClick={handleMapClick}
-        >
-          <Marker position={markerPosition} />
-        </GoogleMap>
-      </motion.div>
-
+      <GoogleMap
+         mapContainerClassName="w-full h-full"
+        zoom={12}
+        center={{ lat: 30.0444, lng: 31.2357 }}
+        onLoad={(map) => {mapRef.current = map;}}
+      >
+        {directions && (
+          <DirectionsRenderer
+            directions={directions}
+            options={{
+              polylineOptions: {
+                strokeColor: "#FFA500", // اللون البرتقالي
+                strokeOpacity: 0.8,
+                strokeWeight: 5,
+              },
+            }}
+          />
+        )}
+      </GoogleMap>
     </motion.div>
   );
 };
