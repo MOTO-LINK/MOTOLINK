@@ -56,7 +56,7 @@ const GetReady = () => {
                     </svg> }
             />
         </div>
-        <div className="">
+        <div className="mt-4">
             <a href="/HomeRider"><Buttons value='Check Price' className='w-60' /></a>
         </div>
      </div>

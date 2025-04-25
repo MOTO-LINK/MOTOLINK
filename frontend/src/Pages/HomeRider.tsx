@@ -3,7 +3,7 @@ import ResponsiveAppBar from '../components/Navbar'
 import Sidebar from '../components/SideBarHomeRider'
 import MapComponent from '../components/Map'
 import { useForm } from 'react-hook-form'
-import RideOptions from '@/components/RideOptions'
+import RideOptions from '@/components/RideOptions/RideOptions'
 
 const HomeRider = () => {
   const { control, watch } = useForm({
