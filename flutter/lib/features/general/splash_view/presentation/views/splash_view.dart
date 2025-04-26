@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:motolink/features/rider/authentication/presentation/views/rider_sign_up.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -58,11 +57,9 @@ class _SplashViewState extends State<SplashView>
 
   void navigateToHome() {
     Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
+      Navigator.pushReplacementNamed(
         context,
-        MaterialPageRoute(
-          builder: (context) => const RiderSignUp(),
-        ),
+        "boarding_one",
       );
     });
   }
