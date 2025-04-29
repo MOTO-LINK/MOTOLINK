@@ -13,8 +13,10 @@ class RiderSignUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:CustomAppBar(txt: 'Sign Up',),
-      body:Padding(
+      appBar: CustomAppBar(
+        txt: 'Sign Up',
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
           child: Column(
@@ -31,10 +33,11 @@ class RiderSignUp extends StatelessWidget {
                 height: 35,
               ),
               CustomTextField(
-                  hint: "015*******68",
-                  label: "Phone Number",
-                  keyboardType: TextInputType.number,
-              phoneIcon: true,),
+                hint: "Enter Phone Number",
+                label: "Phone Number",
+                keyboardType: TextInputType.number,
+                phoneIcon: true,
+              ),
               const SizedBox(
                 height: 35,
               ),
