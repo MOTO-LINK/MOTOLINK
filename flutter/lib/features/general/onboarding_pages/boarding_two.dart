@@ -4,7 +4,7 @@ import 'package:motolink/core/widgets/custom_button.dart';
 import 'package:motolink/features/general/onboarding_pages/image_boarding.dart';
 
 class BoardingTwo extends StatefulWidget {
-  BoardingTwo({super.key});
+  const BoardingTwo({super.key});
 
   @override
   State<BoardingTwo> createState() => _BoardingTwoState();

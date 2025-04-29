@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:motolink/core/utils/colors_palette.dart';
 
 class ImageBoarding extends StatelessWidget {
-  ImageBoarding({super.key, required this.image});
+  const ImageBoarding({super.key, required this.image});
 
   final String image;
   @override
