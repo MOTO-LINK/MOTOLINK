@@ -88,7 +88,6 @@ export default function Wallet() {
 
   return (
     <>
-      <ResponsiveAppBar />
       <motion.div
         className="min-h-screen flex flex-col items-center my-10 text-white px-6 py-8"
         initial={{ opacity: 0 }}

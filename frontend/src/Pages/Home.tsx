@@ -13,7 +13,6 @@ import React from 'react'
 const Home = () => {
   return (
     <> 
-     <ResponsiveAppBar/>
     <div className='w-[80%] m-auto'>
       <div className="flex items-start gap-20 mt-16 ">
           <div className="mt-10">
@@ -31,8 +30,6 @@ const Home = () => {
       <OrderSection/>
    
     </div>
-      <GalacticFooter/>
-      <ScrollToTopButton/>
     </>
   )
 }

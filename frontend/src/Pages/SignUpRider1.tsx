@@ -48,7 +48,6 @@ const SignUpRider1: React.FC = () => {
 
   return (
     <>
-    <ResponsiveAppBar/>
     <div className="px-4">
       <div className="w-full max-w-[38rem] bg-bg m-auto mt-20 mb-20 rounded-xl border border-gold-1 text-white py-3 px-7 shadow-md shadow-gold-1 hover:scale-105 duration-500">
         <div className="grid grid-cols-3 items-center mt-5 mb-10">

@@ -72,7 +72,7 @@ export const UserGrid = ({ users, onSelect }: UserGridProps) => {
   }, [users, searchTerm]);
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto ">
       <div className="sticky top-0 z-10 p-5 ">
         <div className="bg-textWhite rounded-[4px] px-4 py-3 border-b-[2.5px] border-b-gold-1 flex items-center">
           <svg className="w-5 h-5 text-gold-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

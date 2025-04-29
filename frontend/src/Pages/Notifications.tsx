@@ -83,7 +83,6 @@ const highlightText = (text: string, query: string): JSX.Element | string => {
 
   return (
     <>
-    <ResponsiveAppBar/>
     <div className=" min-h-screen p-4 text-white flex flex-col items-center">
       <div className="w-full max-w-2xl">
         <div className="flex justify-between items-center mb-10 mt-5">

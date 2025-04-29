@@ -20,7 +20,6 @@ const colors = tailwindConfig.theme.extend.colors;
 const SupportContactUs = () => {
   return (
     <>
-      <ResponsiveAppBar />
       <div className="flex flex-col  min-h-screen p-6 items-center text-textWhite">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

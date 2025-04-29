@@ -20,8 +20,7 @@ const Chats = () => {
 
   return (
     <>
-      <ResponsiveAppBar/>
-      <div className="bg-bglight shadow-2xl w-[30rem]">
+      <div className="bg-bglight shadow-2xl w-[30rem] -ml-5 -mt-4">
         <LayoutChats/>
         <UserGrid users={users} onSelect={setSelectedUser} />
       </div>

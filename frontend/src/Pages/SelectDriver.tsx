@@ -160,7 +160,6 @@ const SelectDriver: React.FC = () => {
 
   return (
     <div className="">
-      <ResponsiveAppBar />
       <div className="p-4 min-h-screen text-white">
         <ToastContainer
           position="top-right"

@@ -88,7 +88,6 @@ export default function PersonalDetails() {
 
   return (
     <>
-    <ResponsiveAppBar/>
     <motion.div className="flex justify-center items-start mt-20 mb-32 min-h-screen  px-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
       <motion.div className="w-full max-w-7xl  p-10 rounded-3xl shadow-xl shadow-gold-1 border-2 border-gold-1" initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.6 }}>
         <motion.h2  className="text-textWhite text-3xl font-bold text-center mb-6" initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>

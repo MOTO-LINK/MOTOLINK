@@ -23,11 +23,12 @@ import SupportPage from "../Pages/Support"
 import SupportContactUs from "../Pages/SupportContactUs"
 import SupportMessage from "../Pages/SupportMessage"
 import SettingPage from "../Pages/SettingPage"
+import Layout from "@/layout"
 export const router=createBrowserRouter(
      createRoutesFromElements(
         <>
-         <Route>
-            <Route path="/" element={<Home/>} />
+         <Route path="/" element={<Layout />}>
+            <Route index element={<Home/>} />
             <Route path="/Start" element={<Start/>} />
             <Route path="/SignUpRider1" element={<SignUpRider1/>} />
             <Route path="/SignDriver1" element={<SignDriver1/>} />
