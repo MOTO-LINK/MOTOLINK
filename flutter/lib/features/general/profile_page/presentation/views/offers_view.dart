@@ -8,7 +8,6 @@ class OffersView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: CustomAppBar(txt: "Offers"),
       body: Center(
         child: Padding(
@@ -19,7 +18,7 @@ class OffersView extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color:ColorsPalette.baseColor,
+                  color: ColorsApp.second,
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Column(
@@ -36,31 +35,31 @@ class OffersView extends StatelessWidget {
                     SizedBox(height: 24),
                     Image.asset("assets/images/logo.jpeg", height: 70),
                     SizedBox(height: 24),
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.center,
-                     children: [
-                     Text(
-                       "M",
-                       style: TextStyle(
-                         fontSize: 20,
-                         fontWeight: FontWeight.w900,
-                         color: Colors.red,
-                       ),
-                     ),
-                     Text(
-                       "OTOLINK HOURS",
-                       style: TextStyle(
-                         fontSize: 20,
-                         fontWeight: FontWeight.w900,
-                         color: Colors.black,
-                         fontFamily: "italic"
-                       ),
-                     )
-                   ],),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "M",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.red,
+                          ),
+                        ),
+                        Text(
+                          "OTOLINK HOURS",
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black,
+                              fontFamily: "italic"),
+                        )
+                      ],
+                    ),
                     SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
-                        color:Colors.amber[200],
+                        color: Colors.amber[200],
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Padding(
@@ -79,33 +78,35 @@ class OffersView extends StatelessWidget {
                             Text(
                               "10AM - 2PM",
                               style: TextStyle(
-                                fontSize: 24,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w800
-                              ),
+                                  fontSize: 24,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w800),
                             ),
                             SizedBox(height: 24),
-                            Divider(thickness: 3,),
+                            Divider(
+                              thickness: 3,
+                            ),
                             SizedBox(height: 24),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Text(
                                   "Ready",
-                                  style: TextStyle(fontSize: 20, color: Colors.black,
-                                  fontWeight: FontWeight.w700
-                                  ),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w700),
                                 ),
                                 Text(
                                   "Very Ready",
                                   style: TextStyle(
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 20, color: Colors.red),
+                                      fontSize: 20,
+                                      color: Colors.red),
                                 ),
                               ],
                             ),
                             SizedBox(height: 20),
-
                           ],
                         ),
                       ),
@@ -114,15 +115,17 @@ class OffersView extends StatelessWidget {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
-                        minimumSize:  Size(263, 46),
+                        minimumSize: Size(263, 46),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       onPressed: () {},
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-                        child: Text("Dismiss", style: TextStyle(color: Colors.white)),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                        child: Text("Dismiss",
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
                   ],

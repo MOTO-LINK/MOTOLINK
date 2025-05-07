@@ -46,7 +46,7 @@ class DriverLogin extends StatelessWidget {
                     child: Text(
                       "Forget password?",
                       style: TextStyle(
-                        color: ColorsPalette.baseColor,
+                        color: ColorsApp.second,
                       ),
                     ),
                   ),
@@ -66,7 +66,7 @@ class DriverLogin extends StatelessWidget {
                       onPressed: () {},
                       child: Text(
                         "Sign up",
-                        style: TextStyle(color: ColorsPalette.baseColor),
+                        style: TextStyle(color: ColorsApp.second),
                       ),
                     ),
                   ],

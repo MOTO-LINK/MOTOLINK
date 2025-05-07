@@ -61,8 +61,10 @@ class RiderSignUp extends StatelessWidget {
                       style: TextStyle(fontSize: 15)),
                   Text(
                     " Login",
-                    style: const TextStyle(
-                        color: ColorsPalette.baseColor, fontSize: 15),
+                    style: TextStyle(
+                      color: ColorsApp.second,
+                      fontSize: 15,
+                    ),
                   ),
                 ],
               ),

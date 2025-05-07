@@ -18,12 +18,10 @@ class _SelectGenderState extends State<SelectGender> {
         Expanded(
           child: RadioListTile(
             tileColor: const Color(0xff303F4A),
-            activeColor: ColorsPalette.baseColor,
-            title: const Text("Male",
-                style: TextStyle(color: Colors.white)),
+            activeColor: ColorsApp.second,
+            title: const Text("Male", style: TextStyle(color: Colors.white)),
             value: "Male",
             groupValue: selectedGender,
-
             onChanged: (value) {
               setState(() {
                 selectedGender = value.toString();
@@ -33,10 +31,9 @@ class _SelectGenderState extends State<SelectGender> {
         ),
         Expanded(
           child: RadioListTile(
-            activeColor: ColorsPalette.baseColor,
+            activeColor: ColorsApp.second,
             tileColor: const Color(0xff303F4A),
-            title: const Text("Female",
-                style: TextStyle(color: Colors.white)),
+            title: const Text("Female", style: TextStyle(color: Colors.white)),
             value: "Female",
             groupValue: selectedGender,
             onChanged: (value) {

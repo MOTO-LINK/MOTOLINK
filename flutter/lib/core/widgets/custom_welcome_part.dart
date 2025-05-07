@@ -10,7 +10,7 @@ class CustomWelcomePart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
             Text(
               "Welcome to",
@@ -19,9 +19,10 @@ class CustomWelcomePart extends StatelessWidget {
             Text(
               " Motolink",
               style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w400,
-                  color: ColorsPalette.baseColor),
+                fontSize: 25,
+                fontWeight: FontWeight.w400,
+                color: ColorsApp.second,
+              ),
             ),
           ],
         ),
@@ -34,12 +35,11 @@ class CustomWelcomePart extends StatelessWidget {
               color: Color(0xffA7A7A7)),
         ),
         const SizedBox(height: 23),
-        const LinearProgressIndicator(
+        LinearProgressIndicator(
           value: 0.7,
           backgroundColor: Colors.grey,
-          color:  ColorsPalette.baseColor,
+          color: ColorsApp.second,
         ),
-
       ],
     );
   }

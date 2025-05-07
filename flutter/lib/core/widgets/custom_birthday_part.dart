@@ -42,7 +42,9 @@ class _CustomBirthdayPartState extends State<CustomBirthdayPart> {
             DropdownButton<String>(
               value: selectedDay,
               dropdownColor: Colors.black,
-              style: const TextStyle(color: ColorsPalette.baseColor),
+              style: TextStyle(
+                color: ColorsApp.second,
+              ),
               items: List.generate(31, (index) {
                 String day = (index + 1).toString();
                 return DropdownMenuItem(value: day, child: Text(day));
@@ -56,7 +58,9 @@ class _CustomBirthdayPartState extends State<CustomBirthdayPart> {
             DropdownButton<String>(
               value: selectedMonth,
               dropdownColor: Colors.black,
-              style: const TextStyle(color: ColorsPalette.baseColor),
+              style: TextStyle(
+                color: ColorsApp.second,
+              ),
               items: List.generate(12, (index) {
                 String month = (index + 1).toString();
                 return DropdownMenuItem(value: month, child: Text(month));
@@ -70,7 +74,9 @@ class _CustomBirthdayPartState extends State<CustomBirthdayPart> {
             DropdownButton<String>(
               value: selectedYear,
               dropdownColor: Colors.black,
-              style: const TextStyle(color: ColorsPalette.baseColor),
+              style: TextStyle(
+                color: ColorsApp.second,
+              ),
               items: List.generate(50, (index) {
                 String year = (1975 + index).toString();
                 return DropdownMenuItem(value: year, child: Text(year));

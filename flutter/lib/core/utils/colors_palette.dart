@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ColorsPalette
-{
-  static const borderColor=  Color(0xffBEB58F);
-  static const baseColor=  Color(0xffD7B634);
-
+class ColorsApp {
+  static Color main = const Color(0xff102E50);
+  static Color second = const Color(0xffE78B48);
+  static Color third = Colors.white;
+  static Color icon = const Color(0xffBE3D2A);
+  static Color text = const Color(0xff212121);
+  static Color title = const Color.fromARGB(255, 255, 255, 255);
 }

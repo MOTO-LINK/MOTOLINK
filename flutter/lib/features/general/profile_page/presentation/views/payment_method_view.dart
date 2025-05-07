@@ -14,29 +14,30 @@ class PaymentMethodView extends StatelessWidget {
       {"card": "****4578", "expiry": "15/27", "type": ""},
     ];
     return Scaffold(
-      appBar: CustomAppBar(txt: "Payment Method"),
-      body:   Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            SizedBox(height: 30,),
-            Expanded(
-              child: ListView.builder(
-                itemCount: paymentMethods.length,
-                itemBuilder: (context, index) {
-                  final card = paymentMethods[index];
-                  return PaymentCard(
-                    cardNumber: card["card"]!,
-                    expiryDate: card["expiry"]!,
-                    isPrimary: card["type"] == "Primary",
-                  );
-                },
+        appBar: CustomAppBar(txt: "Payment Method"),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 30,
               ),
-            ),
-          ],
-        ),
-      )
-    );
+              Expanded(
+                child: ListView.builder(
+                  itemCount: paymentMethods.length,
+                  itemBuilder: (context, index) {
+                    final card = paymentMethods[index];
+                    return PaymentCard(
+                      cardNumber: card["card"]!,
+                      expiryDate: card["expiry"]!,
+                      isPrimary: card["type"] == "Primary",
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 }
 
@@ -59,7 +60,7 @@ class PaymentCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color:ColorsPalette.baseColor, width: 1),
+        border: Border.all(color: ColorsApp.second, width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,18 +91,21 @@ class PaymentCard extends StatelessWidget {
             children: [
               if (isPrimary)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: ColorsPalette.baseColor,
+                    color: ColorsApp.second,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
                     "Primary",
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
                   ),
                 ),
               const SizedBox(width: 10),
-              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 18),
+              const Icon(Icons.arrow_forward_ios,
+                  color: Colors.white, size: 18),
             ],
           ),
         ],

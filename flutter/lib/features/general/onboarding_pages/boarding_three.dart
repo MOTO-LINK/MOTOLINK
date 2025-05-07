@@ -28,7 +28,7 @@ class _BoardingThreeState extends State<BoardingThree> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: ColorsPalette.borderColor,
+                      color: ColorsApp.main,
                       borderRadius: BorderRadius.circular(30)),
                   child: MaterialButton(
                     onPressed: () {},
@@ -73,14 +73,14 @@ class _BoardingThreeState extends State<BoardingThree> {
               children: [
                 CircleAvatar(
                   radius: 6,
-                  backgroundColor: ColorsPalette.borderColor.withOpacity(0.8),
+                  backgroundColor: ColorsApp.main.withOpacity(0.8),
                 ),
                 SizedBox(
                   width: 5,
                 ),
                 CircleAvatar(
                   radius: 6,
-                  backgroundColor: ColorsPalette.borderColor.withOpacity(0.8),
+                  backgroundColor: ColorsApp.main.withOpacity(0.8),
                 ),
                 SizedBox(
                   width: 5,
@@ -90,7 +90,7 @@ class _BoardingThreeState extends State<BoardingThree> {
                   width: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: ColorsPalette.baseColor,
+                    color: ColorsApp.second,
                   ),
                 ),
               ],

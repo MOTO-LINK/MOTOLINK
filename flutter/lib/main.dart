@@ -6,6 +6,7 @@ import 'package:motolink/features/general/onboarding_pages/boarding_three.dart';
 import 'package:motolink/features/general/onboarding_pages/boarding_two.dart';
 import 'package:motolink/features/general/select_user_type.dart';
 import 'package:motolink/features/general/splash_view/presentation/views/splash_view.dart';
+import 'package:motolink/features/home/homepage.dart';
 import 'package:motolink/features/rider/authentication/presentation/views/rider_login.dart';
 import 'package:motolink/features/rider/authentication/presentation/views/rider_sign_up.dart';
 import 'package:motolink/features/rider/authentication/presentation/views/verification_page.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         "boarding_three": (context) => BoardingThree(),
         "chooseRiderOrDriverPage": (context) => SelectUserType(),
         "verification_page": (context) => VerficodePage(),
+        "home_page": (context) => HomePage(),
 
         // rider pages
         "rider_sign_up": (context) => RiderSignUp(),
@@ -37,8 +39,8 @@ class MyApp extends StatelessWidget {
         "driver_login": (context) => DriverLogin(),
       },
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: RiderLogin(),
+      color: Colors.white,
+      home: HomePage(),
     );
   }
 }

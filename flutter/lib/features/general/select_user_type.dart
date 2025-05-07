@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:motolink/core/utils/colors_palette.dart';
+import 'package:motolink/core/widgets/custom_app_bar.dart';
 import 'package:motolink/core/widgets/custom_button.dart';
 
 class SelectUserType extends StatefulWidget {
@@ -13,13 +15,8 @@ class _SelectUserTypeState extends State<SelectUserType> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        leading: IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.arrow_back_ios),
-          color: Colors.white,
-        ),
+      appBar: CustomAppBar(
+        txt: "Welcome",
       ),
       body: Container(
         width: double.infinity,
@@ -30,11 +27,11 @@ class _SelectUserTypeState extends State<SelectUserType> {
               children: [
                 Text(
                   "Welcome to ",
-                  style: TextStyle(color: Colors.white, fontSize: 30),
+                  style: TextStyle(color: ColorsApp.main, fontSize: 30),
                 ),
                 Text(
                   "MotoLink",
-                  style: TextStyle(color: Color(0xffD7B634), fontSize: 30),
+                  style: TextStyle(color: ColorsApp.second, fontSize: 30),
                 ),
               ],
             ),
@@ -50,7 +47,7 @@ class _SelectUserTypeState extends State<SelectUserType> {
               ],
             ),
             SizedBox(
-              height: 8,
+              height: 10,
             ),
             Row(
               children: [
@@ -59,7 +56,7 @@ class _SelectUserTypeState extends State<SelectUserType> {
                   width: 130,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Color(0xffD7B634),
+                    color: ColorsApp.second,
                   ),
                 ),
                 SizedBox(width: 6),
@@ -68,7 +65,7 @@ class _SelectUserTypeState extends State<SelectUserType> {
                   width: 120,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Color(0xff66614F),
+                    color: ColorsApp.main,
                   ),
                 ),
                 SizedBox(width: 6),
@@ -77,7 +74,7 @@ class _SelectUserTypeState extends State<SelectUserType> {
                   width: 120,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Color(0xff66614F),
+                    color: ColorsApp.main,
                   ),
                 ),
               ],
@@ -98,9 +95,9 @@ class _SelectUserTypeState extends State<SelectUserType> {
                     width: 150,
                     decoration: BoxDecoration(
                       color: selectedType == "driver"
-                          ? Color(0x80F4DD81)
+                          ? ColorsApp.second
                           : Colors.black,
-                      border: Border.all(color: Color(0xffD7B634)),
+                      border: Border.all(color: ColorsApp.second),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
@@ -138,7 +135,7 @@ class _SelectUserTypeState extends State<SelectUserType> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset("assets/images/rider.png", scale: 10),
+                          Image.asset("assets/images/ridder.png", scale: 15),
                           Text(
                             "Rider",
                             style: TextStyle(color: Colors.white, fontSize: 20),

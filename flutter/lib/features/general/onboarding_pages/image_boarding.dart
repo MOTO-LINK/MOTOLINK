@@ -13,7 +13,7 @@ class ImageBoarding extends StatelessWidget {
       width: 250,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(150),
-        color: ColorsPalette.baseColor,
+        color: ColorsApp.second,
       ),
       child: Image.asset(image),
     );

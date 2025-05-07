@@ -20,7 +20,8 @@ class RiderLogin extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset(
-                  "assets/images/logo.jpeg",
+                  //"assets/images/lllogo.jpg",
+                  "assets/images/ee.jpg",
                   height: 250,
                   width: double.infinity,
                 ),
@@ -46,7 +47,7 @@ class RiderLogin extends StatelessWidget {
                     child: Text(
                       "Forget password?",
                       style: TextStyle(
-                        color: ColorsPalette.baseColor,
+                        color: ColorsApp.second,
                       ),
                     ),
                   ),
@@ -58,15 +59,15 @@ class RiderLogin extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Don't have an account ?",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: ColorsApp.text),
                     ),
                     TextButton(
                       onPressed: () {},
                       child: Text(
                         "Sign up",
-                        style: TextStyle(color: ColorsPalette.baseColor),
+                        style: TextStyle(color: ColorsApp.second),
                       ),
                     ),
                   ],

@@ -28,7 +28,7 @@ class _BoardingOneState extends State<BoardingOne> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: ColorsPalette.borderColor,
+                      color: ColorsApp.main,
                       borderRadius: BorderRadius.circular(30)),
                   child: MaterialButton(
                     onPressed: () {},
@@ -76,7 +76,7 @@ class _BoardingOneState extends State<BoardingOne> {
                   width: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: ColorsPalette.baseColor,
+                    color: ColorsApp.second,
                   ),
                 ),
                 SizedBox(
@@ -84,14 +84,14 @@ class _BoardingOneState extends State<BoardingOne> {
                 ),
                 CircleAvatar(
                   radius: 5,
-                  backgroundColor: ColorsPalette.borderColor.withOpacity(0.8),
+                  backgroundColor: ColorsApp.main.withOpacity(0.8),
                 ),
                 SizedBox(
                   width: 5,
                 ),
                 CircleAvatar(
                   radius: 5,
-                  backgroundColor: ColorsPalette.borderColor.withOpacity(0.8),
+                  backgroundColor: ColorsApp.main.withOpacity(0.8),
                 ),
               ],
             ),

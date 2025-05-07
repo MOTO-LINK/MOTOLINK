@@ -33,11 +33,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: ColorsPalette.borderColor),
+          borderSide: BorderSide(color: ColorsApp.main),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: ColorsPalette.borderColor),
+          borderSide: BorderSide(color: ColorsApp.main),
         ),
         hintText: widget.hint,
         hintStyle: const TextStyle(
@@ -48,33 +48,34 @@ class _CustomTextFieldState extends State<CustomTextField> {
         labelText: widget.label,
         suffixIcon: widget.passwordIcon
             ? IconButton(
-          onPressed: () {
-            setState(() {
-              isVisabilty = !isVisabilty;
-            });
-          },
-          icon: isVisabilty
-              ? const Icon(Icons.visibility_off_outlined)
-              : const Icon(Icons.visibility_outlined),
-        )
+                onPressed: () {
+                  setState(() {
+                    isVisabilty = !isVisabilty;
+                  });
+                },
+                icon: isVisabilty
+                    ? const Icon(Icons.visibility_off_outlined)
+                    : const Icon(Icons.visibility_outlined),
+              )
             : null,
         prefixIcon: widget.phoneIcon
             ? Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: CountryCodePicker(
-            onChanged: (code) {
-              setState(() {
-                selectedCountryCode = code.dialCode!;
-              });
-            }, dialogBackgroundColor: Colors.black,
-            initialSelection: 'EG',
-            favorite: const ['EG', 'SA', 'AE'],
-            showCountryOnly: false,
-            showOnlyCountryWhenClosed: false,
-            alignLeft: false,
-            padding: EdgeInsets.zero,
-          ),
-        )
+                padding: const EdgeInsets.only(left: 8.0),
+                child: CountryCodePicker(
+                  onChanged: (code) {
+                    setState(() {
+                      selectedCountryCode = code.dialCode!;
+                    });
+                  },
+                  dialogBackgroundColor: Colors.black,
+                  initialSelection: 'EG',
+                  favorite: const ['EG', 'SA', 'AE'],
+                  showCountryOnly: false,
+                  showOnlyCountryWhenClosed: false,
+                  alignLeft: false,
+                  padding: EdgeInsets.zero,
+                ),
+              )
             : null,
       ),
     );
