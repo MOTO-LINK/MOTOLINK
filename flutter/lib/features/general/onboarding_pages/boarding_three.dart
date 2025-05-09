@@ -28,7 +28,7 @@ class _BoardingThreeState extends State<BoardingThree> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: ColorsApp.main,
+                      color: ColorsApp.four,
                       borderRadius: BorderRadius.circular(30)),
                   child: MaterialButton(
                     onPressed: () {},
@@ -36,7 +36,7 @@ class _BoardingThreeState extends State<BoardingThree> {
                       "Skip",
                       style: TextStyle(
                         fontSize: 17,
-                        color: Colors.black,
+                        color: ColorsApp.text,
                       ),
                     ),
                   ),
@@ -46,14 +46,17 @@ class _BoardingThreeState extends State<BoardingThree> {
             SizedBox(
               height: 50,
             ),
-            ImageBoarding(image: "assets/images/test.jpeg"),
+            ImageBoarding(
+              image: "assets/images/ridder.png",
+              colorBG: ColorsApp.second,
+            ),
             Container(
               margin: EdgeInsets.only(top: 50),
               child: Text(
                 "MotoLink",
                 style: TextStyle(
                   fontSize: 32,
-                  color: Colors.white,
+                  color: ColorsApp.main,
                 ),
               ),
             ),
@@ -64,7 +67,7 @@ class _BoardingThreeState extends State<BoardingThree> {
                 "Need it now? Our motorcycles are ready to deliver your packages in record time.",
                 style: TextStyle(
                   fontSize: 21,
-                  color: Colors.white,
+                  color: ColorsApp.main,
                 ),
               ),
             ),
@@ -72,21 +75,21 @@ class _BoardingThreeState extends State<BoardingThree> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 6,
+                  radius: 5,
                   backgroundColor: ColorsApp.main.withOpacity(0.8),
                 ),
                 SizedBox(
                   width: 5,
                 ),
                 CircleAvatar(
-                  radius: 6,
+                  radius: 5,
                   backgroundColor: ColorsApp.main.withOpacity(0.8),
                 ),
                 SizedBox(
                   width: 5,
                 ),
                 Container(
-                  height: 11,
+                  height: 10,
                   width: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
@@ -98,6 +101,7 @@ class _BoardingThreeState extends State<BoardingThree> {
             Expanded(child: Container()),
             CustomButton(
               txt: "Next",
+              nameNextPage: "chooseRiderOrDriverPage",
             ),
             Expanded(child: Container()),
           ],

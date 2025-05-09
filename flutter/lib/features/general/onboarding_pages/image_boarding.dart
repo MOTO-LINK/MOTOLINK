@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:motolink/core/utils/colors_palette.dart';
 
 class ImageBoarding extends StatelessWidget {
-  const ImageBoarding({super.key, required this.image});
+  ImageBoarding({super.key, required this.image, required this.colorBG});
 
   final String image;
+  final Color colorBG;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -13,7 +13,7 @@ class ImageBoarding extends StatelessWidget {
       width: 250,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(150),
-        color: ColorsApp.second,
+        color: colorBG,
       ),
       child: Image.asset(image),
     );

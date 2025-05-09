@@ -14,6 +14,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorsApp.main,
       body: SizedBox(
         width: double.infinity,
         child: Column(
@@ -28,7 +29,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: ColorsApp.main,
+                      color: ColorsApp.four,
                       borderRadius: BorderRadius.circular(30)),
                   child: MaterialButton(
                     onPressed: () {},
@@ -36,7 +37,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
                       "Skip",
                       style: TextStyle(
                         fontSize: 17,
-                        color: Colors.black,
+                        color: ColorsApp.text,
                       ),
                     ),
                   ),
@@ -46,14 +47,17 @@ class _BoardingTwoState extends State<BoardingTwo> {
             SizedBox(
               height: 50,
             ),
-            ImageBoarding(image: "assets/images/test.jpeg"),
+            ImageBoarding(
+              image: "assets/images/ridder.png",
+              colorBG: ColorsApp.second,
+            ),
             Container(
               margin: EdgeInsets.only(top: 50),
               child: Text(
                 "MotoLink",
                 style: TextStyle(
                   fontSize: 32,
-                  color: Colors.white,
+                  color: ColorsApp.title,
                 ),
               ),
             ),
@@ -64,7 +68,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
                 "From groceries to gifts, MotoLink delivers everything you need — fast, safe, and right on time!",
                 style: TextStyle(
                   fontSize: 21,
-                  color: Colors.white,
+                  color: ColorsApp.title,
                 ),
               ),
             ),
@@ -72,14 +76,14 @@ class _BoardingTwoState extends State<BoardingTwo> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 6,
-                  backgroundColor: ColorsApp.main.withOpacity(0.8),
+                  radius: 5,
+                  backgroundColor: ColorsApp.third.withOpacity(0.8),
                 ),
                 SizedBox(
                   width: 5,
                 ),
                 Container(
-                  height: 11,
+                  height: 10,
                   width: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
@@ -90,14 +94,15 @@ class _BoardingTwoState extends State<BoardingTwo> {
                   width: 5,
                 ),
                 CircleAvatar(
-                  radius: 6,
-                  backgroundColor: ColorsApp.main.withOpacity(0.8),
+                  radius: 5,
+                  backgroundColor: ColorsApp.third.withOpacity(0.8),
                 ),
               ],
             ),
             Expanded(child: Container()),
             CustomButton(
               txt: "Next",
+              nameNextPage: "boarding_three",
             ),
             Expanded(child: Container()),
           ],

@@ -28,7 +28,7 @@ class _BoardingOneState extends State<BoardingOne> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: ColorsApp.main,
+                      color: ColorsApp.four,
                       borderRadius: BorderRadius.circular(30)),
                   child: MaterialButton(
                     onPressed: () {},
@@ -36,7 +36,7 @@ class _BoardingOneState extends State<BoardingOne> {
                       "Skip",
                       style: TextStyle(
                         fontSize: 17,
-                        color: Colors.black,
+                        color: ColorsApp.text,
                       ),
                     ),
                   ),
@@ -46,14 +46,17 @@ class _BoardingOneState extends State<BoardingOne> {
             SizedBox(
               height: 50,
             ),
-            ImageBoarding(image: "assets/images/test.jpeg"),
+            ImageBoarding(
+              image: "assets/images/ridder.png",
+              colorBG: ColorsApp.second,
+            ),
             Container(
               margin: EdgeInsets.only(top: 50),
               child: Text(
                 "MotoLink",
                 style: TextStyle(
                   fontSize: 32,
-                  color: Colors.white,
+                  color: ColorsApp.text,
                 ),
               ),
             ),
@@ -64,7 +67,7 @@ class _BoardingOneState extends State<BoardingOne> {
                 "Get around your city quickly and safely. Request a Tuk-Tuk anytime and anywhere.",
                 style: TextStyle(
                   fontSize: 21,
-                  color: Colors.white,
+                  color: ColorsApp.main,
                 ),
               ),
             ),
@@ -98,6 +101,7 @@ class _BoardingOneState extends State<BoardingOne> {
             Expanded(child: Container()),
             CustomButton(
               txt: "Next",
+              nameNextPage: "boarding_two",
             ),
             Expanded(child: Container()),
           ],

@@ -6,6 +6,7 @@ import 'package:motolink/features/general/onboarding_pages/boarding_three.dart';
 import 'package:motolink/features/general/onboarding_pages/boarding_two.dart';
 import 'package:motolink/features/general/select_user_type.dart';
 import 'package:motolink/features/general/splash_view/presentation/views/splash_view.dart';
+import 'package:motolink/features/home/booking.dart';
 import 'package:motolink/features/home/homepage.dart';
 import 'package:motolink/features/rider/authentication/presentation/views/rider_login.dart';
 import 'package:motolink/features/rider/authentication/presentation/views/rider_sign_up.dart';
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
       },
       debugShowCheckedModeBanner: false,
       color: Colors.white,
-      home: HomePage(),
+      home: SplashView(),
     );
   }
 }

@@ -21,8 +21,8 @@ class RiderLogin extends StatelessWidget {
               children: [
                 Image.asset(
                   //"assets/images/lllogo.jpg",
-                  "assets/images/ee.jpg",
-                  height: 250,
+                  "assets/images/logo_transparent.png",
+                  height: 300,
                   width: double.infinity,
                 ),
                 const SizedBox(height: 10),
@@ -54,6 +54,7 @@ class RiderLogin extends StatelessWidget {
                 ),
                 CustomButton(
                   txt: "Next",
+                  nameNextPage: "home_page",
                 ),
                 const SizedBox(height: 20),
                 Row(

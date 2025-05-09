@@ -53,7 +53,7 @@ class _SelectUserTypeState extends State<SelectUserType> {
               children: [
                 Container(
                   height: 10,
-                  width: 130,
+                  width: 120,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color: ColorsApp.second,
@@ -95,9 +95,11 @@ class _SelectUserTypeState extends State<SelectUserType> {
                     width: 150,
                     decoration: BoxDecoration(
                       color: selectedType == "driver"
-                          ? ColorsApp.second
-                          : Colors.black,
-                      border: Border.all(color: ColorsApp.second),
+                          ? ColorsApp.four
+                          : ColorsApp.main,
+                      border: Border.all(
+                        color: ColorsApp.second,
+                      ),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
@@ -126,9 +128,11 @@ class _SelectUserTypeState extends State<SelectUserType> {
                     width: 150,
                     decoration: BoxDecoration(
                       color: selectedType == "rider"
-                          ? Color(0x80F4DD81)
-                          : Colors.black,
-                      border: Border.all(color: Color(0xffD7B634)),
+                          ? ColorsApp.four
+                          : ColorsApp.main,
+                      border: Border.all(
+                        color: ColorsApp.second,
+                      ),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
@@ -148,7 +152,10 @@ class _SelectUserTypeState extends State<SelectUserType> {
               ],
             ),
             Expanded(child: Container()),
-            CustomButton(txt: "Next"),
+            CustomButton(
+              txt: "Next",
+              nameNextPage: "rider_sign_up",
+            ),
             Expanded(child: Container()),
           ],
         ),

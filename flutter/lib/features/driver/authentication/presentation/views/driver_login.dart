@@ -53,6 +53,7 @@ class DriverLogin extends StatelessWidget {
                 ),
                 CustomButton(
                   txt: "Next",
+                  nameNextPage: "home_page",
                 ),
                 const SizedBox(height: 20),
                 Row(

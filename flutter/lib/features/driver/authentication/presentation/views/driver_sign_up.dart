@@ -93,7 +93,10 @@ class DriverSignUp extends StatelessWidget {
                 const SizedBox(height: 20),
                 CustomBirthdayPart(),
                 const SizedBox(height: 20),
-                CustomButton(txt: "Continue"),
+                CustomButton(
+                  txt: "Continue",
+                  nameNextPage: "verification_page",
+                ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

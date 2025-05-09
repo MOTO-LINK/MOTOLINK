@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import '../utils/colors_palette.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.txt});
+  CustomButton({super.key, required this.txt, required this.nameNextPage});
   final String txt;
+  final String nameNextPage;
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context).pushNamed(nameNextPage);
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: ColorsApp.second,
         minimumSize: const Size(180, 55),

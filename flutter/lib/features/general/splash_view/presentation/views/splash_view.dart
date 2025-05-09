@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motolink/core/utils/colors_palette.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -27,12 +28,12 @@ class _SplashViewState extends State<SplashView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ColorsApp.third,
       body: Center(
         child: SlideTransition(
           position: slidingAnimation,
           child: Image.asset(
-            "assets/images/logo.jpeg",
+            "assets/images/logo_transparent.png",
             scale: 3,
           ),
         ),
