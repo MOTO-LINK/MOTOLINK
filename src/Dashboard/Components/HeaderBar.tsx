@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import { Bell, ChevronDown } from "lucide-react";
 import { FaBell } from "react-icons/fa";
 import pic1 from "../../assets/images/drive2.png";
-
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 interface Notification {
   id: number;
   name: string;
@@ -51,14 +59,18 @@ const HeaderBar: React.FC = () => {
           )}
         </div>
         <div>
-          <select
-            className="bg-gray-700 text-white w-32 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-          >
-            <option value="English">English</option>
-            <option value="Arabic">العربية</option>
-          </select>
+            <Select>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a Language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Language</SelectLabel>
+                  <SelectItem value="apple">Arabic</SelectItem>
+                  <SelectItem value="banana">English</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
         </div>
       </div>
 

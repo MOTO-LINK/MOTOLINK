@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",                   // يدعم ميزات JavaScript الحديثة
+    "module": "ESNext",                   // يستخدم نظام الموديولات ES
+    "jsx": "react-jsx",                   // لدعم ملفات tsx
+    "strict": true,                       // تفعيل القيود الصارمة لـ TypeScript
+    "moduleResolution": "Node",           // لحل الموديولات
+    "baseUrl": ".",                       // يجعل المسارات تبدأ من جذر المشروع
+    "paths": {
+      "@/*": ["src/*"]                    // إنشاء Alias لسهولة استيراد الملفات
+    },
+    "esModuleInterop": true,              // يدعم الموديولات المطابقة لنظام ES
+    "skipLibCheck": true,                 // تجاهل فحص مكتبات النوع
+    "forceConsistentCasingInFileNames": true // يجعل أسماء الملفات حساسة لحالة الأحرف
+    
+  },
+  "include": ["src"],                     // يشمل الملفات داخل src فقط
+  "exclude": ["node_modules"]             // يستثني المجلد node_modules
+}

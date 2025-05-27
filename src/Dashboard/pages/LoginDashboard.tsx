@@ -9,8 +9,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { FaFacebook } from "react-icons/fa6";
 import { PhoneNumberField } from "../Components/PhoneNumberField";
-import { PasswordField } from "../components/PasswordField";
-import { FormLayout } from "../components/FormLayout";
+import { PasswordField } from "../Components/PasswordField";
+import { FormLayout } from "../Components/FormLayout";
 const schema = z.object({
   phoneNumber: z.string().min(10, "Phone number is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { FaClipboardList, FaUsers, FaUserTie } from "react-icons/fa";
 

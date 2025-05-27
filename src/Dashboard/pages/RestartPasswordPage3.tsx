@@ -8,8 +8,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { FaFacebook } from "react-icons/fa6";
-import { PasswordField } from "../components/PasswordField";
-import { FormLayout } from "../components/FormLayout";
+import { PasswordField } from "../Components/PasswordField";
+import { FormLayout } from "../Components/FormLayout";
 const schema = z.object({
   phoneNumber: z.string().min(10, "Phone number is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -47,11 +47,11 @@ export default function RestartPasswordPage3() {
       
       {/* Login Form */}
       <div className="grid grid-rows-2 gap-8 mt-8">
-          <PasswordField name="password" control={control} label="Password" placeholder="password" />    
-          <PasswordField name="password" control={control} label="New Password" placeholder="Enter new password" />    
+          <PasswordField<FormData> name="password" control={control} label="Password" placeholder="password" />    
+          <PasswordField<FormData> name="password" control={control} label="New Password" placeholder="Enter new password" />    
       </div>
       
-      <Link to="/dashboard/LoginDashboard" className="text-gold-1 hover:text-gold-2 text-sm transition-colors duration-300 ">
+      <Link to="/" className="text-gold-1 hover:text-gold-2 text-sm transition-colors duration-300 ">
         <Button type="submit" variant="contained" sx={{ backgroundColor: "#D7B634", paddingY: 1.5, borderRadius: 3, fontSize: 23,marginTop:7, fontWeight: 600, marginBottom: 5, textTransform: "capitalize", color: "black", width: "100%", '&:hover': { backgroundColor: "#C4A52F" } }}>
             Okay
         </Button>
