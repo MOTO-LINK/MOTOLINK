@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:moto/core/utils/colors_palette.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton(
-      {super.key, required this.txt, required this.nameNextPage});
+  CustomButton({super.key, required this.txt, required this.nameNextPage});
+
   final String txt;
   final String nameNextPage;
+
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         Navigator.of(context).pushNamed(nameNextPage);
       },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: ColorsApp.second,
-        minimumSize: const Size(180, 55),
-      ),
-      child: Text(
-        txt,
-        style: TextStyle(
-          color: ColorsApp.title,
-          fontWeight: FontWeight.w600,
-          fontSize: 25,
+      child: Container(
+        width: double.infinity,
+        height: 55,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFB5022F), Colors.black],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Center(
+          child: Text(
+            txt,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );

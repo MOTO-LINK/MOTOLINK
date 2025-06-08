@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moto/core/utils/colors_palette.dart';
+import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/custom_button.dart';
 import 'package:moto/general/onboardingPages/boarding_image.dart';
 
@@ -29,7 +29,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: ColorsApp.four,
+                      color: ColorsApp().secondaryColor,
                       borderRadius: BorderRadius.circular(30)),
                   child: MaterialButton(
                     onPressed: () {},
@@ -49,7 +49,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
             ),
             ImageBoarding(
               image: "assets/images/rider.png",
-              colorBG: ColorsApp.second,
+              colorBG: ColorsApp().backgroundColor,
             ),
             Container(
               margin: EdgeInsets.only(top: 50),
@@ -57,7 +57,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
                 "MotoLink",
                 style: TextStyle(
                   fontSize: 32,
-                  color: ColorsApp.main,
+                  color: ColorsApp().textColor,
                 ),
               ),
             ),
@@ -68,7 +68,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
                 "From groceries to gifts, MotoLink delivers everything you need — fast, safe, and right on time!",
                 style: TextStyle(
                   fontSize: 21,
-                  color: ColorsApp.main,
+                  color: ColorsApp().textColor,
                 ),
               ),
             ),
@@ -77,7 +77,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
               children: [
                 CircleAvatar(
                   radius: 6,
-                  backgroundColor: ColorsApp.main.withOpacity(0.8),
+                  backgroundColor: ColorsApp().secondaryColor.withOpacity(0.8),
                 ),
                 SizedBox(
                   width: 5,
@@ -87,7 +87,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
                   width: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: ColorsApp.second,
+                    color: ColorsApp().secondaryColor,
                   ),
                 ),
                 SizedBox(
@@ -95,7 +95,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
                 ),
                 CircleAvatar(
                   radius: 6,
-                  backgroundColor: ColorsApp.main.withOpacity(0.8),
+                  backgroundColor: ColorsApp().errorColor.withOpacity(0.8),
                 ),
               ],
             ),

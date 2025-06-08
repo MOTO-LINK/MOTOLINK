@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moto/core/utils/colors_palette.dart';
+import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/custom_button.dart';
 import 'package:moto/general/onboardingPages/boarding_image.dart';
 
@@ -29,14 +29,17 @@ class _BoardingOneState extends State<BoardingOne> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: ColorsApp.four,
+                    color: ColorsApp().secondaryColor,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: MaterialButton(
                     onPressed: () {},
                     child: Text(
                       "Skip",
-                      style: TextStyle(fontSize: 17, color: ColorsApp.text),
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: ColorsApp().textColor,
+                      ),
                     ),
                   ),
                 ),
@@ -45,13 +48,13 @@ class _BoardingOneState extends State<BoardingOne> {
             SizedBox(height: 50),
             ImageBoarding(
               image: "assets/images/rider.png",
-              colorBG: ColorsApp.second,
+              colorBG: ColorsApp().primaryColor,
             ),
             Container(
               margin: EdgeInsets.only(top: 50),
               child: Text(
                 "MotoLink",
-                style: TextStyle(fontSize: 32, color: ColorsApp.text),
+                style: TextStyle(fontSize: 32, color: ColorsApp().primaryColor),
               ),
             ),
             Container(
@@ -59,7 +62,7 @@ class _BoardingOneState extends State<BoardingOne> {
               child: Text(
                 textAlign: TextAlign.center,
                 "Get around your city quickly and safely. Request a Tuk-Tuk anytime and anywhere.",
-                style: TextStyle(fontSize: 21, color: ColorsApp.main),
+                style: TextStyle(fontSize: 21, color: ColorsApp().textColor),
               ),
             ),
             Row(
@@ -70,18 +73,18 @@ class _BoardingOneState extends State<BoardingOne> {
                   width: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: ColorsApp.second,
+                    color: ColorsApp().secondaryColor.withOpacity(0.8),
                   ),
                 ),
                 SizedBox(width: 5),
                 CircleAvatar(
                   radius: 5,
-                  backgroundColor: ColorsApp.main.withOpacity(0.8),
+                  backgroundColor: ColorsApp().secondaryColor.withOpacity(0.8),
                 ),
                 SizedBox(width: 5),
                 CircleAvatar(
                   radius: 5,
-                  backgroundColor: ColorsApp.main.withOpacity(0.8),
+                  backgroundColor: ColorsApp().secondaryColor.withOpacity(0.8),
                 ),
               ],
             ),

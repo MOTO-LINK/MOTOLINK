@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class coolors{
+class ColorsApp{
 
 Color primaryColor =  Colors.black;
 Color secondaryColor = const Color(0xFFB5022F);

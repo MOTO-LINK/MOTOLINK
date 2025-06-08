@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moto/core/utils/colors_palette.dart';
+import 'package:moto/core/utils/colors.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -28,7 +28,7 @@ class _SplashViewState extends State<SplashView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorsApp.third,
+      backgroundColor: ColorsApp().backgroundColor,
       body: Center(
         child: SlideTransition(
           position: slidingAnimation,

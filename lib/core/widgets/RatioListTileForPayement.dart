@@ -24,7 +24,7 @@ class Ratiolisttile extends StatelessWidget {
       margin: EdgeInsets.symmetric(vertical: 10),
       padding: EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: coolors().secondaryColor.withOpacity(0.1),
+        color: ColorsApp().secondaryColor.withOpacity(0.1),
         
         borderRadius: BorderRadius.circular(10),
       ),
@@ -33,14 +33,14 @@ class Ratiolisttile extends StatelessWidget {
           title,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: coolors().textColor,
+            color: ColorsApp().textColor,
             fontSize: 16,
           ),
         ),
         value: value,
         groupValue: groupValue,
         controlAffinity: ListTileControlAffinity.trailing,
-        activeColor: coolors().secondaryColor,
+        activeColor: ColorsApp().secondaryColor,
         tileColor: Colors.transparent,
         onChanged: (String? val) {
           if (val != null) {

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:moto/core/utils/colors.dart';
@@ -8,6 +7,7 @@ import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomTextField.dart';
 import 'package:moto/core/widgets/OrderdetailsTextField.dart';
 import 'package:moto/core/widgets/RatioListTileForPayement.dart';
+import 'package:moto/core/widgets/custom_button.dart';
 import 'package:moto/models/textfieldmodel.dart';
 
 class DeliveryRequestPage extends StatefulWidget {
@@ -20,7 +20,7 @@ class DeliveryRequestPage extends StatefulWidget {
 class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
- final TextEditingController dateController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
   String pickupLocation = 'Choose location';
   String dropoffLocation = 'Choose location';
   DateTime? selectedDateTime;
@@ -31,7 +31,14 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: CustomAppBar(
+        title: 'Delivery Request',
+        imagePath: "assets/images/DELIVERY.png",
+        icon: FontAwesome.arrow_left,
+        onIconPressed: () {
+          Navigator.pop(context);
+        },
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16),
@@ -50,7 +57,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                         child: IconButton(
                           style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all(
-                              coolors().backgroundColor,
+                              ColorsApp().backgroundColor,
                             ),
                             shape:
                                 WidgetStateProperty.all<RoundedRectangleBorder>(
@@ -65,7 +72,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
 
                           icon: Icon(
                             FontAwesome.camera,
-                            color: coolors().secondaryColor,
+                            color: ColorsApp().secondaryColor,
                           ),
                         ),
                       )
@@ -83,22 +90,19 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
-             CustomTextfield(Textfieldmodels: 
-             
-              Textfieldmodel(
-                Icon(FontAwesome.arrow_circle_o_right),
-                TextInputType.text,
-                TextEditingController(text: pickupLocation),
-                "Enter your pickup location",
-                true,
-                () async {
-                  
-                },
-                
-                prefixIcon: Icon(FontAwesome.map_marker),
-              )
-             
-             , color: coolors(),),
+              CustomTextfield(
+                Textfieldmodels: Textfieldmodel(
+                  Icon(FontAwesome.arrow_circle_o_right),
+                  TextInputType.text,
+                  TextEditingController(text: pickupLocation),
+                  "Enter your pickup location",
+                  true,
+                  () async {},
+
+                  prefixIcon: Icon(FontAwesome.map_marker),
+                ),
+                color: ColorsApp(),
+              ),
 
               SizedBox(height: 15),
               Text(
@@ -106,22 +110,19 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
-                CustomTextfield(Textfieldmodels: 
-             
-              Textfieldmodel(
-                Icon(FontAwesome.arrow_circle_o_right),
-                TextInputType.text,
-                TextEditingController(text: pickupLocation),
-                "Enter your pickup location",
-                true,
-                () async {
-                  
-                },
-                
-                prefixIcon: Icon(FontAwesome.map_marker),
-              )
-             
-             , color: coolors(),),
+              CustomTextfield(
+                Textfieldmodels: Textfieldmodel(
+                  Icon(FontAwesome.arrow_circle_o_right),
+                  TextInputType.text,
+                  TextEditingController(text: pickupLocation),
+                  "Enter your pickup location",
+                  true,
+                  () async {},
+
+                  prefixIcon: Icon(FontAwesome.map_marker),
+                ),
+                color: ColorsApp(),
+              ),
               SizedBox(height: 15),
               Text(
                 '*Contact Number',
@@ -138,7 +139,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                   null,
                   prefixIcon: Icon(FontAwesome.mobile_phone),
                 ),
-                color: coolors(),
+                color: ColorsApp(),
               ),
               SizedBox(height: 15),
               Text(
@@ -147,7 +148,6 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
               ),
               SizedBox(height: 10),
               CustomTextfield(
-                
                 Textfieldmodels: Textfieldmodel(
                   Icon(FontAwesome.calendar),
                   TextInputType.datetime,
@@ -172,7 +172,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
 
                   prefixIcon: Icon(FontAwesome.clock_o),
                 ),
-                color: coolors(),
+                color: ColorsApp(),
               ),
               SizedBox(height: 15),
               Text(
@@ -188,88 +188,72 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                   "Select payment method",
                   true,
                   () async {
-                    showModalBottomSheet(context: context, builder: (BuildContext context) {
-                      return Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: SizedBox(
-                          height: 350,
-                          child: Column(
-                            
-                            
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 60
-                                ,height: 7,
-                                decoration: BoxDecoration(
-                                  color: coolors().secondaryColor,
-                                  borderRadius: BorderRadius.circular(10),
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: SizedBox(
+                            height: 350,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: ColorsApp().secondaryColor,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                 ),
-                              )
-                         , SizedBox(height: 15),
-                         Divider(),
-                          SizedBox(height: 20),
-                          Text( 'Select Payment Method',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                SizedBox(height: 15),
+                                Divider(),
+                                SizedBox(height: 20),
+                                Text(
+                                  'Select Payment Method',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 30),
+                                Ratiolisttile(
+                                  groupValue: selectedpayment,
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      selectedpayment = value;
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                                  value: 'Cash',
+                                  title: 'Cash',
+                                ),
+                                Ratiolisttile(
+                                  groupValue: selectedpayment,
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      selectedpayment = value;
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                                  value: 'Credit Card',
+                                  title: 'Credit Card',
+                                ),
+                              ],
+                            ),
                           ),
-                          SizedBox(height: 30),
-                          Ratiolisttile(
-                            groupValue: selectedpayment,
-                            onChanged: (String value) {
-                              setState(() {
-                                selectedpayment = value;
-                                Navigator.pop(context);
-                              });
-                            },
-                            value: 'Cash',
-                            title: 'Cash',),
-                           Ratiolisttile(
-                            groupValue: selectedpayment,
-                            onChanged: (String value) {
-                              setState(() {
-                                selectedpayment = value;
-                                Navigator.pop(context);
-                              });
-                            },
-                            value: 'Credit Card',
-                            title: 'Credit Card',)
-                          
-                          ],),
-                        ),
-                      );
-                    });
+                        );
+                      },
+                    );
                   },
                   prefixIcon: Icon(FontAwesome.cc_visa),
                 ),
-                color: coolors(),
+                color: ColorsApp(),
               ),
 
               SizedBox(height: 20),
-              Center(
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(onPressed: (){},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: coolors().secondaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  ),
-                  
-                  child: Text('Submit Request',style: 
-                  
-                  TextStyle(
-                    color: coolors().textColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  )
-                  
-                  ,),),
-                ),
-              ),
 
+              CustomButton(txt: "Submit Request", nameNextPage: "splash_page"),
             ],
           ),
         ),

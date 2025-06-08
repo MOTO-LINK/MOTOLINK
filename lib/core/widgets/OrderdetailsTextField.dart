@@ -15,18 +15,18 @@ class OrderDetailsTextField extends StatelessWidget {
       height: 120,
       child: TextField(
         
-         textAlign: TextAlign.center,minLines: 3,
-         textAlignVertical: TextAlignVertical.center,
+          textAlign: TextAlign.center,minLines: 3,
+          textAlignVertical: TextAlignVertical.center,
         controller: descriptionController,maxLines: 4,
       decoration: InputDecoration(
         filled: true,
-        fillColor: coolors().primaryColor.withOpacity(0.1),
+        fillColor: ColorsApp().primaryColor.withOpacity(0.1),
         hintText: "Tell us about the contents of the order ",
         border: OutlineInputBorder(
       
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none
-         
+          
           )
       ,contentPadding: EdgeInsets.all(40),   ),),
     );
