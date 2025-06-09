@@ -44,7 +44,7 @@ class Api {
   TextEditingController passwordLoginRider = TextEditingController();
   TextEditingController emailLoginRider = TextEditingController();
   TextEditingController phoneNumberLoginRider = TextEditingController();
-  
+
   Future<void> loginRider() async {
     final url = Uri.parse('$ip/api/auth/login');
     final headers = {'Content-Type': 'application/json'};
@@ -86,7 +86,8 @@ class Api {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'phone': phoneNumber,
-          "otp": "${code1Rider.text}${code2Rider.text}${code3Rider.text}${code4Rider.text}",
+          "otp":
+              "${code1Rider.text}${code2Rider.text}${code3Rider.text}${code4Rider.text}",
         }),
       );
 

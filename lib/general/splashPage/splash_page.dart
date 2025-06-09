@@ -32,36 +32,31 @@ class _SplashViewState extends State<SplashView>
       body: Center(
         child: SlideTransition(
           position: slidingAnimation,
-          child: Image.asset(
-            "assets/images/logo_transparent.png",
-            scale: 3,
-          ),
+          child: Image.asset("assets/images/logo_transparent.png", scale: 3),
         ),
       ),
     );
   }
 
   void initSlidingAnimation() {
-    animationController =
-        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
 
     slidingAnimation = Tween<Offset>(
       begin: const Offset(0, 2),
       end: const Offset(0, 0),
-    ).animate(CurvedAnimation(
-      parent: animationController,
-      curve: Curves.easeInOutBack,
-    ));
+    ).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.easeInOutBack),
+    );
 
     animationController.forward().then((_) => navigateToHome());
   }
 
   void navigateToHome() {
     Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacementNamed(
-        context,
-        "boarding_one",
-      );
+      Navigator.pushReplacementNamed(context, "boarding_one");
     });
   }
 }

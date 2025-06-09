@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({super.key, required this.txt, required this.nameNextPage});
+  const CustomButton({
+    super.key,
+    required this.txt,
+    required this.nameNextPage,
+  });
 
   final String txt;
   final String nameNextPage;
@@ -12,7 +16,7 @@ class CustomButton extends StatelessWidget {
       onTap: () {
         Navigator.of(context).pushNamed(nameNextPage);
       },
-      
+
       child: Container(
         width: double.infinity,
         height: 60,
