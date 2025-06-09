@@ -1,15 +1,20 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import { PhoneModel } from "../models/phone.model";
-import { TwilioService } from "../services/twilio.service";
-import { AuthRequest } from "../middleware/auth.middleware";
+import TwilioService from "../services/twilio.service";
 
 export class PhoneController {
 	private phoneModel = new PhoneModel();
-	private twilioService = new TwilioService();
+	private twilioService = TwilioService;
 
-	async sendVerificationCode(req: AuthRequest, res: Response): Promise<void> {
+	async sendVerificationCode(req: Request, res: Response): Promise<void> {
+		// !THIS IS ONLY FOR DEVELOPMENT AND TESTING PURPOSES
+		let verificationCode;
+		if (process.env.SKIP_VERIFICATION) {
+			return;
+		}
+		///======================================================================
 		try {
-			if (!req.user?.userId) {
+			if (!req.user?.user_id) {
 				res.status(401).json({
 					status: "error",
 					message: "User not authenticated"
@@ -29,7 +34,7 @@ export class PhoneController {
 
 			// Check if phone number is already verified for another user
 			const existingPhone = await this.phoneModel.findByPhoneNumber(phoneNumber);
-			if (existingPhone?.verified && existingPhone.user_id !== req.user.userId) {
+			if (existingPhone?.verified && existingPhone.user_id !== req.user.user_id) {
 				res.status(400).json({
 					status: "error",
 					message: "Phone number already registered"
@@ -37,21 +42,18 @@ export class PhoneController {
 				return;
 			}
 
-			const verificationCode = await this.twilioService.sendVerificationCode(phoneNumber);
-
 			// Store or update phone number and verification code
 			if (existingPhone) {
-				await this.phoneModel.updateVerificationCode(
-					existingPhone.user_id,
-					verificationCode
+				verificationCode = await this.phoneModel.updateVerificationCode(
+					existingPhone.user_id
 				);
 			} else {
-				await this.phoneModel.create({
-					user_id: req.user.userId,
-					phone_number: phoneNumber,
-					verification_code: verificationCode
-				});
+				const result = await this.phoneModel.create(req.user.user_id, phoneNumber);
+
+				verificationCode = result.verification_code!;
 			}
+
+			await this.twilioService.sendVerificationCode(phoneNumber, verificationCode);
 
 			res.status(200).json({
 				status: "success",
@@ -65,9 +67,19 @@ export class PhoneController {
 		}
 	}
 
-	async verifyPhoneNumber(req: AuthRequest, res: Response): Promise<void> {
+	async verifyPhoneNumber(req: Request, res: Response): Promise<void> {
+		// !THIS IS ONLY FOR DEVELOPMENT
+		if (process.env.SKIP_VERIFICATION) {
+			const verified = await this.phoneModel.verifyCode(req.user!.user_id, "123456");
+			res.status(200).json({
+				status: "success",
+				message: "Phone number verified successfully"
+			});
+			return;
+		}
+		///======================================================================
 		try {
-			if (!req.user?.userId) {
+			if (!req.user?.user_id) {
 				res.status(401).json({
 					status: "error",
 					message: "User not authenticated"
@@ -85,7 +97,7 @@ export class PhoneController {
 				return;
 			}
 
-			const verified = await this.phoneModel.verify(req.user.userId, verificationCode);
+			const verified = await this.phoneModel.verifyCode(req.user.user_id, verificationCode);
 
 			if (!verified) {
 				res.status(400).json({

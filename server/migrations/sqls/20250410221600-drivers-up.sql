@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS drivers (
 	national_id VARCHAR(50) UNIQUE NOT NULL,
 	vehicle_registration_number VARCHAR(50) UNIQUE NOT NULL,
 	vehicle_type vehicle_type NOT NULL,
+	order_types order_type,
 	current_location_id UUID REFERENCES locations(location_id),
 	is_online BOOLEAN DEFAULT false,
 	verified BOOLEAN DEFAULT false,

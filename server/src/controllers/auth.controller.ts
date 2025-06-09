@@ -1,185 +1,398 @@
-// src/controllers/auth.controller.ts
-import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import { UserModel } from "../models/user.model";
-import { RiderModel } from "../models/rider.model";
-import { DriverModel } from "../models/driver.model";
-import { PhoneModel } from "../models/phone.model";
-import { TwilioService } from "../services/twilio.service";
-import { generateToken } from "../utils/jwt.utils";
+import { Request, Response, NextFunction } from "express";
+import userModel from "../models/user.model";
+import phoneModel from "../models/phone.model";
+import driverModel from "../models/driver.model";
+import riderModel from "../models/rider.model";
+import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.utils";
+import { UserType, RegisterRequest, LoginRequest, ApiResponse } from "../utils/types";
+import twilioService from "../services/twilio.service";
 
-export class AuthController {
-	private userModel = new UserModel();
-	private riderModel = new RiderModel();
-	private driverModel = new DriverModel();
-	private phoneModel = new PhoneModel();
-	private twilioService = new TwilioService();
+class AuthController {
+  async register(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const {
+        name,
+        email,
+        password,
+        phone,
+        dob,
+        userType,
+        vehicleType,
+        orderTypes
+      } = req.body as RegisterRequest;
 
-	async signup(req: Request, res: Response): Promise<void> {
-		try {
-			const {
-				name,
-				email,
-				password,
-				userType,
-				phoneNumber,
-				// Driver specific fields
-				nationalId,
-				vehicleRegistrationNumber,
-				vehicleType,
-				profilePicture
-			} = req.body;
+      // Validate required fields
+      if (!name || !email || !password || !phone || !dob || !userType) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "MISSING_FIELDS",
+            message: "All required fields must be provided"
+          }
+        });
+        return;
+      }
 
-			// Basic validation
-			if (!name || !email || !password || !userType || !phoneNumber) {
-				res.status(400).json({
-					status: "error",
-					message: "Missing required fields"
-				});
-				return;
-			}
+      // Validate driver-specific fields
+      if (userType === UserType.DRIVER && (!vehicleType || !orderTypes || orderTypes.length === 0)) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "MISSING_DRIVER_FIELDS",
+            message: "Vehicle type and order types are required for drivers"
+          }
+        });
+        return;
+      }
 
-			// Driver-specific validation
-			if (userType === "driver") {
-				if (!nationalId || !vehicleRegistrationNumber || !vehicleType) {
-					res.status(400).json({
-						status: "error",
-						message: "Missing required driver fields"
-					});
-					return;
-				}
-			}
+      // Check if email or phone already exists
+      const [emailExists, phoneExists] = await Promise.all([
+        userModel.checkEmailExists(email),
+        phoneModel.checkPhoneExists(phone)
+      ]);
 
-			// Check if phone number is already registered
-			const existingPhone = await this.phoneModel.findByPhoneNumber(phoneNumber);
-			if (existingPhone) {
-				res.status(400).json({
-					status: "error",
-					message: "Phone number already registered"
-				});
-				return;
-			}
+      if (emailExists) {
+        res.status(409).json({
+          success: false,
+          error: {
+            code: "EMAIL_EXISTS",
+            message: "Email already registered"
+          }
+        });
+        return;
+      }
 
-			// Create base user
-			const user = await this.userModel.create({
-				name,
-				email,
-				password,
-				user_type: userType,
-				profile_picture:
-					profilePicture ||
-					"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-			});
+      if (phoneExists) {
+        res.status(409).json({
+          success: false,
+          error: {
+            code: "PHONE_EXISTS",
+            message: "Phone number already registered"
+          }
+        });
+        return;
+      }
 
-			// Create specific user type record
-			if (userType === "driver") {
-				await this.driverModel.create({
-					driver_id: user.user_id,
-					national_id: nationalId,
-					vehicle_registration_number: vehicleRegistrationNumber,
-					vehicle_type: vehicleType
-				});
-			} else if (userType === "rider") {
-				await this.riderModel.create({
-					rider_id: user.user_id
-				});
-			}
+      // Create user
+      const user = await userModel.create({
+        name,
+        email,
+        password,
+        dob: new Date(dob),
+        user_type: userType
+      });
 
-			// Send verification code and store phone number
-			try {
-				const verificationCode = await this.twilioService.sendVerificationCode(phoneNumber);
-				await this.phoneModel.create({
-					user_id: user.user_id,
-					phone_number: phoneNumber,
-					verification_code: verificationCode
-				});
-			} catch (error) {
-				// If phone verification fails, still create the account but mark it as unverified
-				await this.phoneModel.create({
-					user_id: user.user_id,
-					phone_number: phoneNumber,
-					verification_code: undefined
-				});
-			}
+      // Create phone number record
+      const phoneRecord = await phoneModel.create(user.user_id, phone);
 
-			// Generate token
-			const token = generateToken({
-				userId: user.user_id,
-				userType: user.user_type
-			});
+      // Create driver or rider record
+      if (userType === UserType.DRIVER) {
+        await driverModel.create({
+          driver_id: user.user_id,
+          vehicle_type: vehicleType!,
+          order_types: orderTypes!
+        });
+      } else if (userType === UserType.RIDER) {
+        await riderModel.create(user.user_id);
+      }
 
-			res.status(201).json({
-				status: "success",
-				data: {
-					user,
-					token,
-					phoneVerified: false
-				}
-			});
-		} catch (error) {
-			res.status(400).json({
-				status: "error",
-				message: (error as Error).message
-			});
-		}
-	}
+      // Send verification code
+      await twilioService.sendVerificationCode(phone, phoneRecord.verification_code!);
 
-	async login(req: Request, res: Response): Promise<void> {
-		try {
-			const { email, password } = req.body;
+      // Generate tokens
+      const token = generateToken(user.user_id, user.email, user.user_type);
+      const refreshToken = generateRefreshToken(user.user_id);
 
-			if (!email || !password) {
-				res.status(400).json({
-					status: "error",
-					message: "Email and password are required"
-				});
-				return;
-			}
+      const response: ApiResponse = {
+        success: true,
+        data: {
+          user: {
+            ...user,
+            phone,
+            phone_verified: false
+          },
+          token,
+          refreshToken
+        },
+        message: "Registration successful. Please verify your phone number."
+      };
 
-			const user = await this.userModel.findByEmail(email);
+      res.status(201).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 
-			if (!user || !(await bcrypt.compare(password, user.password))) {
-				res.status(401).json({
-					status: "error",
-					message: "Invalid credentials"
-				});
-				return;
-			}
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { phone, password } = req.body as LoginRequest;
 
-			if (user.account_locked) {
-				res.status(403).json({
-					status: "error",
-					message: "Account is locked"
-				});
-				return;
-			}
+      if (!phone || !password) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "MISSING_CREDENTIALS",
+            message: "Phone and password are required"
+          }
+        });
+        return;
+      }
 
-			// Check phone verification status
-			const phoneNumber = await this.phoneModel.findByUserId(user.user_id);
-			const phoneVerified = phoneNumber?.verified || false;
+      // Find user by phone
+      const user = await userModel.findByPhone(phone);
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          error: {
+            code: "INVALID_CREDENTIALS",
+            message: "Invalid phone number or password"
+          }
+        });
+        return;
+      }
 
-			await this.userModel.updateLastLogin(user.user_id);
+      // Check if account is locked
+      if (user.account_locked) {
+        res.status(403).json({
+          success: false,
+          error: {
+            code: "ACCOUNT_LOCKED",
+            message: "Your account has been locked. Please contact support."
+          }
+        });
+        return;
+      }
 
-			const token = generateToken({
-				userId: user.user_id,
-				userType: user.user_type
-			});
+      // Verify password
+      const isValidPassword = await userModel.verifyPassword(password, user.password);
+      if (!isValidPassword) {
+        res.status(401).json({
+          success: false,
+          error: {
+            code: "INVALID_CREDENTIALS",
+            message: "Invalid phone number or password"
+          }
+        });
+        return;
+      }
 
-			const { password: _, ...userWithoutPassword } = user;
+      // Check phone verification
+      const phoneRecord = await phoneModel.findByPhoneNumber(phone);
+      if (!phoneRecord?.verified) {
+        // Resend verification code
+        const code = await phoneModel.updateVerificationCode(phone);
+        await twilioService.sendVerificationCode(phone, code);
+        
+        res.status(403).json({
+          success: false,
+          error: {
+            code: "PHONE_NOT_VERIFIED",
+            message: "Please verify your phone number. A new code has been sent."
+          }
+        });
+        return;
+      }
 
-			res.status(200).json({
-				status: "success",
-				data: {
-					user: userWithoutPassword,
-					token,
-					phoneVerified
-				}
-			});
-		} catch (error) {
-			res.status(400).json({
-				status: "error",
-				message: (error as Error).message
-			});
-		}
-	}
+      // Update last login
+      await userModel.updateLastLogin(user.user_id);
+
+      // Get additional user info based on type
+      let additionalInfo = {};
+      if (user.user_type === UserType.DRIVER) {
+        additionalInfo = await driverModel.findById(user.user_id) || {};
+      } else if (user.user_type === UserType.RIDER) {
+        additionalInfo = await riderModel.findById(user.user_id) || {};
+      }
+
+      // Generate tokens    // Generate tokens
+      const token = generateToken(user.user_id, user.email, user.user_type);
+      const refreshToken = generateRefreshToken(user.user_id);
+
+      const { password: _, ...userWithoutPassword } = user;
+
+      const response: ApiResponse = {
+        success: true,
+        data: {
+          user: {
+            ...userWithoutPassword,
+            phone,
+            ...additionalInfo
+          },
+          token,
+          refreshToken
+        },
+        message: "Login successful"
+      };
+
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { phone } = req.body;
+
+      if (!phone) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "MISSING_PHONE",
+            message: "Phone number is required"
+          }
+        });
+        return;
+      }
+
+      const phoneRecord = await phoneModel.findByPhoneNumber(phone);
+      if (!phoneRecord) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: "PHONE_NOT_FOUND",
+            message: "Phone number not registered"
+          }
+        });
+        return;
+      }
+
+      // Generate and send verification code
+      const code = await phoneModel.updateVerificationCode(phone);
+      await twilioService.sendVerificationCode(phone, code);
+
+      res.status(200).json({
+        success: true,
+        message: "Verification code sent to your phone"
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { phone, code, newPassword } = req.body;
+
+      if (!phone || !code || !newPassword) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "MISSING_FIELDS",
+            message: "Phone, code, and new password are required"
+          }
+        });
+        return;
+      }
+
+      // Verify code
+      const phoneRecord = await phoneModel.findByPhoneNumber(phone);
+      if (!phoneRecord || phoneRecord.verification_code !== code) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "INVALID_CODE",
+            message: "Invalid verification code"
+          }
+        });
+        return;
+      }
+
+      // Update password
+      const user = await userModel.findByPhone(phone);
+      if (!user) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: "USER_NOT_FOUND",
+            message: "User not found"
+          }
+        });
+        return;
+      }
+
+      await userModel.updatePassword(user.user_id, newPassword);
+      
+      // Clear verification code
+      await phoneModel.verifyCode(phone, code);
+
+      res.status(200).json({
+        success: true,
+        message: "Password reset successful"
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "MISSING_TOKEN",
+            message: "Refresh token is required"
+          }
+        });
+        return;
+      }
+
+      // Verify refresh token
+      const decoded = verifyRefreshToken(refreshToken);
+      if (!decoded) {
+        res.status(401).json({
+          success: false,
+          error: {
+            code: "INVALID_TOKEN",
+            message: "Invalid refresh token"
+          }
+        });
+        return;
+      }
+
+      // Get user
+      const user = await userModel.findById(decoded.user_id);
+      if (!user) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: "USER_NOT_FOUND",
+            message: "User not found"
+          }
+        });
+        return;
+      }
+
+      // Generate new tokens
+      const newToken = generateToken(user.user_id, user.email, user.user_type);
+      const newRefreshToken = generateRefreshToken(user.user_id);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          token: newToken,
+          refreshToken: newRefreshToken
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async logout(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // TODO: Implement logout by blacklisting the JWT token
+      res.status(200).json({
+        success: true,
+        message: "Logout successful"
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+
+export default new AuthController();

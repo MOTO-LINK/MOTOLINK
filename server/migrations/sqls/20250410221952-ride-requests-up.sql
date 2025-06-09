@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS ride_requests (
 	distance DECIMAL(10, 2),
 	estimated_fee DECIMAL(10, 2),
 	request_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+	scheduled_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+	payment_type payment_type NOT NULL,
 	status ride_status DEFAULT 'pending',
 	cancel_reason TEXT,
 	notes TEXT,

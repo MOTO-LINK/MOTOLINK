@@ -13,6 +13,17 @@ DROP TYPE IF EXISTS vehicle_type;
 
 CREATE TYPE vehicle_type AS ENUM ('motorcycle', 'rickshaw', 'scooter');
 
+-- Order Types
+DROP TYPE IF EXISTS order_type;
+
+CREATE TYPE order_type AS ENUM (
+	'anything',
+	'tickets',
+	'restaurants',
+	'supermarkets',
+	'pharmacies'
+);
+
 -- Verification Status
 DROP TYPE IF EXISTS verification_status;
 
@@ -27,10 +38,12 @@ CREATE TYPE location_type AS ENUM ('pickup', 'dropoff', 'current', 'saved');
 DROP TYPE IF EXISTS document_type;
 
 CREATE TYPE document_type AS ENUM (
-	'national_id',
-	'vehicle_registration',
-	'license',
-	'insurance'
+	'national_id_front',
+	'national_id_back',
+	'vehicle_registration_front',
+	'vehicle_registration_back',
+	'license_front',
+	'package'
 );
 
 -- Wallet Status
@@ -42,6 +55,11 @@ CREATE TYPE wallet_status AS ENUM ('active', 'inactive', 'suspended');
 DROP TYPE IF EXISTS transaction_type;
 
 CREATE TYPE transaction_type AS ENUM ('credit', 'debit', 'ewallet');
+
+-- Payment Types
+DROP TYPE IF EXISTS payment_type;
+
+CREATE TYPE payment_type AS ENUM ('cash', 'wallet');
 
 -- Transaction Purpose
 DROP TYPE IF EXISTS transaction_purpose;

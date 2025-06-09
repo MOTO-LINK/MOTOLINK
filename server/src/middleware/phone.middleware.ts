@@ -1,14 +1,13 @@
-import { Response, NextFunction } from "express";
-import { AuthRequest } from "./auth.middleware";
+import { Request, Response, NextFunction } from "express";
 import { PhoneModel } from "../models/phone.model";
 
 export const requirePhoneVerification = async (
-	req: AuthRequest,
+	req: Request,
 	res: Response,
 	next: NextFunction
 ): Promise<void> => {
 	try {
-		if (!req.user?.userId) {
+		if (!req.user?.user_id) {
 			res.status(401).json({
 				status: "error",
 				message: "User not authenticated"
@@ -17,7 +16,7 @@ export const requirePhoneVerification = async (
 		}
 
 		const phoneModel = new PhoneModel();
-		const phoneNumber = await phoneModel.findByUserId(req.user.userId);
+		const phoneNumber = await phoneModel.findByUserId(req.user.user_id);
 
 		if (!phoneNumber || !phoneNumber.verified) {
 			res.status(403).json({

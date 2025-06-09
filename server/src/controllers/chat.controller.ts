@@ -1,11 +1,6 @@
 import { Request, Response } from "express";
 import { ChatModel } from "../models/chat.model";
 import { MessageModel } from "../models/message.model";
-import { TokenPayload } from "../utils/types";
-
-interface AuthRequest extends Request {
-    user?: TokenPayload;
-}
 
 // Store SSE clients 
 const clients = new Map<string, Response>();
@@ -14,7 +9,7 @@ export class ChatController {
     private chatModel = new ChatModel();
     private messageModel = new MessageModel();
 
-    async subscribe(req: AuthRequest, res: Response) {
+    async subscribe(req: Request, res: Response) {
         if (!req.user) {
             return res.status(401).json({ message: "Unauthorized" });
         }
@@ -25,10 +20,10 @@ export class ChatController {
             "Connection": "keep-alive"
         });
 
-        clients.set(req.user.userId, res);
+        clients.set(req.user.user_id, res);
 
         req.on("close", () => {
-            clients.delete(req.user!.userId);
+            clients.delete(req.user!.user_id);
         });
     }
 
@@ -48,7 +43,7 @@ export class ChatController {
     }
 
     // Create a new chat
-    async createChat(req: AuthRequest, res: Response) {
+    async createChat(req: Request, res: Response) {
         try {
             if (!req.user) {
                 return res.status(401).json({ message: "Unauthorized" });
@@ -57,7 +52,7 @@ export class ChatController {
             const { rider_id, driver_id } = req.body;
 
             // Verify the user is either the rider or an admin
-            if (req.user.userType !== "admin" && req.user.userId !== rider_id) {
+            if (req.user.user_type !== "admin" && req.user.user_id !== rider_id) {
                 return res.status(403).json({ message: "Forbidden" });
             }
 
@@ -69,13 +64,13 @@ export class ChatController {
     }
 
     // Get user's chats
-    async getChats(req: AuthRequest, res: Response) {
+    async getChats(req: Request, res: Response) {
         try {
             if (!req.user) {
                 return res.status(401).json({ message: "Unauthorized" });
             }
 
-            const chats = await this.chatModel.findByUserId(req.user.userId);
+            const chats = await this.chatModel.findByUserId(req.user.user_id);
             res.json(chats);
         } catch (error) {
             res.status(500).json({ message: "Error fetching chats", error });
@@ -83,7 +78,7 @@ export class ChatController {
     }
 
     // Send a message
-    async sendMessage(req: AuthRequest, res: Response) {
+    async sendMessage(req: Request, res: Response) {
         try {
             if (!req.user) {
                 return res.status(401).json({ message: "Unauthorized" });
@@ -97,15 +92,15 @@ export class ChatController {
                 return res.status(404).json({ message: "Chat not found" });
             }
 
-            if (req.user.userType !== "admin" && 
-                req.user.userId !== chat.rider_id && 
-                req.user.userId !== chat.driver_id) {
+            if (req.user.user_type !== "admin" && 
+                req.user.user_id !== chat.rider_id && 
+                req.user.user_id !== chat.driver_id) {
                 return res.status(403).json({ message: "Forbidden" });
             }
 
             const message = await this.messageModel.create({
                 chat_id,
-                sender_id: req.user.userId,
+                sender_id: req.user.user_id,
                 content
             });
 
@@ -122,7 +117,7 @@ export class ChatController {
     }
 
     // Get chat messages
-    async getChatMessages(req: AuthRequest, res: Response) {
+    async getChatMessages(req: Request, res: Response) {
         try {
             if (!req.user) {
                 return res.status(401).json({ message: "Unauthorized" });
@@ -136,9 +131,9 @@ export class ChatController {
                 return res.status(404).json({ message: "Chat not found" });
             }
 
-            if (req.user.userType !== "admin" && 
-                req.user.userId !== chat.rider_id && 
-                req.user.userId !== chat.driver_id) {
+            if (req.user.user_type !== "admin" && 
+                req.user.user_id !== chat.rider_id && 
+                req.user.user_id !== chat.driver_id) {
                 return res.status(403).json({ message: "Forbidden" });
             }
 
@@ -150,7 +145,7 @@ export class ChatController {
     }
 
     // Delete a chat
-    async deleteChat(req: AuthRequest, res: Response) {
+    async deleteChat(req: Request, res: Response) {
         try {
             if (!req.user) {
                 return res.status(401).json({ message: "Unauthorized" });
@@ -164,9 +159,9 @@ export class ChatController {
                 return res.status(404).json({ message: "Chat not found" });
             }
 
-            if (req.user.userType !== "admin" && 
-                req.user.userId !== chat.rider_id && 
-                req.user.userId !== chat.driver_id) {
+            if (req.user.user_type !== "admin" && 
+                req.user.user_id !== chat.rider_id && 
+                req.user.user_id !== chat.driver_id) {
                 return res.status(403).json({ message: "Forbidden" });
             }
 
