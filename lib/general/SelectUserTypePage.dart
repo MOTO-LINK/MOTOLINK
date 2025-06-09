@@ -108,9 +108,23 @@ class _SelectUserTypeState extends State<SelectUserType> {
               ],
             ),
             SizedBox(height: 100),
-            SizedBox(
-              width: 180,
-              height: 55,
+            Container(
+              width: double.infinity,
+              height: 60,
+              decoration: BoxDecoration(
+                gradient:
+                    selectedType.isEmpty
+                        ? LinearGradient(colors: [Colors.grey, Colors.grey])
+                        : LinearGradient(
+                          colors: [
+                            ColorsApp().secondaryColor,
+                            ColorsApp().primaryColor,
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                borderRadius: BorderRadius.circular(15),
+              ),
               child: ElevatedButton(
                 onPressed:
                     selectedType.isEmpty
@@ -127,49 +141,11 @@ class _SelectUserTypeState extends State<SelectUserType> {
                           }
                         },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      selectedType.isEmpty
-                          ? Colors.grey
-                          : ColorsApp().secondaryColor,
-                ),
-                child: Center(
-                  child: Text(
-                    "Next",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                ),
-              ),
-            ),
-
-            GestureDetector(
-              onTap: () {
-                selectedType.isEmpty
-                    ? () {
-                      showToast("Please select a user type first");
-                    }
-                    : () {
-                      if (selectedType == "rider") {
-                        Navigator.of(context).pushNamed("Login_Rider_Page");
-                      } else if (selectedType == "driver") {
-                        Navigator.of(context).pushNamed("Login_driver_page");
-                      }
-                    };
-              },
-
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFB5022F), Colors.black],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: BorderRadius.circular(15),
                 ),
                 child: Center(
                   child: Text(
