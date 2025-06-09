@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
-  CustomButton({super.key, required this.txt, required this.nameNextPage});
+  const CustomButton({super.key, required this.txt, required this.nameNextPage});
 
   final String txt;
   final String nameNextPage;

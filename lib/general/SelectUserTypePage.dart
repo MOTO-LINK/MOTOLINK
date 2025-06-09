@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/utils/toast_message.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
-import 'package:moto/core/widgets/custom_button.dart';
 
 class SelectUserType extends StatefulWidget {
   const SelectUserType({super.key});

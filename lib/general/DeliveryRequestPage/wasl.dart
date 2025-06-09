@@ -161,14 +161,14 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2101),
                     );
-                    if (pickedDate != null) {
-                      setState(() {
-                        selectedDateTime = pickedDate;
+                    setState(() {
+                      selectedDateTime = pickedDate;
+                      if (pickedDate != null) {
                         dateController.text =
                             "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
-                      });
-                    }
-                  },
+                      }
+                    });
+                                    },
 
                   prefixIcon: Icon(FontAwesome.clock_o),
                 ),

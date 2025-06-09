@@ -28,7 +28,7 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
 
   final Api api = Api();
   final GlobalKey<FormState> formState = GlobalKey();
-  TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:moto/driver/auth/pages/LoginDriverPage.dart';
 import 'package:moto/driver/auth/pages/SignupDriverPage.dart';
-import 'package:moto/general/DeliveryRequestPage/wasl.dart';
 import 'package:moto/general/SelectUserTypePage.dart';
+import 'package:moto/general/map/utils/widgets/google_map_view.dart';
 import 'package:moto/general/onboardingPages/boarding1.dart';
 import 'package:moto/general/onboardingPages/boarding2.dart';
 import 'package:moto/general/onboardingPages/boarding3.dart';
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
       },
       debugShowCheckedModeBanner: false,
       color: Colors.white,
-      home: SelectUserType(),
+      home: GoogleMapView(),
     );
   }
 }
