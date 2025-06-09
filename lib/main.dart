@@ -7,6 +7,7 @@ import 'package:moto/general/splashPage/splash_page.dart';
 import 'package:moto/rider/auth/pages/LoginRiderPage.dart';
 import 'package:moto/rider/auth/pages/SignupRiderPage.dart';
 import 'package:moto/rider/auth/pages/ResetPassPage.dart';
+import 'package:moto/rider/auth/pages/VerficationPage.dart';
 import 'package:moto/rider/auth/pages/forgotPassPage.dart';
 import 'package:moto/rider/home/dafualthome.dart';
 
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         "Login_Rider_Page": (context) => LoginRiderPage(),
         "Forgot_Pass_Page": (context) => ForgotpassPage(),
         "Enter_New_Pass_Page": (context) => ResetPassPage(),
+        "Verfication_Page": (context) => VerficodePage(),
         "home_page_rider": (context) => homePageDAFUALT(),
 
         // driver pages
@@ -41,7 +43,7 @@ class MyApp extends StatelessWidget {
       },
       debugShowCheckedModeBanner: false,
       color: Colors.white,
-      home: ResetPassPage(),
+      home: VerficodePage(),
     );
   }
 }

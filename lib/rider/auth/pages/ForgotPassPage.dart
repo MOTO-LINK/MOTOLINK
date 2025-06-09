@@ -20,7 +20,7 @@ class _ConfirmPassState extends State<ForgotpassPage> {
         title:
             "Recover your password!\nYou will receive a message\ncontaining a secret code to\nconfirm your phone number.",
         imagePath: "assets/images/DELIVERY.png",
-        appBarHeight: 200,
+        appBarHeight: 150,
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),
@@ -50,7 +50,9 @@ class _ConfirmPassState extends State<ForgotpassPage> {
                   borderSide: BorderSide(color: Color(0xFFB5022F), width: 2),
                 ),
                 suffixIcon: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(context, "Verfication_Page");
+                  },
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                     child: Text(
