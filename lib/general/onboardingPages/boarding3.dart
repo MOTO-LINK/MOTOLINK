@@ -92,7 +92,7 @@ class _BoardingThreeState extends State<BoardingThree> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: CustomButton(
                 txt: "Next",
-                nameNextPage: "Login_Rider_Page",
+                nameNextPage: "Rider_OR_Driver",
               ),
             ),
             Expanded(child: Container()),

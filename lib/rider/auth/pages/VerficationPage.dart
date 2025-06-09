@@ -10,6 +10,7 @@ class VerficodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorsApp().backgroundColor,
       resizeToAvoidBottomInset: true,
       appBar: CustomAppBar(
         title:

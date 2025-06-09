@@ -9,14 +9,14 @@ import 'package:moto/core/widgets/CustomGoogleField.dart';
 import 'package:moto/rider/auth/widgets/api.dart';
 import 'package:moto/rider/auth/widgets/customText.dart';
 
-class LoginRiderPage extends StatefulWidget {
-  const LoginRiderPage({super.key});
+class LoginDriverPage extends StatefulWidget {
+  const LoginDriverPage({super.key});
 
   @override
-  State<LoginRiderPage> createState() => _LoginRiderPageState();
+  State<LoginDriverPage> createState() => _LoginRiderPageState();
 }
 
-class _LoginRiderPageState extends State<LoginRiderPage> {
+class _LoginRiderPageState extends State<LoginDriverPage> {
   bool isVisabilty = true;
   bool isLoading = false;
   String? email;
@@ -261,7 +261,7 @@ class _LoginRiderPageState extends State<LoginRiderPage> {
 
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushNamed("Signup_Rider_Page");
+                          Navigator.of(context).pushNamed("Signup_driver_page");
                         },
                         child: const Text(
                           "Sign Up",

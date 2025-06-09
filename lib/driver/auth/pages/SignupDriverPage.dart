@@ -7,15 +7,16 @@ import 'package:moto/core/utils/showSnackBar.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomGoogleField.dart';
 import 'package:moto/rider/auth/widgets/api.dart';
+import 'package:intl/intl.dart';
 
-class SignupRiderPage extends StatefulWidget {
-  const SignupRiderPage({super.key});
+class SignupDriverPage extends StatefulWidget {
+  const SignupDriverPage({super.key});
 
   @override
-  State<SignupRiderPage> createState() => _SignupRiderPageState();
+  State<SignupDriverPage> createState() => _SignupRiderPageState();
 }
 
-class _SignupRiderPageState extends State<SignupRiderPage> {
+class _SignupRiderPageState extends State<SignupDriverPage> {
   bool isVisabiltyPass1 = true;
   bool isVisabiltyPass2 = true;
   String? email;
@@ -27,6 +28,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
 
   final Api api = Api();
   final GlobalKey<FormState> formState = GlobalKey();
+  TextEditingController _dateController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                   Text("*Name", style: TextStyle(fontWeight: FontWeight.bold)),
                   SizedBox(height: 5),
                   TextFormField(
-                    controller: api.nameRider,
+                    //controller: api.nameRider,
                     decoration: InputDecoration(
                       hintText: "Enter your Name",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -94,7 +96,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                   ),
                   SizedBox(height: 5),
                   TextFormField(
-                    controller: api.phoneNumberRider,
+                    //controller: api.phoneNumberRider,
                     decoration: InputDecoration(
                       hintText: "Enter your Phone Number",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -133,7 +135,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                   Text("*Email", style: TextStyle(fontWeight: FontWeight.bold)),
                   SizedBox(height: 5),
                   TextFormField(
-                    controller: api.emailRider,
+                    //controller: api.emailRider,
                     decoration: InputDecoration(
                       hintText: "Enter your Email",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -170,12 +172,69 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                   SizedBox(height: 10),
 
                   Text(
+                    "*Date of Birth",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 5),
+                  TextFormField(
+                    //controller: api.emailRider,
+                    controller: _dateController,
+
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      hintText: "Enter your date of birth",
+                      hintStyle: TextStyle(color: Colors.grey),
+                      prefixIcon: Icon(
+                        FontAwesomeIcons.calendarDays,
+                        color: Color(0xFFB5022F),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey, width: 2),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Color(0xFFB5022F),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    keyboardType: TextInputType.datetime,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Date of birth is required";
+                      }
+                      return null;
+                    },
+                    onChanged: (data) {
+                      email = data;
+                    },
+                    onTap: () async {
+                      DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _dateController.text = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(picked);
+                        });
+                      }
+                    },
+                  ),
+                  SizedBox(height: 10),
+
+                  Text(
                     "*Password",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 5),
                   TextFormField(
-                    controller: api.passwordRider,
+                    //controller: api.passwordRider,
                     decoration: InputDecoration(
                       hintText: "Enter your Password",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -237,7 +296,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                   ),
                   SizedBox(height: 5),
                   TextFormField(
-                    controller: api.confirmPasswordRider,
+                    //controller: api.confirmPasswordRider,
                     decoration: InputDecoration(
                       hintText: "Enter your Password",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -301,7 +360,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                         //api.ip = "http://";
                         await api.signUpRider();
                         showSnackBar(context, 'Sign Up Successful.');
-
+                        //Navigator.pushNamed(context, "Login_driver_page");
                         try {
                           UserCredential user = await FirebaseAuth.instance
                               .createUserWithEmailAndPassword(
@@ -309,7 +368,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                                 password: password!,
                               );
                           print(user);
-                          Navigator.pushNamed(context, "Login_Rider_Page");
+                          Navigator.pushNamed(context, "Login_driver_page");
                         } on FirebaseAuthException catch (ex) {
                           if (ex.code == 'weak-password') {
                             showSnackBar(context, 'The password is too weak.');
@@ -324,7 +383,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                         }
                         isLoading = false;
                         setState(() {});
-                        Navigator.pushNamed(context, "Login_Rider_Page");
+                        Navigator.pushNamed(context, "Login_driver_page");
                       }
                     },
                     child: Container(
@@ -364,7 +423,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
 
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushNamed("Login_Rider_Page");
+                          Navigator.of(context).pushNamed("Login_driver_page");
                         },
                         child: Text(
                           "Login",

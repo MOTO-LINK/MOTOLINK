@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:moto/driver/auth/pages/LoginDriverPage.dart';
+import 'package:moto/driver/auth/pages/SignupDriverPage.dart';
 import 'package:moto/general/DeliveryRequestPage/wasl.dart';
+import 'package:moto/general/SelectUserTypePage.dart';
 import 'package:moto/general/onboardingPages/boarding1.dart';
 import 'package:moto/general/onboardingPages/boarding2.dart';
 import 'package:moto/general/onboardingPages/boarding3.dart';
@@ -26,24 +29,24 @@ class MyApp extends StatelessWidget {
         "boarding_one": (context) => BoardingOne(),
         "boarding_two": (context) => BoardingTwo(),
         "boarding_three": (context) => BoardingThree(),
-        //"chooseRiderOrDriverPage": (context) => SelectUserType(),
-        // "verification_page": (context) => VerficodePage(),
+        "Forgot_Pass_Page": (context) => ForgotpassPage(),
+        "Enter_New_Pass_Page": (context) => ResetPassPage(),
+        "Verfication_Page": (context) => VerficodePage(),
+
+        "home_page_dafult": (context) => homePageDAFUALT(),
+        "Rider_OR_Driver": (context) => SelectUserType(),
 
         //rider pages
         "Signup_Rider_Page": (context) => SignupRiderPage(),
         "Login_Rider_Page": (context) => LoginRiderPage(),
-        "Forgot_Pass_Page": (context) => ForgotpassPage(),
-        "Enter_New_Pass_Page": (context) => ResetPassPage(),
-        "Verfication_Page": (context) => VerficodePage(),
-        "home_page_rider": (context) => homePageDAFUALT(),
 
         // driver pages
-        /*"driver_sign_up": (context) => DriverSignUp(),
-        "driver_login": (context) => DriverLogin(),*/
+        "Signup_driver_page": (context) => SignupDriverPage(),
+        "Login_driver_page": (context) => LoginDriverPage(),
       },
       debugShowCheckedModeBanner: false,
       color: Colors.white,
-      home: VerficodePage(),
+      home: SelectUserType(),
     );
   }
 }

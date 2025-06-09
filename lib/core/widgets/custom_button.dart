@@ -12,6 +12,7 @@ class CustomButton extends StatelessWidget {
       onTap: () {
         Navigator.of(context).pushNamed(nameNextPage);
       },
+      
       child: Container(
         width: double.infinity,
         height: 60,
