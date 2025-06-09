@@ -32,8 +32,9 @@ class _LoginRiderPageState extends State<LoginRiderPage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-          title: "Login",
+          title: "Welcome, log in.",
           imagePath: "assets/images/DELIVERY.png",
+          appBarHeight: 110,
           //icon: FontAwesomeIcons.arrowLeft,
           /*onIconPressed: () {
             Navigator.pop(context);
@@ -160,7 +161,9 @@ class _LoginRiderPageState extends State<LoginRiderPage> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, "Forgot_Pass_Page");
+                      },
                       child: Text(
                         "Forgot Password ?",
                         style: TextStyle(color: Color(0xFFB5022F)),
@@ -171,15 +174,15 @@ class _LoginRiderPageState extends State<LoginRiderPage> {
 
                   GestureDetector(
                     onTap: () async {
+                      Navigator.pushNamed(context, "home_page_rider");
+
                       if (formState.currentState!.validate()) {
                         //api.ip = "";
                         setState(() {
                           isLoading = true;
                         });
                         await api.loginRider();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Login successful!")),
-                        );
+                        showSnackBar(context, 'Login Successful');
                         try {
                           //هدخل الداتا بتاعتي الايميل والباس
                           UserCredential user = await FirebaseAuth.instance
@@ -214,7 +217,7 @@ class _LoginRiderPageState extends State<LoginRiderPage> {
                           setState(() {
                             isLoading = false;
                           });
-                          showSnackBar(context, 'There was an Error.');
+                          // showSnackBar(context, 'There was an Error.');
                         }
                       }
                     },
@@ -256,7 +259,7 @@ class _LoginRiderPageState extends State<LoginRiderPage> {
 
                       TextButton(
                         onPressed: () {
-                          //   Navigator.of(context).pushNamed("Signup_Rider",   );
+                          Navigator.of(context).pushNamed("Signup_Rider_Page");
                         },
                         child: const Text(
                           "Sign Up",

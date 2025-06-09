@@ -29,11 +29,13 @@ class _BoardingThreeState extends State<BoardingThree> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: ColorsApp().TextField,
+                    color: ColorsApp().SkipColor.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: MaterialButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushNamed("Login_Rider_Page");
+                    },
                     child: Text(
                       "Skip",
                       style: TextStyle(fontSize: 17, color: Colors.black),
@@ -66,27 +68,33 @@ class _BoardingThreeState extends State<BoardingThree> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 6,
-                  backgroundColor: ColorsApp().backgroundColor.withOpacity(0.8),
+                  radius: 5,
+                  backgroundColor: ColorsApp().primaryColor,
                 ),
                 SizedBox(width: 5),
                 CircleAvatar(
-                  radius: 6,
-                  backgroundColor: ColorsApp().TextField.withOpacity(0.8),
+                  radius: 5,
+                  backgroundColor: ColorsApp().primaryColor,
                 ),
                 SizedBox(width: 5),
                 Container(
-                  height: 11,
+                  height: 10,
                   width: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: ColorsApp().TextField.withOpacity(0.8),
+                    color: ColorsApp().secondaryColor,
                   ),
                 ),
               ],
             ),
             Expanded(child: Container()),
-            CustomButton(txt: "Next", nameNextPage: "Signup_Rider_Page"),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: CustomButton(
+                txt: "Next",
+                nameNextPage: "Login_Rider_Page",
+              ),
+            ),
             Expanded(child: Container()),
           ],
         ),

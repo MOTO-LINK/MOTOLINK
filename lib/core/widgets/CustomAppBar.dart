@@ -6,6 +6,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? imagePath;
   final IconData? icon;
   final VoidCallback? onIconPressed;
+  final double appBarHeight;
 
   const CustomAppBar({
     super.key,
@@ -13,15 +14,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.imagePath,
     this.icon,
     this.onIconPressed,
+    this.appBarHeight = 100,
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(90);
+  Size get preferredSize => Size.fromHeight(appBarHeight);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      toolbarHeight: 90,
+      toolbarHeight: appBarHeight,
       actions: [
         if (icon != null)
           IconButton(
@@ -37,33 +39,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(10),
-            bottomRight: Radius.circular(10),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 20, right: 20),
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child:
-                imagePath != null
-                    ? Image.asset(imagePath!, width: 80, height: 80)
-                    : const SizedBox.shrink(),
-          ),
+        child: Align(
+          alignment: Alignment.bottomRight,
+          child:
+              imagePath != null
+                  ? Image.asset(imagePath!, width: 130, height: 130)
+                  : const SizedBox.shrink(),
         ),
       ),
-      title: Padding(
-        padding: const EdgeInsets.only(left: 60),
-        child: Center(
-          child: Text(
-            title ?? '',
-            style: const TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-              fontFamily: 'Delivery',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+      title: Text(
+        title ?? '',
+        style: const TextStyle(
+          fontSize: 20,
+          color: Colors.white,
+          fontFamily: 'Delivery',
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

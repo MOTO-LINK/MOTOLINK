@@ -29,11 +29,13 @@ class _BoardingOneState extends State<BoardingOne> {
                   width: 70,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: ColorsApp().secondaryColor,
+                    color: ColorsApp().SkipColor.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: MaterialButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushNamed("Login_Rider_Page");
+                    },
                     child: Text(
                       "Skip",
                       style: TextStyle(
@@ -73,23 +75,26 @@ class _BoardingOneState extends State<BoardingOne> {
                   width: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: ColorsApp().secondaryColor.withOpacity(0.8),
+                    color: ColorsApp().secondaryColor,
                   ),
                 ),
                 SizedBox(width: 5),
                 CircleAvatar(
                   radius: 5,
-                  backgroundColor: ColorsApp().secondaryColor.withOpacity(0.8),
+                  backgroundColor: ColorsApp().primaryColor,
                 ),
                 SizedBox(width: 5),
                 CircleAvatar(
                   radius: 5,
-                  backgroundColor: ColorsApp().secondaryColor.withOpacity(0.8),
+                  backgroundColor: ColorsApp().primaryColor,
                 ),
               ],
             ),
             Expanded(child: Container()),
-            CustomButton(txt: "Next", nameNextPage: "boarding_two"),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: CustomButton(txt: "Next", nameNextPage: "boarding_two"),
+            ),
             Expanded(child: Container()),
           ],
         ),

@@ -14,7 +14,7 @@ class CustomButton extends StatelessWidget {
       },
       child: Container(
         width: double.infinity,
-        height: 55,
+        height: 60,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFB5022F), Colors.black],
@@ -28,7 +28,7 @@ class CustomButton extends StatelessWidget {
             txt,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),

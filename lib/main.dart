@@ -6,6 +6,9 @@ import 'package:moto/general/onboardingPages/boarding3.dart';
 import 'package:moto/general/splashPage/splash_page.dart';
 import 'package:moto/rider/auth/pages/LoginRiderPage.dart';
 import 'package:moto/rider/auth/pages/SignupRiderPage.dart';
+import 'package:moto/rider/auth/pages/ResetPassPage.dart';
+import 'package:moto/rider/auth/pages/forgotPassPage.dart';
+import 'package:moto/rider/home/dafualthome.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,7 +31,9 @@ class MyApp extends StatelessWidget {
         //rider pages
         "Signup_Rider_Page": (context) => SignupRiderPage(),
         "Login_Rider_Page": (context) => LoginRiderPage(),
-        //"home_page_rider": (context) => HomePageRider(),*/
+        "Forgot_Pass_Page": (context) => ForgotpassPage(),
+        "Enter_New_Pass_Page": (context) => ResetPassPage(),
+        "home_page_rider": (context) => homePageDAFUALT(),
 
         // driver pages
         /*"driver_sign_up": (context) => DriverSignUp(),
@@ -36,7 +41,7 @@ class MyApp extends StatelessWidget {
       },
       debugShowCheckedModeBanner: false,
       color: Colors.white,
-      home: LoginRiderPage(),
+      home: ResetPassPage(),
     );
   }
 }

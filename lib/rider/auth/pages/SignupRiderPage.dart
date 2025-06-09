@@ -34,8 +34,9 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-          title: "Sign Up",
+          title: "Welcome,\nCreate your account",
           imagePath: "assets/images/DELIVERY.png",
+          appBarHeight: 110,
           //icon: FontAwesomeIcons.arrowLeft,
           /* onIconPressed: () {
             Navigator.pop(context);
@@ -290,14 +291,14 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
 
                   GestureDetector(
                     onTap: () async {
+                      Navigator.pushNamed(context, "Login_Rider_Page");
+
                       if (formState.currentState!.validate()) {
                         isLoading = true;
                         setState(() {});
                         //api.ip = "http://";
                         await api.signUpRider();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Sign up successful!")),
-                        );
+                        showSnackBar(context, 'Sign Up Successful.');
 
                         try {
                           UserCredential user = await FirebaseAuth.instance
@@ -306,7 +307,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                                 password: password!,
                               );
                           print(user);
-                          //Navigator.pushNamed(context, ChatPage.id);
+                          //Navigator.pushNamed(context, "home_page_rider");
                         } on FirebaseAuthException catch (ex) {
                           if (ex.code == 'weak-password') {
                             showSnackBar(context, 'The password is too weak.');
@@ -317,7 +318,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                             );
                           }
                         } catch (ex) {
-                          showSnackBar(context, 'There was an Error.');
+                          //showSnackBar(context, 'Error: $ex');
                         }
                         isLoading = false;
                         setState(() {});
@@ -360,7 +361,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
 
                       TextButton(
                         onPressed: () {
-                          //   Navigator.of(context).pushNamed("login_rider",   );
+                          Navigator.of(context).pushNamed("Login_Rider_Page");
                         },
                         child: Text(
                           "Login",
