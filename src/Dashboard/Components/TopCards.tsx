@@ -36,7 +36,7 @@ const TopCards: React.FC = () => {
           key={index}
           className="bg-white shadow-md rounded-lg p-4 flex flex-col justify-between items-center border border-gray-200"
         >
-          {/* Icon and Title */}
+          
           <div className="flex items-center justify-between w-full mb-4">
             <h3 className="text-lg font-bold text-gray-700">{card.title}</h3>
             <div
@@ -46,7 +46,7 @@ const TopCards: React.FC = () => {
             </div>
           </div>
 
-          {/* Value or Image */}
+         
           {card.image ? (
             <img
               src={card.image}
@@ -59,7 +59,7 @@ const TopCards: React.FC = () => {
             </div>
           )}
 
-          {/* Subtitle */}
+          
           <div className="text-gray-500 text-sm">{card.subtitle}</div>
         </div>
       ))}

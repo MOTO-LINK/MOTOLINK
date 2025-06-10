@@ -20,13 +20,11 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className=" w-72 min-h-screen shadow-md flex flex-col justify-between">
-      {/* Header */}
       <div className=" text-xl font-bold border-b border-gray-200 flex items-center">
           <img src={logo} alt="" className="w-20 h-20" />
           <h1 className="text-gray-800">Motolink</h1>
       </div>
 
-      {/* Menu Items */}
       <div className="flex-1">
         <ul className="mt-4 space-y-2">
           {menuItems.map((item) => (
@@ -34,7 +32,8 @@ const Sidebar: React.FC = () => {
               <Link
                 to={item.link}
                 className={`flex items-center w-full px-4 py-3 text-left rounded-md transition ${
-                  location.pathname === item.link
+                  (item.id === "home" && location.pathname === "/dashboard") ||
+                  (item.id !== "home" && location.pathname.startsWith(item.link) && item.link !== "/dashboard")
                     ? "bg-blue-500 text-white"
                     : "text-gray-600 hover:bg-gray-100"
                 }`}

@@ -9,15 +9,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { FaFacebook } from "react-icons/fa6";
 import { PhoneNumberField } from "../Components/PhoneNumberField";
-import { FormLayout } from "../components/FormLayout";
+import { FormLayout } from "../Components/FormLayout";
+import axiosInstance from "@/api/axiosInstance";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+
 const schema = z.object({
   phoneNumber: z.string().min(10, "Phone number is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 interface FormData {
   phoneNumber: string;
-  password: string;
 }
 
 export default function RestartPassword() {
@@ -30,32 +32,63 @@ export default function RestartPassword() {
     resolver: zodResolver(schema),
   });
   const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "error" as "error" | "success" });
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     setLoading(true);
-    setTimeout(() => {
-      console.log(data);
+    try {
+      await axiosInstance.post("/auth/forgot-password", {
+        phone: data.phoneNumber,
+      });
       setLoading(false);
-      navigate('/');
-    }, 1000);
+      setSnackbar({ open: true, message: "Code sent successfully!", severity: "success" });
+      setTimeout(() => {
+        navigate("/dashboard/RestartPasswordPage2");
+      }, 1000);
+    } catch (error: any) {
+      setLoading(false);
+      setSnackbar({ open: true, message: error.response?.data?.message || "Failed to send code", severity: "error" });
+    }
   };
 
   return (
-    <FormLayout showProgressBar={false}  progressBars={3} onSubmit={handleSubmit(onSubmit)}>
+    <FormLayout showProgressBar={false} progressBars={3} onSubmit={handleSubmit(onSubmit)}>
       
       <h1 className="text-center underline underline-offset-4 text-base text-gray-300">Enter the Phone Number</h1>
       
-      {/* Login Form */}
       <div className="grid grid-rows-2 gap-8 mt-8">
         <PhoneNumberField name="phoneNumber" control={control} />
       </div>
       
-      <Link to="/dashboard/RestartPasswordPage2" className="text-gold-1 hover:text-gold-2 text-sm transition-colors duration-300">
-        <Button type="submit" variant="contained" sx={{ backgroundColor: "#D7B634", paddingY: 1.5, borderRadius: 3, fontSize: 23, fontWeight: 600, marginBottom: 5, textTransform: "capitalize", color: "black", width: "100%", '&:hover': { backgroundColor: "#C4A52F" } }}>
-            Okay
-        </Button>
-      </Link>
-
+      <Button
+        type="submit"
+        variant="contained"
+        sx={{
+          backgroundColor: "#D7B634",
+          paddingY: 1.5,
+          borderRadius: 3,
+          fontSize: 23,
+          fontWeight: 600,
+          marginBottom: 5,
+          textTransform: "capitalize",
+          color: "black",
+          width: "100%",
+          '&:hover': { backgroundColor: "#C4A52F" }
+        }}
+        disabled={loading}
+      >
+        {loading ? "Sending..." : "Okay"}
+      </Button>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <MuiAlert elevation={6} variant="filled" severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </MuiAlert>
+      </Snackbar>
     </FormLayout>
   );
 }

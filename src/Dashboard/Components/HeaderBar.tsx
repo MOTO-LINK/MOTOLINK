@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useLocation } from "react-router-dom";
 interface Notification {
   id: number;
   name: string;
@@ -21,15 +22,61 @@ interface Notification {
 const HeaderBar: React.FC = () => {
       const [language, setLanguage] = useState("English");
       const [showNotifications, setShowNotifications] = useState(false);
+      const location =useLocation();
+      let pagetitle = "Welcome";
+      let userName ="";
+      if(location.pathname ==="/dashboard"){
+        pagetitle ="Good Morning :";
+        userName = "Ahmed Mohamed";
+      }else if(location.pathname ==="/dashboard/WorkflowPage"){
+        pagetitle ="Workflow Management";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond"){
+        pagetitle ="Workflow Management";
+      }else if(location.pathname ==="/dashboard/AdsPage"){
+        pagetitle ="Advertisements Management";
+      } else if(location.pathname ==="/dashboard/FinancialsPage"){
+        pagetitle ="Financials Management";
+      }else if(location.pathname ==="/dashboard/ComplaintsPage"){  
+        pagetitle ="Complaints Management";
+      }else if(location.pathname ==="/dashboard/ReportsPage"){
+        pagetitle ="Reports Management";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond/Customers"){
+        pagetitle ="Customers";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond/Representatives"){
+        pagetitle ="Representatives";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond/JoinRequests"){
+        pagetitle ="Join Requests";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond/Orders"){
+        pagetitle ="Orders";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond/ShowAreas"){
+        pagetitle ="Show Areas";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond/AddNewArea"){
+        pagetitle ="Add New Area";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond/Representatives/RepresentativesPage"){
+        pagetitle ="Representatives";
+      }else if(location.pathname ==="/dashboard/WorkflowPage/WorkFlowsecond/Representatives/ProhibitedRepresentatives"){
+        pagetitle ="Prohibited Representatives";
+      }else if(location.pathname ==="/dashboard/ComplaintsPage/ComplaintsSecondPage"){
+        pagetitle ="Complaints Management";
+      }else if(location.pathname ==="/dashboard/FinancialsPage/FinancialsSecondPage"){
+        pagetitle ="Financials Management";
+      }
+
+
+
       const notifications: Notification[] = [
             { id: 1, name: "Ali Adel Mohammed", phone: "+20 01183925678", date: "22/2/2025", online: true },
             { id: 2, name: "Ali Adel Mohammed", phone: "+20 01183925678", date: "22/2/2025", online: false },
             { id: 3, name: "Ali Adel Mohammed", phone: "+20 01183925678", date: "22/2/2025", online: true },
         ];
+
+
   return (
     <div className="flex justify-between items-center bg-gray-900 text-white px-6 py-4 rounded-t-lg shadow-md">
       <div className="text-right">
-        <h2 className="font-[qbold]" ><span className="text-lg">Good Morning :</span> <span className="text-lg font-medium">Ahmed Mohamed</span></h2>
+        <h2 className="font-[qbold]" ><span className="text-lg">{pagetitle}</span> {userName && (
+          <span className="text-lg font-medium">{userName}</span>
+        )}</h2>
       </div>
       
       <div className="flex items-center space-x-4">

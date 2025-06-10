@@ -3,14 +3,20 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { FaArrowLeft } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
+import axiosInstance from "@/api/axiosInstance";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 
 export default function RestartPasswordPage2() {
-  const { register, handleSubmit } = useForm();
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const { handleSubmit } = useForm();
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
-  const progressBars = 3; 
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "error" as "error" | "success" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (index: number, value: string) => {
     if (!isNaN(Number(value)) && value.length <= 1) {
@@ -33,8 +39,25 @@ export default function RestartPasswordPage2() {
     }
   };
 
-  const onSubmit = () => {
-    console.log("OTP Entered:", otp.join(""));
+  const onSubmit = async () => {
+    setError("");
+    if (otp.some((digit) => digit === "")) {
+      setError("Please enter the full 6-digit code.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const code = otp.join("");
+      await axiosInstance.post("/auth/reset-password", { code });
+      setLoading(false);
+      setSnackbar({ open: true, message: "Code verified successfully!", severity: "success" });
+      setTimeout(() => {
+        navigate("/dashboard/RestartPasswordPage3");
+      }, 1000);
+    } catch (err: any) {
+      setLoading(false);
+      setSnackbar({ open: true, message: err.response?.data?.message || "Invalid code", severity: "error" });
+    }
   };
 
   return (
@@ -66,19 +89,44 @@ export default function RestartPasswordPage2() {
               />
             ))}
           </div>
-            <div className="flex items-center justify-center mt-4">
-                <p className="text-sm text-gray-400">Didn't receive the code?</p>
-                <Link to="/dashboard/RestartPassword" className="text-gold-1 hover:text-gold-2 text-sm transition-colors duration-300 ml-2">
-                  Resend
-                </Link>
-            </div>
-
-           <Link to={"/dashboard/RestartPasswordPage3"}>
-            <Button type="submit" variant="contained" sx={{ backgroundColor: "#D7B634", paddingX: 18, paddingY: 1.5, borderRadius: 3, fontSize: 23, fontWeight: 600, marginBottom: 5, textTransform: "capitalize", color: "black",width:"100%", '&:hover': { backgroundColor: "#C4A52F" } }}>
-              Okay
-            </Button>
-           </Link>
+          {error && <span className="text-red-500 text-xs">{error}</span>}
+          <div className="flex items-center justify-center mt-4">
+            <p className="text-sm text-gray-400">Didn't receive the code?</p>
+            <Link to="/dashboard/RestartPassword" className="text-gold-1 hover:text-gold-2 text-sm transition-colors duration-300 ml-2">
+              Resend
+            </Link>
+          </div>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{
+              backgroundColor: "#D7B634",
+              paddingX: 18,
+              paddingY: 1.5,
+              borderRadius: 3,
+              fontSize: 23,
+              fontWeight: 600,
+              marginBottom: 5,
+              textTransform: "capitalize",
+              color: "black",
+              width: "100%",
+              '&:hover': { backgroundColor: "#C4A52F" }
+            }}
+            disabled={loading}
+          >
+            {loading ? "Verifying..." : "Okay"}
+          </Button>
         </form>
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={4000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <MuiAlert elevation={6} variant="filled" severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+            {snackbar.message}
+          </MuiAlert>
+        </Snackbar>
       </motion.div>
     </div>
   );

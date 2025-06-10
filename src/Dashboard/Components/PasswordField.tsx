@@ -19,7 +19,8 @@ const commonTextFieldStyles = {
   "& .MuiInputLabel-root.Mui-focused": {
     color: "white",
   },
-  fontFamily: "ithin"
+  fontFamily: "ithin",
+  width: "100%",
 };
 
 interface PasswordFieldProps<T extends FieldValues> {
