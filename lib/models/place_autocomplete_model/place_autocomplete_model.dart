@@ -9,7 +9,7 @@ class PlaceAutocompleteModel {
   String? reference;
   StructuredFormatting? structuredFormatting;
   List<Term>? terms;
-  List<String>? types;
+  List<dynamic>? types;
 
   PlaceAutocompleteModel({
     this.description,
@@ -40,7 +40,7 @@ class PlaceAutocompleteModel {
           (json['terms'] as List<dynamic>?)
               ?.map((e) => Term.fromJson(e as Map<String, dynamic>))
               .toList(),
-      types: json['types'] as List<String>?,
+      types: json['types'] as List<dynamic>?,
     );
   }
 

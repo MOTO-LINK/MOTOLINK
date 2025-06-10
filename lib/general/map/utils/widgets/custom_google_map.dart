@@ -17,6 +17,7 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
   bool isFirstCall = true;
 
   String? appMapStyle;
+  Set<Marker> markers = {};
 
   @override
   void initState() {
@@ -29,8 +30,6 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
     loadMapStyle();
     updateMyLocation();
   }
-
-  Set<Marker> markers = {};
 
   Future<void> loadMapStyle() async {
     appMapStyle = await DefaultAssetBundle.of(
@@ -74,7 +73,6 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
 
   void updateMyLocation() async {
     await locationService.checkAndRequestLocationService();
-
     await locationService.checkAndRequestPermission();
     locationService.getRealTimeLocation((locationData) {
       SetMyLocationMarker(locationData);
@@ -91,7 +89,6 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
       googleMapController?.animateCamera(
         CameraUpdate.newCameraPosition(cameraPosition),
       );
-
       isFirstCall = false;
     } else {
       googleMapController?.animateCamera(
