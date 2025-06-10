@@ -10,6 +10,10 @@ export class PhoneController {
 		// !THIS IS ONLY FOR DEVELOPMENT AND TESTING PURPOSES
 		let verificationCode;
 		if (process.env.SKIP_VERIFICATION) {
+			res.status(200).json({
+				status: "success",
+				message: "Verification code sent successfully"
+			});
 			return;
 		}
 		///======================================================================
@@ -70,7 +74,8 @@ export class PhoneController {
 	async verifyPhoneNumber(req: Request, res: Response): Promise<void> {
 		// !THIS IS ONLY FOR DEVELOPMENT
 		if (process.env.SKIP_VERIFICATION) {
-			const verified = await this.phoneModel.verifyCode(req.user!.user_id, "123456");
+			const verified = await this.phoneModel.verifyCode(req.body.phone, "123456");
+			console.log(verified)
 			res.status(200).json({
 				status: "success",
 				message: "Phone number verified successfully"

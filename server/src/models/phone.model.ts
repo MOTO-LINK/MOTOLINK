@@ -46,7 +46,9 @@ export class PhoneModel {
 	}
 
 	async verifyCode(phoneNumber: string, code: string): Promise<boolean> {
-		if (process.env.SKIP_VERIFICATION) {
+		console.log(phoneNumber)
+		// !THIS IS ONLY FOR DEVELOPMENT
+		if (process.env.SKIP_VERIFICATION && code === "123456") {
 			const result = await pool.query(
 				`UPDATE phone_numbers 
        SET verified = true, verification_code = NULL

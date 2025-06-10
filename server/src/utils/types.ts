@@ -104,6 +104,8 @@ export interface RegisterRequest {
 	phone: string;
 	dob: Date;
 	userType: UserType;
+	nationalId?: string;
+	vehicleRegistration?: string;
 	vehicleType?: VehicleType; // For drivers
 	orderTypes?: OrderType[]; // For drivers
 }
