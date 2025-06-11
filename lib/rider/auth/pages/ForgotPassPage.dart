@@ -32,7 +32,7 @@ class _ConfirmPassState extends State<ForgotpassPage> {
         title:
             "Recover your password!\nYou will receive a message\ncontaining a secret code to\nconfirm your phone number.",
         imagePath: "assets/images/DELIVERY.png",
-        appBarHeight: 150,
+        appBarHeight: 150, onBackPressed: () {  },
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),

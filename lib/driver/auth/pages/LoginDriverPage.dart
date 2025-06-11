@@ -35,7 +35,7 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
         appBar: CustomAppBar(
           title: "Welcome, log in.",
           imagePath: "assets/images/DELIVERY.png",
-          appBarHeight: 110,
+          appBarHeight: 110, onBackPressed: () {  },
           //icon: FontAwesomeIcons.arrowLeft,
           /*onIconPressed: () {
             Navigator.pop(context);

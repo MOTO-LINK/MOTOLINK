@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/general/map/utils/google_maps_places_services.dart';
 import 'package:moto/general/map/utils/location_service.dart';
-import 'package:moto/models/textfieldmodel.dart';
-import 'package:moto/core/widgets/CustomTextField.dart';
 import 'place_BotoomSheet.dart';
 
 class GoogleMapView extends StatefulWidget {
@@ -55,7 +52,7 @@ class _GoogleMapViewState extends State<GoogleMapView> {
         Scaffold(
           appBar: CustomAppBar(
             title: "Find Your Location",
-            imagePath: "assets/images/DELIVERY.png",
+            imagePath: "assets/images/DELIVERY.png", onBackPressed: () {  },
           ),
           body: GoogleMap(
             markers: markers,

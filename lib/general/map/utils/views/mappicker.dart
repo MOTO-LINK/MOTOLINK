@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:location/location.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/general/map/utils/location_service.dart';
 import 'package:moto/general/map/utils/widgets/searchlocation.dart';
@@ -10,6 +11,8 @@ import 'package:moto/general/map/utils/google_maps_places_services.dart';
 final colors = ColorsApp();
 
 class SelectLocationScreen extends StatefulWidget {
+  const SelectLocationScreen({super.key});
+
   @override
   _SelectLocationScreenState createState() => _SelectLocationScreenState();
 }
@@ -18,7 +21,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
   GoogleMapController? _mapController;
   LatLng? _currentLatLng;
   String _placeNameFromMap = 'جاري تحديد العنوان...';
-  TextEditingController _customLabelController = TextEditingController();
+  final TextEditingController _customLabelController = TextEditingController();
   LocationService locationService = LocationService();
   final GoogleMapsPlacesServices _placesServices = GoogleMapsPlacesServices();
 
@@ -131,26 +134,58 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,
                 ),
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: PlacesSearchBar(
-                      googleMapsPlacesServices: _placesServices,
-                      colorsApp: ColorsApp(),
-                      onPlaceSelected: (placeDetails) {
-                        final lat = placeDetails.geometry?.location?.lat;
-                        final lng = placeDetails.geometry?.location?.lng;
-                        if (lat != null && lng != null) {
-                          final newLatLng = LatLng(lat, lng);
-                          _mapController?.animateCamera(
-                            CameraUpdate.newLatLng(newLatLng),
-                          );
-                          setState(() => _currentLatLng = newLatLng);
-                        }
-                      },
-                    ),
-                  ),
-                ),
+               
+             
+SafeArea(
+  child: Padding(
+    padding: const EdgeInsets.all(12.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 4), 
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back, color: ColorsApp().secondaryColor, size: 28),
+            onPressed: () => Navigator.of(context).pop(),
+            tooltip: 'back',
+          ),
+        ),
+        SizedBox(width: 8),
+        Expanded(
+          child: PlacesSearchBar(
+            googleMapsPlacesServices: _placesServices,
+            colorsApp: ColorsApp(),
+            onPlaceSelected: (placeDetails) {
+              final lat = placeDetails.geometry?.location?.lat;
+              final lng = placeDetails.geometry?.location?.lng;
+              if (lat != null && lng != null) {
+                final newLatLng = LatLng(lat, lng);
+                _mapController?.animateCamera(
+                  CameraUpdate.newLatLng(newLatLng),
+                );
+                setState(() => _currentLatLng = newLatLng);
+              }
+            },
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+
+
+
                 Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -180,7 +215,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
                         ),
                       ),
                       Icon(
-                        Icons.location_on,
+                        FontAwesomeIcons.mapMarkerAlt
+,
                         size: 42,
                         color: colors.secondaryColor,
                       ),
@@ -227,7 +263,6 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              
                               onPressed: _saveLocation,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: colors.secondaryColor,
@@ -237,7 +272,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
                                 ),
                               ),
                               child: Text(
-                                'احفظ العنوان',
+                                'save location',
+                                textDirection: TextDirection.rtl,
                                 style: TextStyle(
                                   color: ColorsApp().textColor,
                                   fontSize: 16,

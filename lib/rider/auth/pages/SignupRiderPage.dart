@@ -37,7 +37,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
         appBar: CustomAppBar(
           title: "Welcome,\nCreate your account",
           imagePath: "assets/images/DELIVERY.png",
-          appBarHeight: 110,
+          appBarHeight: 110, onBackPressed: () {  },
           //icon: FontAwesomeIcons.arrowLeft,
           /* onIconPressed: () {
             Navigator.pop(context);

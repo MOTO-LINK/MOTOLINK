@@ -37,7 +37,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
         icon: FontAwesome.arrow_left,
         onIconPressed: () {
           Navigator.pop(context);
-        },
+        }, onBackPressed: () {  },
       ),
       body: SingleChildScrollView(
         child: Padding(
