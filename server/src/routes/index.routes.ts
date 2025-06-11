@@ -44,7 +44,7 @@ router.get("/", (_req, res) => {
 			rides: "/api/rides",
 			wallet: "/api/wallet",
 			ratings: "/api/ratings",
-			ratings: "/api/ratings",
+			chats: "/api/chats",
 			statistics: "/api/statistics" // Added statistics endpoint to documentation
 		}
 	});

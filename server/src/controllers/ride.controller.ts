@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import rideRequestModel from "../models/rideRequest.model";
+import rideRequestModel, { RideRequest } from "../models/rideRequest.model";
 import rideTransactionModel from "../models/rideTransaction.model";
-import locationModel from "../models/location.model";
+import locationModel, { Location } from "../models/location.model";
 import walletModel from "../models/wallet.model";
 import driverModel from "../models/driver.model";
 import fareCalculationService from "../services/fareCalculation.service";
@@ -23,19 +23,6 @@ class RideController {
 				scheduledTime,
 				notes
 			} = req.body;
-
-			// Validate active ride doesn't exist
-			const activeRide = await rideRequestModel.findActiveByRiderId(riderId);
-			if (activeRide) {
-				res.status(400).json({
-					success: false,
-					error: {
-						code: "ACTIVE_RIDE_EXISTS",
-						message: "You already have an active ride"
-					}
-				});
-				return;
-			}
 
 			// Create locations if coordinates provided
 			let startLocationId = pickupLocation.locationId;
@@ -308,13 +295,16 @@ class RideController {
 		try {
 			const userId = req.user!.user_id;
 			const userType = req.user!.user_type;
+			const activeRidesDetails: Array<
+				RideRequest & { startLocation: Location | null; endLocation: Location | null }
+			> = [];
 
-			const activeRide =
+			const activeRides =
 				userType === UserType.RIDER
 					? await rideRequestModel.findActiveByRiderId(userId)
 					: await rideRequestModel.findActiveByDriverId(userId);
 
-			if (!activeRide) {
+			if (!activeRides) {
 				res.status(404).json({
 					success: false,
 					error: {
@@ -325,18 +315,24 @@ class RideController {
 				return;
 			}
 
-			// Get location details
-			const [startLocation, endLocation] = await Promise.all([
-				locationModel.findById(activeRide.start_location_id),
-				locationModel.findById(activeRide.end_location_id)
-			]);
+			for (const activeRide of activeRides) {
+				// Get location details
+				const [startLocation, endLocation] = await Promise.all([
+					locationModel.findById(activeRide.start_location_id),
+					locationModel.findById(activeRide.end_location_id)
+				]);
+
+				activeRidesDetails.push({
+					...activeRide,
+					startLocation,
+					endLocation
+				});
+			};
 
 			res.status(200).json({
 				success: true,
 				data: {
-					...activeRide,
-					startLocation,
-					endLocation
+					"activeRides": activeRidesDetails
 				}
 			});
 		} catch (error) {

@@ -74,19 +74,18 @@ export class RideRequestModel {
 		return result.rows[0] || null;
 	}
 
-	async findActiveByRiderId(riderId: string): Promise<RideRequest | null> {
+	async findActiveByRiderId(riderId: string): Promise<RideRequest[] | null> {
 		const result = await pool.query(
 			`SELECT * FROM ride_requests 
        WHERE rider_id = $1 
          AND status IN ('pending', 'accepted', 'arrived', 'in_progress')
-       ORDER BY created_at DESC
-       LIMIT 1`,
+       ORDER BY created_at DESC`,
 			[riderId]
 		);
-		return result.rows[0] || null;
+		return result.rows || null;
 	}
 
-	async findActiveByDriverId(driverId: string): Promise<RideRequest | null> {
+	async findActiveByDriverId(driverId: string): Promise<RideRequest[] | null> {
 		const result = await pool.query(
 			`SELECT * FROM ride_requests 
        WHERE driver_id = $1 
@@ -95,7 +94,7 @@ export class RideRequestModel {
        LIMIT 1`,
 			[driverId]
 		);
-		return result.rows[0] || null;
+		return result.rows || null;
 	}
 
 	async findPendingRequests(

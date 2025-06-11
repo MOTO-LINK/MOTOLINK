@@ -6,7 +6,7 @@
   "scripts": {
     "test": "tsc & db-migrate --env test up & jasmine & db-migrate --env test reset",
     "build": "tsc",
-	"start": "node ./dist/server.js",
+    "start": "node ./dist/server.js",
     "dev": "tsc & nodemon --config nodemon.json ./src/server.ts",
     "lint": "eslint ./src/**/*.ts",
     "lint:f": "eslint ./src/**/*.ts --fix",
@@ -26,6 +26,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
+    "@types/date-fns": "^2.5.3",
     "@types/eslint": "^9.6.1",
     "@types/express": "^5.0.0",
     "@types/jasmine": "^5.1.7",
@@ -57,6 +58,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "db-migrate": "^0.11.14",
     "db-migrate-pg": "^1.5.2",
     "dotenv": "^16.4.7",
