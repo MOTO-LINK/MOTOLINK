@@ -1,8 +1,9 @@
 import { UserType } from '../utils/types';
-import fareCalculationService from './fareCalculation.service';
-import { format, subDays, startOfMonth, endOfMonth, parseISO } from 'date-fns';
+import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
+import { parseISO } from 'date-fns/fp'
 // db connection
 import pool from "../utils/database";
+import config from "../utils/config";
 interface UserStats {
   totalUsers: number;
   totalDrivers: number;
@@ -143,7 +144,7 @@ class StatisticsService {
 
       const revenueByPeriod: RevenueData[] = result.rows.map(row => ({
         amount: parseFloat(row.revenue) || 0,
-        currency: fareCalculationService.getCurrency(),
+        currency: config.app.defaultCurrency,
         date: row.date
       }));
 
@@ -152,7 +153,7 @@ class StatisticsService {
 
       return {
         totalRevenue: parseFloat(totalRevenue.toFixed(2)),
-        currency: fareCalculationService.getCurrency(),
+        currency: config.app.defaultCurrency,
         revenueByPeriod
       };
     } catch (error) {
