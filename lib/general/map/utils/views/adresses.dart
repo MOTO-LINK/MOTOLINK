@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/general/map/utils/views/mappicker.dart';
@@ -14,7 +16,32 @@ class Adresses extends StatefulWidget {
 class _AdressesState extends State<Adresses> {
   List<Map<String, dynamic>> savedAddresses = [];
 
-  void _navigateToSelectLocation() async {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSavedAddresses();
+    });
+  }
+
+  Future<void> _loadSavedAddresses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('saved_addresses');
+    if (jsonString != null) {
+      final List decoded = jsonDecode(jsonString);
+      setState(() {
+        savedAddresses = decoded.cast<Map<String, dynamic>>();
+      });
+    }
+  }
+
+  Future<void> _saveAddresses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = jsonEncode(savedAddresses);
+    await prefs.setString('saved_addresses', jsonString);
+  }
+
+  Future<void> _navigateToSelectLocation({int? indexToEdit}) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -24,9 +51,21 @@ class _AdressesState extends State<Adresses> {
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
-        savedAddresses.add(result);
+        if (indexToEdit != null) {
+          savedAddresses[indexToEdit] = result;
+        } else {
+          savedAddresses.add(result);
+        }
       });
+      await _saveAddresses();
     }
+  }
+
+  Future<void> _deleteAddress(int index) async {
+    setState(() {
+      savedAddresses.removeAt(index);
+    });
+    await _saveAddresses();
   }
 
   @override
@@ -47,7 +86,7 @@ class _AdressesState extends State<Adresses> {
               width: 400,
               height: 130,
               child: OutlinedButton(
-                onPressed: _navigateToSelectLocation,
+                onPressed: () => _navigateToSelectLocation(),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: ColorsApp().primaryColor,
@@ -74,8 +113,13 @@ class _AdressesState extends State<Adresses> {
           ),
           SizedBox(height: 20),
           savedAddresses.isEmpty
-              ? Center(child: Text('No saved addresses yet.',
-                  style: TextStyle(color: ColorsApp().TextField, fontSize: 16)))
+              ? Center(
+                  child: Text(
+                    'No saved addresses yet.',
+                    style:
+                        TextStyle(color: ColorsApp().TextField, fontSize: 16),
+                  ),
+                )
               : Expanded(
                   child: ListView.builder(
                     itemCount: savedAddresses.length,
@@ -116,8 +160,9 @@ class _AdressesState extends State<Adresses> {
                                     SizedBox(height: 4),
                                     Text(
                                       address['autoAddress'] ?? '',
-                                      style:
-                                          TextStyle(color: ColorsApp().TextField, fontSize: 14)
+                                      style: TextStyle(
+                                          color: ColorsApp().TextField,
+                                          fontSize: 14),
                                     ),
                                   ],
                                 ),
@@ -125,29 +170,13 @@ class _AdressesState extends State<Adresses> {
                               IconButton(
                                 icon: Icon(Icons.edit,
                                     color: ColorsApp().primaryColor),
-                                onPressed: () async {
-  final result = await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => SelectLocationScreen(),
-    ),
-  );
-
-  if (result != null && result is Map<String, dynamic>) {
-    setState(() {
-      savedAddresses[index] = result;
-    });
-  }
-},
-
+                                onPressed: () =>
+                                    _navigateToSelectLocation(indexToEdit: index),
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete, color: ColorsApp().secondaryColor),
-                                onPressed: () {
-                                  setState(() {
-                                    savedAddresses.removeAt(index);
-                                  });
-                                },
+                                icon: Icon(Icons.delete,
+                                    color: ColorsApp().secondaryColor),
+                                onPressed: () => _deleteAddress(index),
                               ),
                             ],
                           ),
