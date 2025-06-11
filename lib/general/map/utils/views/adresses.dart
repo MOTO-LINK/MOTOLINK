@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:moto/general/map/utils/Services/SendAdress.dart';
+import 'package:moto/rider/auth/core/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
@@ -50,6 +53,25 @@ class _AdressesState extends State<Adresses> {
     );
 
     if (result != null && result is Map<String, dynamic>) {
+      try {
+        final storageService = StorageService(); 
+        final token = await storageService.getToken(); 
+        print("📦 Token used: $token"); 
+
+        final latLng = result['latLng'] as LatLng;
+
+        await sendLocationToBackend(
+          latLng: latLng,
+          autoAddress: result['autoAddress'],
+          label: result['label'],
+          token: token ?? '',
+        );
+
+        print("✅ Address sent to backend!");
+      } catch (e) {
+        print("❌ Failed to send to backend: $e");
+      }
+
       setState(() {
         if (indexToEdit != null) {
           savedAddresses[indexToEdit] = result;
@@ -170,8 +192,8 @@ class _AdressesState extends State<Adresses> {
                               IconButton(
                                 icon: Icon(Icons.edit,
                                     color: ColorsApp().primaryColor),
-                                onPressed: () =>
-                                    _navigateToSelectLocation(indexToEdit: index),
+                                onPressed: () => _navigateToSelectLocation(
+                                    indexToEdit: index),
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete,

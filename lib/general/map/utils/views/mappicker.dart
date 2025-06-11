@@ -6,7 +6,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/general/map/utils/location_service.dart';
 import 'package:moto/general/map/utils/widgets/searchlocation.dart';
-import 'package:moto/general/map/utils/google_maps_places_services.dart';
+import 'package:moto/general/map/utils/Services/google_maps_places_services.dart';
 
 final colors = ColorsApp();
 

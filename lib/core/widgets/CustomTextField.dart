@@ -32,7 +32,7 @@ class CustomTextfield extends StatelessWidget {
           borderSide: BorderSide.none,
         ),
       ),
-      textDirection: TextDirection.rtl, // هذا السطر يجعل الحقل يدعم العربي والإنجليزي تلقائياً
+      textDirection: TextDirection.rtl, 
       onTap: (Textfieldmodels.isReadOnly ?? false) ? Textfieldmodels.onTap : null,
     );
   }

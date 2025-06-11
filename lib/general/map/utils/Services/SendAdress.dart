@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 Future<void> sendLocationToBackend({
   required LatLng latLng,
@@ -9,7 +8,8 @@ Future<void> sendLocationToBackend({
   required String label,
   required String token,
 }) async {
-  final url = Uri.parse('https://motolinkapp-env.eba-vwaaqaqm.eu-central-1.elasticbeanstalk.com/api'); // عدل اللينك
+  final url = Uri.parse('motolinkapp-env.eba-vwaaqaqm.eu-central-1.elasticbeanstalk.com/api/rider/locations');
+
   final response = await http.post(
     url,
     headers: {
@@ -17,17 +17,19 @@ Future<void> sendLocationToBackend({
       'Authorization': 'Bearer $token',
     },
     body: jsonEncode({
+      'name': label,
+      'address': autoAddress,
       'latitude': latLng.latitude,
       'longitude': latLng.longitude,
-      'address': autoAddress,
-      'label': label,
+      'type': 'other',
+      'isDefault': false,
     }),
   );
 
   if (response.statusCode == 200 || response.statusCode == 201) {
-    print('✅ Location saved to backend!');
+    print('📡 Address successfully sent to backend');
   } else {
-    print('❌ Failed to save location. Status: ${response.statusCode}');
-    throw Exception('فشل في الحفظ');
+    print('❌ Error sending address: ${response.statusCode} => ${response.body}');
+    throw Exception('Failed to send address');
   }
 }

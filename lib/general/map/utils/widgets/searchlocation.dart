@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomTextField.dart';
-import 'package:moto/general/map/utils/google_maps_places_services.dart';
+import 'package:moto/general/map/utils/Services/google_maps_places_services.dart';
 import 'package:moto/models/place_autocomplete_model/place_autocomplete_model.dart';
 import 'package:moto/models/place_details_model/place_details_model.dart';
 import 'package:moto/models/textfieldmodel.dart';
