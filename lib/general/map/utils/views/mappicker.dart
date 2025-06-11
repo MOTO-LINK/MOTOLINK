@@ -5,8 +5,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/general/map/utils/location_service.dart';
+import 'package:moto/general/map/utils/widgets/SendAdress.dart';
 import 'package:moto/general/map/utils/widgets/searchlocation.dart';
 import 'package:moto/general/map/utils/google_maps_places_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final colors = ColorsApp();
 
@@ -90,22 +92,50 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
     }
   }
 
-  void _saveLocation() {
-    String label = _customLabelController.text.trim();
 
-    if (label.isEmpty) {
+
+void _saveLocation() async {
+  String label = _customLabelController.text.trim();
+
+  if (label.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('من فضلك اكتب اسم للمكان')),
+    );
+    return;
+  }
+
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userToken = prefs.getString('user_token');
+
+    if (userToken == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('من فضلك اكتب اسم للمكان')),
+        SnackBar(content: Text('مش لاقي التوكن، سجل دخول تاني')),
       );
       return;
     }
 
-    Navigator.pop(context, {
-      'latLng': _currentLatLng,
-      'autoAddress': _placeNameFromMap,
-      'label': label,
-    });
+    await sendLocationToBackend(
+      latLng: _currentLatLng!,
+      autoAddress: _placeNameFromMap,
+      label: label,
+      token: userToken,
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('حصل خطأ أثناء حفظ العنوان')),
+    );
+    return;
   }
+
+  Navigator.pop(context, {
+    'latLng': _currentLatLng,
+    'autoAddress': _placeNameFromMap,
+    'label': label,
+  });
+}
+
+
 
   @override
   Widget build(BuildContext context) {

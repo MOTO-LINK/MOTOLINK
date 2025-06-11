@@ -50,6 +50,7 @@ dependencies:
   google_maps_flutter: ^2.12.1
   location: ^8.0.0
   geocoding: ^4.0.0
+  shared_preferences: ^2.5.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
