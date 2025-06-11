@@ -52,22 +52,21 @@ class _GoogleMapViewState extends State<GoogleMapView> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Scaffold(appBar: CustomAppBar(
-           title: "Find Your Location",
-        imagePath: "assets/images/DELIVERY.png",
-        
-
-
-        ),body: GoogleMap(
-          markers: markers,
-          onMapCreated: (controller) {
-            googleMapController = controller;
-            updateCurrentLocation();
-          },
-          zoomControlsEnabled: false,
-          initialCameraPosition: initialCameraPosition,
-        ),),
-        
+        Scaffold(
+          appBar: CustomAppBar(
+            title: "Find Your Location",
+            imagePath: "assets/images/DELIVERY.png",
+          ),
+          body: GoogleMap(
+            markers: markers,
+            onMapCreated: (controller) {
+              googleMapController = controller;
+              updateCurrentLocation();
+            },
+            zoomControlsEnabled: false,
+            initialCameraPosition: initialCameraPosition,
+          ),
+        ),
       ],
     );
   }

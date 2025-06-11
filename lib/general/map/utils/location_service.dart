@@ -32,10 +32,8 @@ class LocationService {
     location.onLocationChanged.listen((locationData) {
       if (onData != null) {
         onData(locationData);
-        
       }
     });
-
   }
 
   Future<LocationData> getLocation() async {

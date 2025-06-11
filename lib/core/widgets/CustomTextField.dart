@@ -15,7 +15,6 @@ class CustomTextfield extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       readOnly: Textfieldmodels.isReadOnly ?? false,
-
       controller: Textfieldmodels.controller,
       keyboardType: Textfieldmodels.keyboardType,
       decoration: InputDecoration(
@@ -33,8 +32,8 @@ class CustomTextfield extends StatelessWidget {
           borderSide: BorderSide.none,
         ),
       ),
-      onTap:
-          (Textfieldmodels.isReadOnly ?? false) ? Textfieldmodels.onTap : null,
+      textDirection: TextDirection.rtl, // هذا السطر يجعل الحقل يدعم العربي والإنجليزي تلقائياً
+      onTap: (Textfieldmodels.isReadOnly ?? false) ? Textfieldmodels.onTap : null,
     );
   }
 }

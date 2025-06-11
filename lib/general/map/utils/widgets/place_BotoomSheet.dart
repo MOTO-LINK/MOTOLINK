@@ -4,6 +4,7 @@ import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomTextField.dart';
 import 'package:moto/general/map/utils/google_maps_places_services.dart';
 import 'package:moto/models/place_autocomplete_model/place_autocomplete_model.dart';
+import 'package:moto/models/place_details_model/place_details_model.dart';
 import 'package:moto/models/textfieldmodel.dart';
 
 class PlacesBottomSheet extends StatefulWidget {
@@ -23,21 +24,25 @@ class PlacesBottomSheet extends StatefulWidget {
 class _PlacesBottomSheetState extends State<PlacesBottomSheet> {
   final TextEditingController textEditingController = TextEditingController();
   List<PlaceAutocompleteModel> places = [];
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     textEditingController.addListener(() async {
       if (textEditingController.text.isNotEmpty) {
-        var result = await widget.googleMapsPlacesServices
-            .getPredictions(textEditingController.text);
+        setState(() => isLoading = true);
+        var result = await widget.googleMapsPlacesServices.getPredictions(
+          textEditingController.text,
+        );
         setState(() {
           places = result;
+          isLoading = false;
         });
       } else {
-        places.clear();
         setState(() {
-          
+          places.clear();
+          isLoading = false;
         });
       }
     });
@@ -79,35 +84,43 @@ class _PlacesBottomSheetState extends State<PlacesBottomSheet> {
             ),
             SizedBox(height: 5),
             Expanded(
-              child: places.isEmpty
-                  ? Center(child: Text(""))
-                  : ListView.separated(
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          leading: Icon(Icons.location_on_outlined, color: widget.colorsApp.secondaryColor),
-                          title: Text(
-                            places[index].description ?? "No Description",
-                            style: TextStyle(fontSize: 15),
-                          ),
-                          onTap: () {
-                            
-                            Navigator.pop(context, places[index]);
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : places.isEmpty
+                      ? Center(child: Text(""))
+                      : ListView.separated(
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              leading: Icon(
+                                Icons.location_on_outlined,
+                                color: widget.colorsApp.secondaryColor,
+                              ),
+                              title: Text(
+                                places[index].description ?? "No Description",
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              onTap: () async {
+                                final placeId = places[index].placeId;
+                                if (placeId != null) {
+                                  // جلب تفاصيل المكان عند الضغط
+                                  PlaceDetailsModel details =
+                                      await widget.googleMapsPlacesServices
+                                          .getPlaceDteails(placeId);
+                                  Navigator.pop(context, details);
+                                }
+                              },
+                            );
                           },
-                        );
-                      },
-                      separatorBuilder: (context, index) => Divider(),
-                      itemCount: places.length,
-                      shrinkWrap: true,
-                    ),
+                          separatorBuilder: (context, index) => Divider(),
+                          itemCount: places.length,
+                          shrinkWrap: true,
+                        ),
             ),
             Divider(),
             SizedBox(height: 2),
             Text(
               '',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 30),
           ],

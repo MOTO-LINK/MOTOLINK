@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ColorsApp {
-  Color primaryColor =  Color(0xFF000000);
-  Color secondaryColor =  Color(0xFFB5022F);
+  Color primaryColor = Color(0xFF000000);
+  Color secondaryColor = Color(0xFFB5022F);
   Color backgroundColor = const Color(0xFFF0F8FF);
   Color textColor = const Color(0xFF000000);
   Color buttonColor = const Color(0xFF00BFFF);
