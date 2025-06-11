@@ -11,6 +11,7 @@ import rideRoutes from "./ride.routes";
 import walletRoutes from "./wallet.routes";
 import ratingRoutes from "./rating.routes";
 import chatRoutes from "./chat.routes";
+import statisticsRoutes from "./statistics.routes"; // Added import for statistics routes
 
 const router = Router();
 
@@ -42,7 +43,9 @@ router.get("/", (_req, res) => {
 			location: "/api/location",
 			rides: "/api/rides",
 			wallet: "/api/wallet",
-			ratings: "/api/ratings"
+			ratings: "/api/ratings",
+			ratings: "/api/ratings",
+			statistics: "/api/statistics" // Added statistics endpoint to documentation
 		}
 	});
 });
@@ -60,5 +63,7 @@ router.use("/rides", rideRoutes);
 router.use("/wallet", walletRoutes);
 router.use("/ratings", ratingRoutes);
 router.use("/chats", chatRoutes);
+router.use("/statistics", statisticsRoutes); // Added statistics routes
 
 export default router;
+
