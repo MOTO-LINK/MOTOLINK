@@ -1,9 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:moto/general/map/utils/location_service.dart';
-
 
 class CustomGoogleMap extends StatefulWidget {
   const CustomGoogleMap({super.key});
@@ -16,9 +14,10 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
   late CameraPosition initialCameraPosition;
   GoogleMapController? googleMapController;
   late LocationService locationService;
- bool isFirstCall = true;
-  
+  bool isFirstCall = true;
+
   String? appMapStyle;
+  Set<Marker> markers = {};
 
   @override
   void initState() {
@@ -32,12 +31,11 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
     updateMyLocation();
   }
 
-  Set <Marker> markers = {};
-
   Future<void> loadMapStyle() async {
-    appMapStyle = await DefaultAssetBundle.of(context)
-        .loadString('assets/map_styles/app_style.json');
-    setState(() {}); 
+    appMapStyle = await DefaultAssetBundle.of(
+      context,
+    ).loadString('assets/map_styles/app_style.json');
+    setState(() {});
   }
 
   @override
@@ -73,13 +71,8 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
     );
   }
 
-
- 
-
   void updateMyLocation() async {
-   await locationService.checkAndRequestLocationService();
-
-    
+    await locationService.checkAndRequestLocationService();
     await locationService.checkAndRequestPermission();
     locationService.getRealTimeLocation((locationData) {
       SetMyLocationMarker(locationData);
@@ -89,20 +82,21 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
 
   void UpdateMyCamera(LocationData locationData) {
     if (isFirstCall) {
-  var cameraPosition = CameraPosition(
-    target: LatLng(locationData.latitude!, locationData.longitude!),
-    zoom: 16,
-
-  );
-  googleMapController?.animateCamera(
-    CameraUpdate.newCameraPosition(cameraPosition));
-  
-       isFirstCall = false;
+      var cameraPosition = CameraPosition(
+        target: LatLng(locationData.latitude!, locationData.longitude!),
+        zoom: 16,
+      );
+      googleMapController?.animateCamera(
+        CameraUpdate.newCameraPosition(cameraPosition),
+      );
+      isFirstCall = false;
     } else {
-  googleMapController?.animateCamera(
-    CameraUpdate.newLatLng(LatLng(locationData.latitude!, 
-    locationData.longitude!)));
-}
+      googleMapController?.animateCamera(
+        CameraUpdate.newLatLng(
+          LatLng(locationData.latitude!, locationData.longitude!),
+        ),
+      );
+    }
   }
 
   void SetMyLocationMarker(LocationData locationData) {
@@ -114,4 +108,4 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
     markers.add(myLocationmarker);
     setState(() {});
   }
-}     
+}

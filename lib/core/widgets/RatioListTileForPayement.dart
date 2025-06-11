@@ -1,8 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:moto/core/utils/colors.dart';
-
-
 
 class Ratiolisttile extends StatelessWidget {
   final String groupValue;
@@ -25,7 +22,7 @@ class Ratiolisttile extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: ColorsApp().secondaryColor.withOpacity(0.1),
-        
+
         borderRadius: BorderRadius.circular(10),
       ),
       child: RadioListTile<String>(
@@ -53,7 +50,7 @@ class Ratiolisttile extends StatelessWidget {
             //     MaterialPageRoute(builder: (context) =>), // <<< غيّر اسم الصفحة هنا لو محتاج
             //   );
             // } else {
-              
+
             //   if (Navigator.canPop(context)) {
             //     Future.delayed(Duration(milliseconds: 200), () {
             //       Navigator.pop(context);

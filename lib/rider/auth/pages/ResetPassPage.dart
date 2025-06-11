@@ -27,7 +27,7 @@ class _ResetPassPageState extends State<ResetPassPage> {
       appBar: CustomAppBar(
         title: "New Password!\nCreate a new password",
         imagePath: "assets/images/DELIVERY.png",
-        appBarHeight: 150,
+        appBarHeight: 150, onBackPressed: () {  },
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),
