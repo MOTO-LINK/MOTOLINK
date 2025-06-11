@@ -16,7 +16,7 @@ class _PersonaldetailspageState extends State<Personaldetailspage> {
       backgroundColor: ColorsApp().backgroundColor,
       appBar: CustomAppBar(
         title: "Complete your information!",
-        imagePath: "assets/images/DELIVERY.png",
+        imagePath: "assets/images/DELIVERY.png", onBackPressed: () {  },
       ),
     );
   }

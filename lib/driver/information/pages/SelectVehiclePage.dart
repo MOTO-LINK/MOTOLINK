@@ -25,7 +25,7 @@ class _SelectvehiclepageState extends State<Selectvehiclepage> {
       backgroundColor: ColorsApp().backgroundColor,
       appBar: CustomAppBar(
         title: "Complete your information!",
-        imagePath: "assets/images/DELIVERY.png",
+        imagePath: "assets/images/DELIVERY.png", onBackPressed: () {  },
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -36,7 +36,7 @@ class _SelectvehiclepageState extends State<Selectvehiclepage> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
-            // الكاونترات فوق
+            
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(3, (index) {
