@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       },
       debugShowCheckedModeBanner: false,
       color: Colors.white,
-      home: Adresses(),
+      home: SignupRiderPage(),
     );
   }
 }
