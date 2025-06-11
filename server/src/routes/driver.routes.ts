@@ -14,7 +14,7 @@ const router = Router();
 
 // All routes require authentication and driver role
 router.use(authenticateToken);
-router.use(authorizeRoles(UserType.DRIVER));
+router.use(authorizeRoles(UserType.DRIVER, UserType.ADMIN));
 
 // Document management
 router.post(
@@ -46,5 +46,6 @@ router.post("/location", driverController.updateLocation);
 
 // Profile
 router.get("/profile", driverController.getProfile);
+router.get("/profile/:id", authorizeRoles(UserType.ADMIN), driverController.getProfileById);
 
 export default router;

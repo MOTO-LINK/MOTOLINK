@@ -7,10 +7,11 @@ const router = Router();
 
 // All routes require authentication and rider role
 router.use(authenticateToken);
-router.use(authorizeRoles(UserType.RIDER));
+router.use(authorizeRoles(UserType.RIDER, UserType.ADMIN));
 
 // Profile
 router.get("/profile", riderController.getProfile);
+router.get("/profile:id", authorizeRoles(UserType.ADMIN),riderController.getProfileById);
 
 // Location management
 router.post("/locations", riderController.saveLocation);

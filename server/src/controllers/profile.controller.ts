@@ -46,6 +46,58 @@ class ProfileController {
 	}
 
 	/**
+	 * Retrieves the profile information of a user by their ID.
+	 *
+	 * @param {Request} req - The Express request object.
+	 * @param {Response} res - The Express response object.
+	 * @param {NextFunction} next - The Express next function.
+	 * @return {Promise<void>} A promise that resolves with no value.
+	 */
+	async getProfileById(req: Request, res: Response, next: NextFunction): Promise<void> {
+		try {
+			const userId = req.params.id;
+
+			if (!userId) {
+				res.status(400).json({
+					success: false,
+					error: {
+						code: "MISSING_USER_ID",
+						message: "User ID is required"
+					}
+				});
+				return;
+			}
+
+			const [user, phone] = await Promise.all([
+				userModel.findById(userId),
+				phoneModel.findByUserId(userId)
+			]);
+
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					error: {
+						code: "USER_NOT_FOUND",
+						message: "User not found"
+					}
+				});
+				return;
+			}
+
+			res.status(200).json({
+				success: true,
+				data: {
+					...user,
+					phone: phone?.phone_number,
+					phone_verified: phone?.verified || false
+				}
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	/**
 	 * Updates the profile information of the currently authenticated user.
 	 *
 	 * @param {Request} req - The Express request object.

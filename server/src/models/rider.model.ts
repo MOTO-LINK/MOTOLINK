@@ -29,7 +29,14 @@ export class RiderModel {
 	 * @return {Promise<Rider | null>} The rider data if found, or null if not found.
 	 */
 	async findById(riderId: string): Promise<Rider | null> {
-		const result = await pool.query("SELECT * FROM riders WHERE rider_id = $1", [riderId]);
+		const result = await pool.query(
+			`
+			SELECT r.*, u.account_locked
+      		FROM riders r
+	  		JOIN users u ON r.rider_id = u.user_id
+	  		WHERE rider_id = $1`,
+			[riderId]
+		);
 		return result.rows[0] || null;
 	}
 

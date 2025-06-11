@@ -1,12 +1,47 @@
 import { Request, Response, NextFunction } from "express";
 import riderModel from "../models/rider.model";
 import locationModel from "../models/location.model";
-import { ApiResponse } from "../utils/types";
 
 class RiderController {
 	async getProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			const user_id = req.user!.user_id;
+
+			const rider = await riderModel.getWithUserInfo(user_id);
+			if (!rider) {
+				res.status(404).json({
+					success: false,
+					error: {
+						code: "RIDER_NOT_FOUND",
+						message: "Rider profile not found"
+					}
+				});
+				return;
+			}
+
+			res.status(200).json({
+				success: true,
+				data: rider
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async getProfileById(req: Request, res: Response, next: NextFunction): Promise<void> {
+		try {
+			const user_id = req.params.id;
+
+			if (!user_id) {
+				res.status(400).json({
+					success: false,
+					error: {
+						code: "MISSING_USER_ID",
+						message: "User ID is required"
+					}
+				});
+				return;
+			}
 
 			const rider = await riderModel.getWithUserInfo(user_id);
 			if (!rider) {

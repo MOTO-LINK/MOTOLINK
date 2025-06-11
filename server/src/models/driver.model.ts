@@ -63,7 +63,14 @@ export class DriverModel {
 	 * @return {Promise<Driver | null>} The driver data if found, or null if not found.
 	 */
 	async findById(driverId: string): Promise<Driver | null> {
-		const result = await pool.query("SELECT * FROM drivers WHERE driver_id = $1", [driverId]);
+		const result = await pool.query(
+			`
+			SELECT d.*, u.account_locked
+      		FROM drivers d
+      		JOIN users u ON d.driver_id = u.user_id
+			WHERE d.driver_id = $1`,
+			[driverId]
+		);
 		return result.rows[0] || null;
 	}
 
@@ -177,13 +184,14 @@ export class DriverModel {
 	 */
 	async getAvailableDrivers(vehicleType?: VehicleType, orderType?: OrderType): Promise<Driver[]> {
 		let query = `
-      SELECT d.*, u.name, u.profile_picture, p.phone_number
+      SELECT d.*, u.name, u.profile_picture, u.account_locked, p.phone_number
       FROM drivers d
       JOIN users u ON d.driver_id = u.user_id
       LEFT JOIN phone_numbers p ON u.user_id = p.user_id
       WHERE d.is_online = true 
         AND d.is_available = true 
         AND d.verified = true
+		AND u.account_locked = false
     `;
 
 		const params: any[] = [];

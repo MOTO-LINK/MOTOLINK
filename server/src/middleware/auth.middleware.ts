@@ -51,7 +51,7 @@ export function authorizeRoles(...allowedRoles: UserType[]) {
 			return;
 		}
 
-		if (!allowedRoles.includes(req.user.user_type)) {
+		if (!allowedRoles.includes(req.user.user_type) && req.user.user_type !== UserType.ADMIN) {
 			res.status(403).json({
 				success: false,
 				error: {

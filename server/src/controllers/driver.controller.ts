@@ -346,6 +346,42 @@ class DriverController {
 			next(error);
 		}
 	}
+
+	async getProfileById(req: Request, res: Response, next: NextFunction): Promise<void> {
+		try {
+			const userId = req.params.id;
+
+			if (!userId) {
+				res.status(400).json({
+					success: false,
+					error: {
+						code: "MISSING_USER_ID",
+						message: "User ID is required"
+					}
+				});
+				return;
+			}
+
+			const driver = await driverModel.findById(userId);
+			if (!driver) {
+				res.status(404).json({
+					success: false,
+					error: {
+						code: "DRIVER_NOT_FOUND",
+						message: "Driver profile not found"
+					}
+				});
+				return;
+			}
+
+			res.status(200).json({
+				success: true,
+				data: driver
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
 }
 
 export default new DriverController();
