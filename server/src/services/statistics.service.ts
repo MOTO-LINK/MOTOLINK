@@ -200,7 +200,7 @@ class StatisticsService {
 		try {
 			const query = `SELECT COUNT(*) as total_complaints
                            FROM reports
-                           WHERE type = 'complaint';`;
+                           WHERE status = 'pending';`;
 			const result = await pool.query(query);
 			return {
 				totalComplaints: parseInt(result.rows[0].total_complaints) || 0
@@ -220,7 +220,8 @@ class StatisticsService {
                 SELECT SUM(amount) as total_settled_amount,
                        COUNT(*)    as number_of_settlements
                 FROM wallet_transactions
-                WHERE type = 'settlement';
+                WHERE purpose = 'withdrawal'
+				AND status = 'pending';
             `;
 			const result = await pool.query(query);
 			const stats = result.rows[0];

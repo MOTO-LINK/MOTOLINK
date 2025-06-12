@@ -63,4 +63,5 @@ router.use("/wallet", walletRoutes);
 router.use("/ratings", ratingRoutes);
 router.use("/chats", chatRoutes);
 router.use("/statistics", statisticsRoutes);
+
 export default router;
