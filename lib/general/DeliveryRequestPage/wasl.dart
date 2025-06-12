@@ -174,7 +174,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                           subtitle: Text(address['autoAddress'] ?? ''),
                                           onTap: () {
                                             setState(() {
-                                              pickupLocation = address['label'] ?? '';
+                                              pickupLocation = address['autoAddress'] ?? '';
                                               Navigator.pop(context);
                                             });
                                           },
@@ -263,7 +263,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                           subtitle: Text(address['autoAddress'] ?? ''),
                                           onTap: () {
                                             setState(() {
-                                              dropoffLocation = address['label'] ?? '';
+                                              dropoffLocation = address['autoAddress'] ?? '';
                                               Navigator.pop(context);
                                             });
                                           },

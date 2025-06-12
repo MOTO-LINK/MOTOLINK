@@ -10,7 +10,18 @@ import 'package:moto/general/map/utils/Services/google_maps_places_services.dart
 final colors = ColorsApp();
 
 class SelectLocationScreen extends StatefulWidget {
-  const SelectLocationScreen({super.key});
+  final String? initialLabel;
+  final String? initialAutoAddress;
+  final LatLng? initialLatLng;
+  final String? initialLocationId;
+
+  const SelectLocationScreen({
+    this.initialLabel,
+    this.initialAutoAddress,
+    this.initialLatLng,
+    this.initialLocationId,
+    super.key,
+  });
 
   @override
   _SelectLocationScreenState createState() => _SelectLocationScreenState();
@@ -28,7 +39,20 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _getUserCurrentLocation();
+
+    if (widget.initialLatLng != null) {
+      _currentLatLng = widget.initialLatLng;
+    }
+    if (widget.initialLabel != null) {
+      _customLabelController.text = widget.initialLabel!;
+    }
+    if (widget.initialAutoAddress != null) {
+      _placeNameFromMap = widget.initialAutoAddress!;
+    }
+
+    if (_currentLatLng == null) {
+      _getUserCurrentLocation();
+    }
   }
 
   @override
@@ -50,6 +74,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
       final locationData = await locationService.getLocation();
       final latLng = LatLng(locationData.latitude!, locationData.longitude!);
 
+      if (!mounted) return;
       setState(() {
         _currentLatLng = latLng;
       });
@@ -78,11 +103,13 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
         final place = placemarks.first;
         final fullName =
             '${place.street}, ${place.locality}, ${place.administrativeArea}';
+        if (!mounted) return;
         setState(() {
           _placeNameFromMap = fullName;
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _placeNameFromMap = 'مش قادر أحدد العنوان';
       });
@@ -103,6 +130,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
       'latLng': _currentLatLng,
       'autoAddress': _placeNameFromMap,
       'label': label,
+      'locationId': widget.initialLocationId, // مهم جداً
     });
   }
 
@@ -133,65 +161,58 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> with Widget
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,
                 ),
-               
-             
-SafeArea(
-  child: Padding(
-    padding: const EdgeInsets.all(12.0),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.only(top: 4), 
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 4,
-              ),
-            ],
-          ),
-          child: IconButton(
-            icon: Icon(Icons.arrow_back, color: ColorsApp().secondaryColor, size: 28),
-            onPressed: () => Navigator.of(context).pop(),
-            tooltip: 'back',
-          ),
-        ),
-        SizedBox(width: 8),
-        Expanded(
-          child: PlacesSearchBar(
-            googleMapsPlacesServices: _placesServices,
-            colorsApp: ColorsApp(),
-            onPlaceSelected: (placeDetails) {
-              final lat = placeDetails.geometry?.location?.lat;
-              final lng = placeDetails.geometry?.location?.lng;
-              if (lat != null && lng != null) {
-                final newLatLng = LatLng(lat, lng);
-                _mapController?.animateCamera(
-                  CameraUpdate.newLatLng(newLatLng),
-                );
-                setState(() => _currentLatLng = newLatLng);
-              }
-            },
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
-
-
-
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(top: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.arrow_back, color: ColorsApp().secondaryColor, size: 28),
+                            onPressed: () => Navigator.of(context).pop(),
+                            tooltip: 'back',
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: PlacesSearchBar(
+                            googleMapsPlacesServices: _placesServices,
+                            colorsApp: ColorsApp(),
+                            onPlaceSelected: (placeDetails) {
+                              final lat = placeDetails.geometry?.location?.lat;
+                              final lng = placeDetails.geometry?.location?.lng;
+                              if (lat != null && lng != null) {
+                                final newLatLng = LatLng(lat, lng);
+                                _mapController?.animateCamera(
+                                  CameraUpdate.newLatLng(newLatLng),
+                                );
+                                setState(() => _currentLatLng = newLatLng);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         margin: EdgeInsets.only(bottom: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.9),
@@ -214,8 +235,7 @@ SafeArea(
                         ),
                       ),
                       Icon(
-                        FontAwesomeIcons.mapMarkerAlt
-,
+                        FontAwesomeIcons.mapMarkerAlt,
                         size: 42,
                         color: colors.secondaryColor,
                       ),
@@ -231,8 +251,7 @@ SafeArea(
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(18)),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
                         boxShadow: [
                           BoxShadow(
                             color: colors.shadowColor,
@@ -253,8 +272,7 @@ SafeArea(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors.primaryColor),
+                                borderSide: BorderSide(color: colors.primaryColor),
                               ),
                             ),
                           ),
