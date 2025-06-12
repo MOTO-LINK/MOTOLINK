@@ -11,19 +11,19 @@ import rideRoutes from "./ride.routes";
 import walletRoutes from "./wallet.routes";
 import ratingRoutes from "./rating.routes";
 import chatRoutes from "./chat.routes";
-import statisticsRoutes from "./statistics.routes"; // Added import for statistics routes
+import statisticsRoutes from "./statistics.routes";
 
 const router = Router();
 
 // Health check
 router.get("/health", (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "API is healthy",
-    timestamp: new Date().toISOString(),
-    version: "1.0.0",
-    environment: process.env.ENV
-  });
+	res.status(200).json({
+		success: true,
+		message: "API is healthy",
+		timestamp: new Date().toISOString(),
+		version: "1.0.0",
+		environment: process.env.ENV
+	});
 });
 
 // API documentation
@@ -44,8 +44,7 @@ router.get("/", (_req, res) => {
 			rides: "/api/rides",
 			wallet: "/api/wallet",
 			ratings: "/api/ratings",
-			chats: "/api/chats",
-			statistics: "/api/statistics" // Added statistics endpoint to documentation
+			statistics: "/api/statistics"
 		}
 	});
 });
@@ -63,7 +62,5 @@ router.use("/rides", rideRoutes);
 router.use("/wallet", walletRoutes);
 router.use("/ratings", ratingRoutes);
 router.use("/chats", chatRoutes);
-router.use("/statistics", statisticsRoutes); // Added statistics routes
-
+router.use("/statistics", statisticsRoutes);
 export default router;
-
