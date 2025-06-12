@@ -3,131 +3,81 @@ import statisticsService from "../services/statistics.service";
 
 class StatisticsController {
 	/**
-	 * Get user statistics
+	 * Get complaints count for dashboard
 	 */
-	async getUserStats(_req: Request, res: Response) {
-		// Changed req to _req
+	async getDashboardComplaints(_req: Request, res: Response) {
 		try {
-			const userStats = await statisticsService.getUserStats();
-			return res.status(200).json({
-				success: true,
-				data: userStats
-			});
+			const complaintsCount = await statisticsService.getDashboardComplaints();
+			return res.status(200).json(complaintsCount);
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
-				message: "Failed to retrieve user statistics",
-				error: (error as Error).message // Typed error
+				message: "Failed to retrieve complaints count",
+				error: (error as Error).message
 			});
 		}
 	}
 
 	/**
-	 * Get revenue statistics
+	 * Get financial settlements count for dashboard
 	 */
-	async getRevenueStats(req: Request, res: Response) {
+	async getDashboardSettlements(_req: Request, res: Response) {
 		try {
-			const { range = "daily", startDate, endDate } = req.query;
-
-			// Validate range type
-			if (!["daily", "monthly", "custom"].includes(range as string)) {
-				return res.status(400).json({
-					success: false,
-					message: "Invalid range type. Must be one of: daily, monthly, custom"
-				});
-			}
-
-			// For custom range, ensure startDate and endDate are provided
-			if (range === "custom") {
-				if (!startDate || !endDate) {
-					return res.status(400).json({
-						success: false,
-						message: "For custom range, both startDate and endDate are required"
-					});
-				}
-			}
-			const revenueStats = await statisticsService.getRevenueStats(
-				range as "daily" | "monthly" | "custom",
-				startDate as string,
-				endDate as string
-			);
-
-			return res.status(200).json({
-				success: true,
-				data: revenueStats
-			});
+			const settlementsCount = await statisticsService.getDashboardSettlements();
+			return res.status(200).json(settlementsCount);
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
-				message: "Failed to retrieve revenue statistics",
-				error: (error as Error).message // Typed error
+				message: "Failed to retrieve settlement requests count",
+				error: (error as Error).message
 			});
 		}
 	}
 
 	/**
-	 * Get complaints statistics
+	 * Get orders count for dashboard
 	 */
-	async getComplaintsStats(_req: Request, res: Response) {
-		// Changed req to _req
+	async getDashboardOrders(_req: Request, res: Response) {
 		try {
-			// TODO: Add validation for query parameters if any, similar to getRevenueStats
-
-			const complaintsStats = await statisticsService.getComplaintsStats();
-			return res.status(200).json({
-				success: true,
-				data: complaintsStats
-			});
+			const ordersCount = await statisticsService.getDashboardOrders();
+			return res.status(200).json(ordersCount);
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
-				message: "Failed to retrieve complaints statistics",
-				error: (error as Error).message // Typed error
+				message: "Failed to retrieve orders count",
+				error: (error as Error).message
 			});
 		}
 	}
 
 	/**
-	 * Get financial settlements statistics
+	 * Get clients count for dashboard
 	 */
-	async getFinancialSettlementsStats(_req: Request, res: Response) {
-		// Changed req to _req
+	async getDashboardClients(_req: Request, res: Response) {
 		try {
-			// TODO: Add validation for query parameters if any
-
-			const financialSettlementsStats =
-				await statisticsService.getFinancialSettlementsStats();
-			return res.status(200).json({
-				success: true,
-				data: financialSettlementsStats
-			});
+			const clientsCount = await statisticsService.getDashboardClients();
+			return res.status(200).json(clientsCount);
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
-				message: "Failed to retrieve financial settlements statistics",
-				error: (error as Error).message // Typed error
+				message: "Failed to retrieve clients count",
+				error: (error as Error).message
 			});
 		}
 	}
 
 	/**
-	 * Get requests statistics
+	 * Get representatives count for dashboard
 	 */
-	async getRequestsStats(_req: Request, res: Response) {
-		// Changed req to _req
+	async getDashboardRepresentatives(_req: Request, res: Response) {
 		try {
-			// TODO: Add validation for query parameters if any
-
-			const requestsStats = await statisticsService.getRequestsStats();
-			return res.status(200).json({
-				success: true,
-				data: requestsStats
-			});
+			const representativesCount = await statisticsService.getDashboardRepresentatives();
+			return res.status(200).json(representativesCount);
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
-				message: "Failed to retrieve requests statistics",
-				error: (error as Error).message // Typed error
+				message: "Failed to retrieve representatives count",
+				error: (error as Error).message
 			});
 		}
 	}

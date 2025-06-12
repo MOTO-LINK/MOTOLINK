@@ -94,10 +94,6 @@ class FareCalculationService {
 		};
 	}
 
-	public getCurrency(): string {
-		return config.app.defaultCurrency;
-	}
-
 	calculateCancellationFee(vehicleType: VehicleType, minutesAfterAcceptance: number): number {
 		const rates = this.rates[vehicleType];
 
