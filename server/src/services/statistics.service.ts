@@ -1,6 +1,6 @@
 import { UserType } from "../utils/types";
 import fareCalculationService from "./fareCalculation.service";
-import { format, subDays, startOfMonth, endOfMonth, parseISO, isValid } from "date-fns";
+import { format, subDays, startOfMonth, endOfMonth, isValid } from "date-fns";
 // db connection
 import pool from "../utils/database";
 
@@ -123,10 +123,9 @@ class StatisticsService {
 						throw new Error("Start date and end date are required for custom range");
 					}
 
-					start = parseISO(startDate);
-					end = parseISO(endDate);
+					start = new Date(startDate);
+					end = new Date(endDate);
 
-					// Validate parsed dates
 					if (!isValid(start)) {
 						throw new Error(
 							"Invalid startDate format. Please use ISO 8601 format (e.g., YYYY-MM-DD)."
