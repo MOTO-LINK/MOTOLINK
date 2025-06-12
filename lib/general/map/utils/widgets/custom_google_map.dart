@@ -3,14 +3,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:moto/general/map/utils/location_service.dart';
 
-class CustomGoogleMap extends StatefulWidget {
-  const CustomGoogleMap({super.key});
+class PickLocation extends StatefulWidget {
+  const PickLocation({super.key});
 
   @override
-  State<CustomGoogleMap> createState() => _CustomGoogleMapState();
+  State<PickLocation> createState() => _PickLocationState();
 }
 
-class _CustomGoogleMapState extends State<CustomGoogleMap> {
+class _PickLocationState extends State<PickLocation> {
   late CameraPosition initialCameraPosition;
   GoogleMapController? googleMapController;
   late LocationService locationService;
@@ -34,7 +34,7 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
   Future<void> loadMapStyle() async {
     appMapStyle = await DefaultAssetBundle.of(
       context,
-    ).loadString('assets/map_styles/app_style.json');
+    ).loadString('assets/map_style/app_style.json');
     setState(() {});
   }
 

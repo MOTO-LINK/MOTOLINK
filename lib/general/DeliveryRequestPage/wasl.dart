@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:moto/core/utils/colors.dart';
@@ -9,6 +9,7 @@ import 'package:moto/core/widgets/OrderdetailsTextField.dart';
 import 'package:moto/core/widgets/RatioListTileForPayement.dart';
 import 'package:moto/core/widgets/custom_button.dart';
 import 'package:moto/models/textfieldmodel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DeliveryRequestPage extends StatefulWidget {
   const DeliveryRequestPage({super.key});
@@ -28,6 +29,28 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
 
   List<String> paymentMethods = ['Cash', 'Credit Card', 'Vodafone Cash'];
   File? selectedimage;
+
+  // متغير محلي للعناوين المحفوظة
+  List<Map<String, dynamic>> savedAddresses = [];
+
+  // تحميل العناوين من SharedPreferences عند فتح الصفحة
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedAddresses();
+  }
+
+  Future<void> _loadSavedAddresses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('saved_addresses');
+    if (jsonString != null) {
+      final List decoded = jsonDecode(jsonString);
+      setState(() {
+        savedAddresses = decoded.cast<Map<String, dynamic>>();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +60,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
         icon: FontAwesome.arrow_left,
         onIconPressed: () {
           Navigator.pop(context);
-        }, onBackPressed: () {  },
+        },
+        onBackPressed: () {},
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -53,29 +77,27 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                   ),
                   selectedimage == null
                       ? Padding(
-                        padding: const EdgeInsets.only(left: 220),
-                        child: IconButton(
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(
-                              ColorsApp().backgroundColor,
-                            ),
-                            shape:
-                                WidgetStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    side: BorderSide.none,
-                                  ),
+                          padding: const EdgeInsets.only(left: 220),
+                          child: IconButton(
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all(
+                                ColorsApp().backgroundColor,
+                              ),
+                              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide.none,
                                 ),
+                              ),
+                            ),
+                            iconSize: 25,
+                            onPressed: () {},
+                            icon: Icon(
+                              FontAwesome.camera,
+                              color: ColorsApp().secondaryColor,
+                            ),
                           ),
-                          iconSize: 25,
-                          onPressed: () {},
-
-                          icon: Icon(
-                            FontAwesome.camera,
-                            color: ColorsApp().secondaryColor,
-                          ),
-                        ),
-                      )
+                        )
                       : SizedBox.shrink(),
                 ],
               ),
@@ -97,8 +119,77 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                   TextEditingController(text: pickupLocation),
                   "Enter your pickup location",
                   true,
-                  () async {},
-
+                  () async {
+                    await showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: SizedBox(
+                            height: 350,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: ColorsApp().secondaryColor,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                SizedBox(height: 15),
+                                Divider(),
+                                SizedBox(height: 20),
+                                Text(
+                                  'Select From Saved Locations',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 30),
+                                Expanded(
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: savedAddresses.length,
+                                    itemBuilder: (context, index) {
+                                      final address = savedAddresses[index];
+                                      return Container(
+                                        margin: EdgeInsets.symmetric(vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black12,
+                                              blurRadius: 6,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ListTile(
+                                          leading: Icon(Icons.location_on, color: ColorsApp().secondaryColor),
+                                          title: Text(address['label'] ?? 'No Label'),
+                                          subtitle: Text(address['autoAddress'] ?? ''),
+                                          onTap: () {
+                                            setState(() {
+                                              pickupLocation = address['label'] ?? '';
+                                              Navigator.pop(context);
+                                            });
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                   prefixIcon: Icon(FontAwesome.map_marker),
                 ),
                 color: ColorsApp(),
@@ -114,15 +205,85 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                 Textfieldmodels: Textfieldmodel(
                   Icon(FontAwesome.arrow_circle_o_right),
                   TextInputType.text,
-                  TextEditingController(text: pickupLocation),
-                  "Enter your pickup location",
+                  TextEditingController(text: dropoffLocation),
+                  "Enter your dropoff location",
                   true,
-                  () async {},
-
+                  () async {
+                    await showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: SizedBox(
+                            height: 350,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: ColorsApp().secondaryColor,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                SizedBox(height: 15),
+                                Divider(),
+                                SizedBox(height: 20),
+                                Text(
+                                  'Select From Saved Locations',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 30),
+                                Expanded(
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: savedAddresses.length,
+                                    itemBuilder: (context, index) {
+                                      final address = savedAddresses[index];
+                                      return Container(
+                                        margin: EdgeInsets.symmetric(vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black12,
+                                              blurRadius: 6,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ListTile(
+                                          leading: Icon(Icons.location_on, color: ColorsApp().secondaryColor),
+                                          title: Text(address['label'] ?? 'No Label'),
+                                          subtitle: Text(address['autoAddress'] ?? ''),
+                                          onTap: () {
+                                            setState(() {
+                                              dropoffLocation = address['label'] ?? '';
+                                              Navigator.pop(context);
+                                            });
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                   prefixIcon: Icon(FontAwesome.map_marker),
                 ),
                 color: ColorsApp(),
               ),
+
               SizedBox(height: 15),
               Text(
                 '*Contact Number',
@@ -169,7 +330,6 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                       }
                     });
                   },
-
                   prefixIcon: Icon(FontAwesome.clock_o),
                 ),
                 color: ColorsApp(),

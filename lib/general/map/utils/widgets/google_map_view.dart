@@ -6,14 +6,14 @@ import 'package:moto/general/map/utils/Services/google_maps_places_services.dart
 import 'package:moto/general/map/utils/location_service.dart';
 import 'place_BotoomSheet.dart';
 
-class GoogleMapView extends StatefulWidget {
-  const GoogleMapView({super.key});
+class pickupocation extends StatefulWidget {
+  const pickupocation({super.key});
 
   @override
-  State<GoogleMapView> createState() => _GoogleMapViewState();
+  State<pickupocation> createState() => _pickupocationState();
 }
 
-class _GoogleMapViewState extends State<GoogleMapView> {
+class _pickupocationState extends State<pickupocation> {
   late LocationService locationService;
   late GoogleMapController googleMapController;
   late CameraPosition initialCameraPosition;
@@ -36,10 +36,8 @@ class _GoogleMapViewState extends State<GoogleMapView> {
         context: context,
         isScrollControlled: true,
         builder: (BuildContext context) {
-          return PlacesBottomSheet(
-            googleMapsPlacesServices: googleMapsPlacesServices,
-            colorsApp: ColorsApp(),
-          );
+          return  PlacesBottomSheet();
+
         },
       );
     });

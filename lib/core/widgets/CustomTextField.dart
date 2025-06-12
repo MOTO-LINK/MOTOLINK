@@ -8,6 +8,7 @@ class CustomTextfield extends StatelessWidget {
     required this.Textfieldmodels,
     required this.color,
   });
+
   final Textfieldmodel Textfieldmodels;
   final ColorsApp color;
 
@@ -20,7 +21,12 @@ class CustomTextfield extends StatelessWidget {
       decoration: InputDecoration(
         prefixIcon: Textfieldmodels.prefixIcon,
         prefixIconColor: ColorsApp().secondaryColor,
-        suffixIcon: Textfieldmodels.suffixIcon,
+        suffixIcon: Textfieldmodels.suffixIcon != null
+            ? GestureDetector(
+                onTap: Textfieldmodels.onTap,
+                child: Textfieldmodels.suffixIcon,
+              )
+            : null,
         suffixIconColor: ColorsApp().secondaryColor,
         iconColor: color.secondaryColor,
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -32,8 +38,8 @@ class CustomTextfield extends StatelessWidget {
           borderSide: BorderSide.none,
         ),
       ),
-      textDirection: TextDirection.rtl, 
-      onTap: (Textfieldmodels.isReadOnly ?? false) ? Textfieldmodels.onTap : null,
+      textDirection: TextDirection.rtl,
+      onTap: Textfieldmodels.isReadOnly ?? false ? Textfieldmodels.onTap : null,
     );
   }
 }
