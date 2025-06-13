@@ -137,21 +137,6 @@ class ReportController {
 	 */
 	async updateReportStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
-			// Check if user is admin
-			if (req.user && req.user.user_type !== UserType.ADMIN) {
-				const response: ApiResponse = {
-					success: false,
-					data: null,
-					message: "Unauthorized: Only admins can update report status",
-					error: {
-						code: "UNAUTHORIZED",
-						message: "You don't have permission to perform this action"
-					}
-				};
-				res.status(403).json(response);
-				return;
-			}
-
 			const { id } = req.params;
 			const { status, resolutionNotes } = req.body;
 			const validStatuses = Object.values(ReportStatus);

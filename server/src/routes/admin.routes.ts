@@ -3,6 +3,7 @@ import adminController from "../controllers/admin.controller";
 import { authenticateToken, authorizeRoles } from "../middleware/auth.middleware";
 import DashboardRoutes from "./dashboard.routes";
 import { UserType } from "../utils/types";
+import reportRoutes from "./report.routes";
 
 const router = Router();
 
@@ -23,5 +24,8 @@ router.post("/users/:userId/unlock", adminController.unlockUserAccount);
 
 // Admin Dashboard statistics
 router.use("/dashboard", DashboardRoutes);
+
+// Report management
+router.use("/reports", reportRoutes);
 
 export default router;
