@@ -8,7 +8,13 @@ class DashboardController {
 	async getDashboardComplaints(_req: Request, res: Response) {
 		try {
 			const complaintsCount = await statisticsService.getDashboardComplaints();
-			return res.status(200).json(complaintsCount);
+			return res
+				.status(200)
+				.json({
+					success: true,
+					data: complaintsCount,
+					message: "Complaints count retrieved successfully"
+				});
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
@@ -24,7 +30,13 @@ class DashboardController {
 	async getDashboardSettlements(_req: Request, res: Response) {
 		try {
 			const settlementsCount = await statisticsService.getDashboardSettlements();
-			return res.status(200).json(settlementsCount);
+			return res
+				.status(200)
+				.json({
+					success: true,
+					data: settlementsCount,
+					message: "Settlements count retrieved successfully"
+				});
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
@@ -40,7 +52,11 @@ class DashboardController {
 	async getDashboardOrders(_req: Request, res: Response) {
 		try {
 			const ordersCount = await statisticsService.getDashboardOrders();
-			return res.status(200).json(ordersCount);
+			return res.status(200).json({
+				success: true,
+				data: ordersCount,
+				message: "Orders count retrieved successfully"
+			});
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
@@ -56,7 +72,11 @@ class DashboardController {
 	async getDashboardClients(_req: Request, res: Response) {
 		try {
 			const clientsCount = await statisticsService.getDashboardClients();
-			return res.status(200).json(clientsCount);
+			return res.status(200).json({
+				success: true,
+				data: clientsCount,
+				message: "Clients count retrieved successfully"
+			});
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
@@ -72,7 +92,11 @@ class DashboardController {
 	async getDashboardRepresentatives(_req: Request, res: Response) {
 		try {
 			const representativesCount = await statisticsService.getDashboardRepresentatives();
-			return res.status(200).json(representativesCount);
+			return res.status(200).json({
+				success: true,
+				data: representativesCount,
+				message: "Representatives count retrieved successfully"
+			});
 		} catch (error) {
 			return res.status(500).json({
 				success: false,
