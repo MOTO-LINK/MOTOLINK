@@ -1,6 +1,7 @@
 import { Router } from "express";
 import adminController from "../controllers/admin.controller";
 import { authenticateToken, authorizeRoles } from "../middleware/auth.middleware";
+import DashboardRoutes from "./dashboard.routes";
 import { UserType } from "../utils/types";
 
 const router = Router();
@@ -19,5 +20,8 @@ router.get("/drivers/pending", adminController.getDriversPendingVerification);
 // User management
 router.post("/users/:userId/lock", adminController.lockUserAccount);
 router.post("/users/:userId/unlock", adminController.unlockUserAccount);
+
+// Admin Dashboard statistics
+router.use("/dashboard", DashboardRoutes);
 
 export default router;
