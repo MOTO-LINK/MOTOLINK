@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/general/map/utils/Services/google_maps_places_services.dart';
 import 'package:moto/general/map/utils/location_service.dart';

@@ -10,7 +10,7 @@ Future<String?> sendLocationToBackend({
   required String label,
   required String token,
 }) async {
-  final url = Uri.parse("http://motolinkapp-env.eba-vwaaqaqm.eu-central-1.elasticbeanstalk.com/api/rider/locations");
+  final url = Uri.parse("http://motolinkapp-env.eba-vwaaqaqm.eu-central-1.elasticbeanstalk.com/api/rides/request");
 
   print('🚀 Sending location to backend...');
   print('📍 Coordinates: ${latLng.latitude}, ${latLng.longitude}');

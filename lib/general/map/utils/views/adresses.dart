@@ -18,13 +18,20 @@ class Adresses extends StatefulWidget {
 
 class _AdressesState extends State<Adresses> {
   List<Map<String, dynamic>> savedAddresses = [];
+  String? currentToken;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadSavedAddresses();
+      _init();
     });
+  }
+
+  Future<void> _init() async {
+    final storageService = StorageService();
+    currentToken = await storageService.getToken();
+    await _loadSavedAddresses();
   }
 
   Future<void> _loadSavedAddresses() async {
@@ -33,29 +40,48 @@ class _AdressesState extends State<Adresses> {
     if (jsonString != null) {
       final List decoded = jsonDecode(jsonString);
       setState(() {
-        savedAddresses = decoded.map<Map<String, dynamic>>((address) {
-          if (address['latLng'] is List) {
-            address['latLng'] =
-                LatLng(address['latLng'][0], address['latLng'][1]);
-          }
-          return Map<String, dynamic>.from(address);
-        }).toList();
+        savedAddresses = decoded
+            .map<Map<String, dynamic>>((address) {
+              if (address['latLng'] is List) {
+                address['latLng'] =
+                    LatLng(address['latLng'][0], address['latLng'][1]);
+              }
+              return Map<String, dynamic>.from(address);
+            })
+            .where((address) => address['userToken'] == currentToken)
+            .toList();
       });
     }
   }
 
   Future<void> _saveAddresses() async {
     final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('saved_addresses');
+    List<Map<String, dynamic>> existing = [];
+
+    if (jsonString != null) {
+      final List decoded = jsonDecode(jsonString);
+      existing = decoded.map<Map<String, dynamic>>((address) {
+        return Map<String, dynamic>.from(address);
+      }).toList();
+    }
+
+    // Remove any old addresses for this user
+    existing.removeWhere((address) => address['userToken'] == currentToken);
+
+    // Add current updated addresses
     final addressesToSave = savedAddresses.map((address) {
       final latLng = address['latLng'];
+      final newAddress = Map<String, dynamic>.from(address);
       if (latLng is LatLng) {
-        address = Map<String, dynamic>.from(address);
-        address['latLng'] = [latLng.latitude, latLng.longitude];
+        newAddress['latLng'] = [latLng.latitude, latLng.longitude];
       }
-      return address;
+      return newAddress;
     }).toList();
-    final jsonString = jsonEncode(addressesToSave);
-    await prefs.setString('saved_addresses', jsonString);
+
+    existing.addAll(addressesToSave);
+
+    await prefs.setString('saved_addresses', jsonEncode(existing));
   }
 
   Future<void> _navigateToSelectLocation({int? indexToEdit}) async {
@@ -63,7 +89,6 @@ class _AdressesState extends State<Adresses> {
     if (indexToEdit != null) {
       oldAddress = savedAddresses[indexToEdit];
     }
-    print('oldAddress: $oldAddress');
 
     final result = await Navigator.push(
       context,
@@ -77,30 +102,24 @@ class _AdressesState extends State<Adresses> {
       ),
     );
 
-    print('Result from SelectLocationScreen: $result');
-
     if (result != null && result is Map<String, dynamic>) {
       try {
-        final storageService = StorageService();
-        final token = await storageService.getToken();
+        final token = currentToken ?? '';
         final latLng = result['latLng'] as LatLng;
 
         if (indexToEdit != null) {
-          print("🟢 تعديل عنوان قديم");
-
           final locationId = savedAddresses[indexToEdit]['locationId'];
 
           if (locationId == null) {
-            print("🚨 لا يوجد locationId .. بيتم إضافته كعنوان جديد");
-
             final newLocationId = await sendLocationToBackend(
               latLng: latLng,
               autoAddress: result['autoAddress'],
               label: result['label'],
-              token: token ?? '',
+              token: token,
             );
             result['locationId'] = newLocationId;
             result['latLng'] = latLng;
+            result['userToken'] = token;
 
             setState(() {
               savedAddresses[indexToEdit] = result;
@@ -111,26 +130,28 @@ class _AdressesState extends State<Adresses> {
               latLng: latLng,
               autoAddress: result['autoAddress'],
               label: result['label'],
-              token: token ?? '',
+              token: token,
             );
 
             result['locationId'] = locationId;
             result['latLng'] = latLng;
+            result['userToken'] = token;
 
             setState(() {
               savedAddresses[indexToEdit] = result;
             });
           }
         } else {
-          print("🟢 إضافة عنوان جديد");
           final newLocationId = await sendLocationToBackend(
             latLng: latLng,
             autoAddress: result['autoAddress'],
             label: result['label'],
-            token: token ?? '',
+            token: token,
           );
           result['locationId'] = newLocationId;
           result['latLng'] = latLng;
+          result['userToken'] = token;
+
           setState(() {
             savedAddresses.add(result);
           });
@@ -146,20 +167,13 @@ class _AdressesState extends State<Adresses> {
     final address = savedAddresses[index];
     final locationId = address['locationId'];
     try {
-      final storageService = StorageService();
-      final token = await storageService.getToken();
-
-      if (token == null || token.isEmpty) {
-        print("❌ Token is null or empty!");
-        return;
-      }
+      final token = currentToken ?? '';
 
       if (locationId != null) {
-        await deleteLocationFromBackend(
-            locationId: locationId, token: token);
+        await deleteLocationFromBackend(locationId: locationId, token: token);
         print("✅ Address deleted from backend! locationId: $locationId");
       }
-      
+
       setState(() {
         savedAddresses.removeAt(index);
       });
@@ -194,15 +208,6 @@ class _AdressesState extends State<Adresses> {
         );
       },
     );
-  }
-
-  Future<void> _clearAllAddresses() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('saved_addresses');
-    setState(() {
-      savedAddresses.clear();
-    });
-    print('✅ تم مسح كل العناوين القديمة');
   }
 
   @override
@@ -254,8 +259,8 @@ class _AdressesState extends State<Adresses> {
               ? Center(
                   child: Text(
                     'No saved addresses yet.',
-                    style: TextStyle(
-                        color: ColorsApp().TextField, fontSize: 16),
+                    style:
+                        TextStyle(color: ColorsApp().TextField, fontSize: 16),
                   ),
                 )
               : Expanded(
