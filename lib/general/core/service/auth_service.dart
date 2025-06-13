@@ -1,14 +1,13 @@
 import 'package:http/http.dart' as http;
-import 'package:moto/general/core/models/login_response_model.dart';
 import 'dart:convert';
+import '../models/login_response_model.dart';
 import '../models/signup_request_model.dart';
 import '../models/signup_response_model.dart';
 
 class AuthService {
-  final String _baseUrl =
-      "http://motolinkapp-env.eba-vwaaqaqm.eu-central-1.elasticbeanstalk.com/api";
+  final String _baseUrl = "http://motolinkapp-env.eba-vwaaqaqm.eu-central-1.elasticbeanstalk.com/api";
 
-  // register function
+  // ---------- Register ----------
   Future<dynamic> signUp(SignUpRequest request) async {
     try {
       final response = await http.post(
@@ -34,7 +33,7 @@ class AuthService {
     }
   }
 
-  // login function
+  // ---------- Login ----------
   Future<dynamic> login({
     required String phone,
     required String password,
@@ -65,7 +64,7 @@ class AuthService {
     }
   }
 
-  // forgot password function
+  // ---------- Forgot Password ----------
   Future<Map<String, dynamic>> forgotPassword(String phone) async {
     try {
       final response = await http.post(
@@ -84,7 +83,7 @@ class AuthService {
     }
   }
 
-  // reset password function
+  // ---------- Reset Password ----------
   Future<bool> resetPassword({
     required String phone,
     required String code,
@@ -114,7 +113,7 @@ class AuthService {
     }
   }
 
-  // verify phone function (المعدلة بالكامل)
+  // ---------- Verify Phone ----------
   Future<dynamic> verify({required String phone, required String code}) async {
     final Uri url = Uri.parse("$_baseUrl/phone/verify");
 
@@ -128,24 +127,19 @@ class AuthService {
       final responseBody = jsonDecode(response.body);
       print("Verify Response Body: $responseBody");
 
-      if (response.statusCode == 200 && responseBody['status'] == 'success') {
-        return responseBody['message']; // Phone number verified successfully
+      // لاحظ ان هنا بنشيك على status مش success
+      if (response.statusCode == 200 && responseBody['status'] == "success") {
+        return responseBody['message']; // هرجع الرسالة مباشرة
       } else {
-        return LoginErrorResponse.fromJson(responseBody);
+        return 'Verification failed: ${responseBody['message']}';
       }
     } catch (e) {
       print("Error in verifyPhone: $e");
-      return LoginErrorResponse(
-        success: false,
-        error: ErrorDataLogin(
-          code: 'CONNECTION_ERROR',
-          message: "تعذر الاتصال بالسيرفر. تأكد من الاتصال بالإنترنت أو حاول لاحقًا.",
-        ),
-      );
+      return 'تعذر الاتصال بالسيرفر. تأكد من الاتصال بالإنترنت أو حاول لاحقًا.';
     }
   }
 
-  // resend code function
+  // ---------- Resend Code ----------
   Future<Map<String, dynamic>> resendCode(String phone) async {
     try {
       final response = await http.post(

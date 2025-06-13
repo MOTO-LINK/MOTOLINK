@@ -3,12 +3,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:moto/core/utils/colors.dart';
-import 'package:moto/core/utils/showSnackBar.dart';
+import 'package:moto/core/widgets/CustomSnackBar.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
-import 'package:moto/rider/auth/core/services/storage_service.dart';
-import 'package:moto/rider/auth/models/signup_request_model.dart';
-import 'package:moto/rider/auth/models/signup_response_model.dart';
-import 'package:moto/rider/auth/services/auth_service.dart';
+import 'package:moto/general/core/service/storage_service.dart';
+import 'package:moto/general/core/models/signup_request_model.dart';
+import 'package:moto/general/core/models/signup_response_model.dart';
+import 'package:moto/general/core/service/auth_service.dart';
 import 'package:moto/rider/auth/widgets/api.dart';
 
 class SignupRiderPage extends StatefulWidget {
@@ -135,6 +135,10 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                       if (value.length < 10) {
                         return "Phone Number must be at least 10 digits";
                       }
+                      if (!RegExp(r'^\d+$').hasMatch(value)) {
+                        return "Phone number must contain only digits";
+                      }
+
                       return null;
                     },
                     onChanged: (data) {
@@ -217,9 +221,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                       }
                       return null;
                     },
-                    onChanged: (data) {
-                      email = data;
-                    },
+                    onChanged: (data) {},
                     onTap: () async {
                       DateTime? picked = await showDatePicker(
                         context: context,
@@ -363,7 +365,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                   SizedBox(height: 40),
 
                   GestureDetector(
-                    onTap: handleSignUp,
+                    onTap: handleSignUpRider,
 
                     /*() async {
                       if (formState.currentState!.validate()) {
@@ -455,7 +457,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
     );
   }
 
-  void handleSignUp() async {
+  void handleSignUpRider() async {
     if (formState.currentState!.validate()) {
       setState(() => isLoading = true);
 
@@ -476,15 +478,17 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
         final storageService = StorageService();
         await storageService.saveUserSession(result);
       }
-
       setState(() => isLoading = false);
       if (!mounted) return;
-
       if (result is SignUpSuccessResponse) {
-        showSnackBar(context, 'Sign Up Successful!');
-        Navigator.pushNamed(context, "home_page_dafult");
+        CustomSnackBar(context, 'Sign Up Successful!');
+        Navigator.pushNamed(
+          context,
+          "Verfication_Page",
+          arguments: {"phone": _phoneController.text},
+        );
       } else if (result is SignUpErrorResponse) {
-        showSnackBar(context, 'Error: ${result.error.message}');
+        CustomSnackBar(context, 'Error: ${result.error.message}');
       }
     }
   }

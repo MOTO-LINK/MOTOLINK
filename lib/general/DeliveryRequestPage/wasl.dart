@@ -1,15 +1,15 @@
-import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:moto/general/DeliveryRequestPage/DelveryRequestServices.dart';
+import 'package:moto/general/map/utils/widgets/custombuttonnew.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomTextField.dart';
 import 'package:moto/core/widgets/OrderdetailsTextField.dart';
-import 'package:moto/core/widgets/RatioListTileForPayement.dart';
-import 'package:moto/core/widgets/custom_button.dart';
 import 'package:moto/models/textfieldmodel.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:moto/rider/auth/core/services/storage_service.dart'; 
 
 class DeliveryRequestPage extends StatefulWidget {
   const DeliveryRequestPage({super.key});
@@ -22,22 +22,28 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
+
   String pickupLocation = 'Choose location';
   String dropoffLocation = 'Choose location';
+  Map<String, dynamic>? selectedPickupAddress;
+  Map<String, dynamic>? selectedDropoffAddress;
   DateTime? selectedDateTime;
-  String selectedpayment = 'Cash';
-
-  List<String> paymentMethods = ['Cash', 'Credit Card', 'Vodafone Cash'];
-  File? selectedimage;
-
-  // متغير محلي للعناوين المحفوظة
+  String selectedPayment = 'cash';
+  List<String> paymentMethods = ['cash', 'wallet', ];
   List<Map<String, dynamic>> savedAddresses = [];
 
-  // تحميل العناوين من SharedPreferences عند فتح الصفحة
+  String? currentToken;
+
   @override
   void initState() {
     super.initState();
-    _loadSavedAddresses();
+    _init();
+  }
+
+  Future<void> _init() async {
+    final storageService = StorageService();
+    currentToken = await storageService.getToken();
+    await _loadSavedAddresses();
   }
 
   Future<void> _loadSavedAddresses() async {
@@ -46,7 +52,16 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     if (jsonString != null) {
       final List decoded = jsonDecode(jsonString);
       setState(() {
-        savedAddresses = decoded.cast<Map<String, dynamic>>();
+        savedAddresses = decoded
+            .map<Map<String, dynamic>>((address) {
+              if (address['latLng'] is List) {
+                address['latitude'] = address['latLng'][0];
+                address['longitude'] = address['latLng'][1];
+              }
+              return Map<String, dynamic>.from(address);
+            })
+            .where((address) => address['userToken'] == currentToken)
+            .toList();
       });
     }
   }
@@ -64,369 +79,264 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
         onBackPressed: () {},
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '*Order Details',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  selectedimage == null
-                      ? IconButton(
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(
-                            ColorsApp().backgroundColor,
-                          ),
-                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                        iconSize: 25,
-                        onPressed: () {},
-                        icon: Icon(
-                          FontAwesome.camera,
-                          color: ColorsApp().secondaryColor,
-                        ),
-                      )
-                      : SizedBox.shrink(),
-                ],
-              ),
-              SizedBox(height: 10),
-              OrderDetailsTextField(
-                descriptionController: descriptionController,
-              ),
-              SizedBox(height: 15),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildTitle('*Order Details'),
+            OrderDetailsTextField(descriptionController: descriptionController),
+            SizedBox(height: 20),
 
-              Text(
-                '*Pickup Location',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              CustomTextfield(
-                Textfieldmodels: Textfieldmodel(
-                  Icon(FontAwesome.arrow_circle_o_right),
-                  TextInputType.text,
-                  TextEditingController(text: pickupLocation),
-                  "Enter your pickup location",
-                  true,
-                  () async {
-                    await showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: SizedBox(
-                            height: 350,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 60,
-                                  height: 7,
-                                  decoration: BoxDecoration(
-                                    color: ColorsApp().secondaryColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                SizedBox(height: 15),
-                                Divider(),
-                                SizedBox(height: 20),
-                                Text(
-                                  'Select From Saved Locations',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 30),
-                                Expanded(
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: savedAddresses.length,
-                                    itemBuilder: (context, index) {
-                                      final address = savedAddresses[index];
-                                      return Container(
-                                        margin: EdgeInsets.symmetric(vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(10),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black12,
-                                              blurRadius: 6,
-                                              offset: Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: ListTile(
-                                          leading: Icon(Icons.location_on, color: ColorsApp().secondaryColor),
-                                          title: Text(address['label'] ?? 'No Label'),
-                                          subtitle: Text(address['autoAddress'] ?? ''),
-                                          onTap: () {
-                                            setState(() {
-                                              pickupLocation = address['autoAddress'] ?? '';
-                                              Navigator.pop(context);
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  prefixIcon: Icon(FontAwesome.map_marker),
-                ),
-                color: ColorsApp(),
-              ),
+            buildLocationField('Pickup Location', pickupLocation, true),
+            SizedBox(height: 20),
 
-              SizedBox(height: 15),
-              Text(
-                '*Dropoff Location',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              CustomTextfield(
-                Textfieldmodels: Textfieldmodel(
-                  Icon(FontAwesome.arrow_circle_o_right),
-                  TextInputType.text,
-                  TextEditingController(text: dropoffLocation),
-                  "Enter your dropoff location",
-                  true,
-                  () async {
-                    await showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: SizedBox(
-                            height: 350,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 60,
-                                  height: 7,
-                                  decoration: BoxDecoration(
-                                    color: ColorsApp().secondaryColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                SizedBox(height: 15),
-                                Divider(),
-                                SizedBox(height: 20),
-                                Text(
-                                  'Select From Saved Locations',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 30),
-                                Expanded(
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: savedAddresses.length,
-                                    itemBuilder: (context, index) {
-                                      final address = savedAddresses[index];
-                                      return Container(
-                                        margin: EdgeInsets.symmetric(vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(10),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black12,
-                                              blurRadius: 6,
-                                              offset: Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: ListTile(
-                                          leading: Icon(Icons.location_on, color: ColorsApp().secondaryColor),
-                                          title: Text(address['label'] ?? 'No Label'),
-                                          subtitle: Text(address['autoAddress'] ?? ''),
-                                          onTap: () {
-                                            setState(() {
-                                              dropoffLocation = address['autoAddress'] ?? '';
-                                              Navigator.pop(context);
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  prefixIcon: Icon(FontAwesome.map_marker),
-                ),
-                color: ColorsApp(),
-              ),
+            buildLocationField('Dropoff Location', dropoffLocation, false),
+            SizedBox(height: 20),
 
-              SizedBox(height: 15),
-              Text(
-                '*Contact Number',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            buildTitle('*Contact Number'),
+            CustomTextfield(
+              Textfieldmodels: Textfieldmodel(
+                Icon(FontAwesome.mobile_phone),
+                TextInputType.phone,
+                phoneController,
+                "Enter your phone number",
+                false,
+                null,
+                prefixIcon: Icon(FontAwesome.edit),
               ),
-              SizedBox(height: 10),
-              CustomTextfield(
-                Textfieldmodels: Textfieldmodel(
-                  Icon(FontAwesome.edit),
-                  TextInputType.phone,
-                  phoneController,
-                  "Enter your phone number",
-                  false,
-                  null,
-                  prefixIcon: Icon(FontAwesome.mobile_phone),
-                ),
-                color: ColorsApp(),
-              ),
-              SizedBox(height: 15),
-              Text(
-                '*Delivery date',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              CustomTextfield(
-                Textfieldmodels: Textfieldmodel(
-                  Icon(FontAwesome.calendar),
-                  TextInputType.datetime,
-                  dateController,
-                  "Select delivery date",
-                  true,
-                  () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    );
+              color: ColorsApp(),
+            ),
+            SizedBox(height: 20),
+
+            buildTitle('*Delivery Date'),
+            CustomTextfield(
+              Textfieldmodels: Textfieldmodel(
+                Icon(FontAwesome.calendar),
+                TextInputType.datetime,
+                dateController,
+                "Select delivery date",
+                true,
+                () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2101),
+                  );
+                  if (pickedDate != null) {
                     setState(() {
                       selectedDateTime = pickedDate;
-                      if (pickedDate != null) {
-                        dateController.text =
-                            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
-                      }
+                      dateController.text =
+                          "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
                     });
-                  },
-                  prefixIcon: Icon(FontAwesome.clock_o),
-                ),
-                color: ColorsApp(),
+                  }
+                },
+                prefixIcon: Icon(FontAwesome.clock_o),
               ),
-              SizedBox(height: 15),
-              Text(
-                '*Payment Method',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              CustomTextfield(
-                Textfieldmodels: Textfieldmodel(
-                  Icon(FontAwesome.arrow_circle_o_right),
-                  TextInputType.text,
-                  TextEditingController(text: selectedpayment),
-                  "Select payment method",
-                  true,
-                  () async {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: SizedBox(
-                            height: 350,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 60,
-                                  height: 7,
-                                  decoration: BoxDecoration(
-                                    color: ColorsApp().secondaryColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                SizedBox(height: 15),
-                                Divider(),
-                                SizedBox(height: 20),
-                                Text(
-                                  'Select Payment Method',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 30),
-                                Ratiolisttile(
-                                  groupValue: selectedpayment,
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      selectedpayment = value;
-                                      Navigator.pop(context);
-                                    });
-                                  },
-                                  value: 'Cash',
-                                  title: 'Cash',
-                                ),
-                                Ratiolisttile(
-                                  groupValue: selectedpayment,
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      selectedpayment = value;
-                                      Navigator.pop(context);
-                                    });
-                                  },
-                                  value: 'Credit Card',
-                                  title: 'Credit Card',
-                                ),
-                                Ratiolisttile(
-                                  groupValue: selectedpayment,
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      selectedpayment = value;
-                                      Navigator.pop(context);
-                                    });
-                                  },
-                                  value: 'Vodafone Cash',
-                                  title: 'Vodafone Cash',
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  prefixIcon: Icon(FontAwesome.cc_visa),
-                ),
-                color: ColorsApp(),
-              ),
+              color: ColorsApp(),
+            ),
+            SizedBox(height: 20),
 
-              SizedBox(height: 20),
+            buildTitle('*Payment Method'),
+            CustomTextfield(
+              Textfieldmodels: Textfieldmodel(
+                Icon(FontAwesome.cc_visa),
+                TextInputType.text,
+                TextEditingController(text: selectedPayment),
+                "Select payment method",
+                true,
+                () => _selectPaymentMethod(),
+                prefixIcon: Icon(FontAwesome.arrow_circle_o_right),
+              ),
+              color: ColorsApp(),
+            ),
+            SizedBox(height: 40),
 
-              CustomButton(txt: "Submit Request", nameNextPage: "DeliveryAnything"),
-            ],
-          ),
+            CustomButtonNew(
+              txt: "Submit Request",
+              onPressed: () {
+                submitRequest();
+              },
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Widget buildTitle(String title) {
+    return Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold));
+  }
+
+  Widget buildLocationField(String label, String value, bool isPickup) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildTitle('*$label'),
+        SizedBox(height: 10),
+        GestureDetector(
+          onTap: () => _selectLocation(isPickup),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+            decoration: BoxDecoration(
+              border: Border.all(color: ColorsApp().secondaryColor, width: 2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(FontAwesome.map_marker, color: ColorsApp().secondaryColor),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: value == 'Choose location' ? Colors.grey : ColorsApp().primaryColor,
+                    ),
+                  ),
+                ),
+                Icon(Icons.arrow_drop_down),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _selectLocation(bool isPickup) async {
+    if (savedAddresses.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No saved addresses")));
+      return;
+    }
+
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: ColorsApp().secondaryColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text('Select From Saved Locations',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              SizedBox(height: 20),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: savedAddresses.length,
+                  itemBuilder: (context, index) {
+                    final address = savedAddresses[index];
+                    return ListTile(
+                      leading: Icon(Icons.location_on, color: ColorsApp().secondaryColor),
+                      title: Text(address['autoAddress'] ?? ''),
+                      subtitle: Text(
+                          "Lat: ${address['latitude']}, Lng: ${address['longitude']}"),
+                      onTap: () {
+                        setState(() {
+                          final selected = {
+                            'id': address['locationId'],
+                            'label': address['autoAddress'],
+                            'latitude': address['latitude'],
+                            'longitude': address['longitude'],
+                          };
+
+                          if (isPickup) {
+                            selectedPickupAddress = selected;
+                            pickupLocation = address['autoAddress'];
+                          } else {
+                            selectedDropoffAddress = selected;
+                            dropoffLocation = address['autoAddress'];
+                          }
+                          Navigator.pop(context);
+                        });
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _selectPaymentMethod() async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          height: 300,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 60,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: ColorsApp().secondaryColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              ...paymentMethods.map((method) {
+                return ListTile(
+                  leading: Icon(Icons.payment, color: ColorsApp().secondaryColor),
+                  title: Text(method),
+                  onTap: () {
+                    setState(() {
+                      selectedPayment = method;
+                      Navigator.pop(context);
+                    });
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void submitRequest() async {
+  if (selectedPickupAddress == null || selectedDropoffAddress == null || descriptionController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please complete all fields")));
+    return;
+  }
+
+  bool success = await DeliveryService().createDeliveryRequest(
+    pickupLocation: selectedPickupAddress!,
+    dropoffLocation: selectedDropoffAddress!,
+    description: descriptionController.text,
+    quantity: 1,
+    weight: 2,
+    paymentMethod: selectedPayment
+  );
+
+  if (success) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Delivery request submitted")));
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DeliveryRequestPage()
+      ),
+    );
+
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Submission failed")));
+  }
+}
 }

@@ -20,14 +20,11 @@ import 'driver/wallet/controller/wallet_cubit.dart';
 import 'driver/wallet/pages/commetion_page.dart';
 import 'driver/wallet/pages/dues_page.dart';
 import 'driver/wallet/pages/order_page.dart';
-import 'general/DeliveryRequestPage/delivery_anything.dart';
-import 'general/DeliveryRequestPage/delivery_cubit.dart';
 
 void main() {
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider(create: (_) => WalletCubit()),
-      BlocProvider(create: (_) => DeliveryCubit()),
     ],
     child: const MyApp(),
   ),);
@@ -63,13 +60,10 @@ class MyApp extends StatelessWidget {
         "DuesPage": (context) =>  DuesPage(),
         "CommissionPage": (context) =>  CommissionPage(),
         "OrdersPage": (context) =>  OrdersPage(),
-
-        "DeliveryAnything":(context)=> DeliveryAnything(),
-        "DeliveryRequestPage":(context)=> DeliveryRequestPage()
       },
       debugShowCheckedModeBanner: false,
       color: Colors.white,
-      home: LoginRiderPage()
+      home: DeliveryRequestPage()
     );
   }
 }
