@@ -1,11 +1,7 @@
 import { Router } from "express";
-import { authenticateToken, authorizeRoles } from "../middleware/auth.middleware";
 import reportController from "../controllers/report.controller";
-import { UserType } from "../utils/types";
 
 const router = Router();
-
-router.use(authenticateToken, authorizeRoles(UserType.ADMIN));
 
 // Get all reports/complaints
 router.get("/", reportController.getAllReports);

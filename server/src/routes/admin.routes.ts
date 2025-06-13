@@ -8,8 +8,7 @@ import reportRoutes from "./report.routes";
 const router = Router();
 
 // All routes require authentication and admin role
-router.use(authenticateToken);
-router.use(authorizeRoles(UserType.ADMIN));
+router.use(authenticateToken, authorizeRoles(UserType.ADMIN));
 
 // Document verification
 router.get("/documents/pending", adminController.getPendingDocuments);
