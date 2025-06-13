@@ -1,7 +1,11 @@
 import { Router, Request, Response, NextFunction } from "express";
 import statisticsController from "../controllers/statistics.controller";
+import { authorizeRoles } from "../middleware/auth.middleware";
+import { UserType } from "../utils/types";
 
 const router = Router();
+
+router.use(authorizeRoles(UserType.ADMIN));
 
 // complaints count
 router.get("/complaints", (req: Request, res: Response, next: NextFunction) => {

@@ -13,8 +13,7 @@ class StatisticsService {
 	async getDashboardComplaints(): Promise<DashboardCountStats> {
 		try {
 			const query = `SELECT COUNT(*) as total
-                           FROM reports
-                           WHERE type = 'application';`;
+                           FROM reports;`;
 			const result = await pool.query(query);
 			return {
 				count: parseInt(result.rows[0].total) || 0
