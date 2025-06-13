@@ -9,7 +9,7 @@ import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomTextField.dart';
 import 'package:moto/core/widgets/OrderdetailsTextField.dart';
 import 'package:moto/models/textfieldmodel.dart';
-import 'package:moto/rider/auth/core/services/storage_service.dart'; // استدعاء StorageService
+import 'package:moto/rider/auth/core/services/storage_service.dart'; 
 
 class DeliveryRequestPage extends StatefulWidget {
   const DeliveryRequestPage({super.key});
@@ -28,8 +28,8 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   Map<String, dynamic>? selectedPickupAddress;
   Map<String, dynamic>? selectedDropoffAddress;
   DateTime? selectedDateTime;
-  String selectedPayment = 'Cash';
-  List<String> paymentMethods = ['Cash', 'Credit Card', 'Vodafone Cash'];
+  String selectedPayment = 'cash';
+  List<String> paymentMethods = ['cash', 'credit Card', 'vodafone Cash'];
   List<Map<String, dynamic>> savedAddresses = [];
 
   String? currentToken;
@@ -312,24 +312,31 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   }
 
   void submitRequest() async {
-    if (selectedPickupAddress == null || selectedDropoffAddress == null || descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please complete all fields")));
-      return;
-    }
+  if (selectedPickupAddress == null || selectedDropoffAddress == null || descriptionController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please complete all fields")));
+    return;
+  }
 
-    bool success = await DeliveryService().createDeliveryRequest(
-      pickupLocation: selectedPickupAddress!,
-      dropoffLocation: selectedDropoffAddress!,
-      description: descriptionController.text,
-      quantity: 1,
-      weight: 2,
+  bool success = await DeliveryService().createDeliveryRequest(
+    pickupLocation: selectedPickupAddress!,
+    dropoffLocation: selectedDropoffAddress!,
+    description: descriptionController.text,
+    quantity: 1,
+    weight: 2,
+    paymentMethod: selectedPayment
+  );
+
+  if (success) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Delivery request submitted")));
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DeliveryRequestPage()
+      ),
     );
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Delivery request submitted")));
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Submission failed")));
-    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Submission failed")));
   }
+}
 }

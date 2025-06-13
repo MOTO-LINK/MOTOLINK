@@ -6,10 +6,10 @@ class CustomButtonNew extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CustomButtonNew({
-    Key? key,
+    super.key,
     required this.txt,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

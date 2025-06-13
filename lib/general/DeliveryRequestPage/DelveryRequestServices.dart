@@ -11,10 +11,10 @@ class DeliveryService {
     required String description,
     required int quantity,
     required double weight,
+    required String paymentMethod,  
   }) async {
     final url = Uri.parse('$baseUrl/rides/request');
 
-    // جلب التوكن
     final token = await StorageService().getToken();
 
     if (token == null) {
@@ -22,10 +22,8 @@ class DeliveryService {
       return false;
     }
 
-    // معالجة null في الإحداثيات
     final pickupLatitude = pickupLocation['latitude'] ?? 0.0;
     final pickupLongitude = pickupLocation['longitude'] ?? 0.0;
-
     final dropoffLatitude = dropoffLocation['latitude'] ?? 0.0;
     final dropoffLongitude = dropoffLocation['longitude'] ?? 0.0;
 
@@ -44,6 +42,7 @@ class DeliveryService {
       },
       "vehicleType": "motorcycle",
       "serviceType": "delivery",
+      "paymentMethod": paymentMethod,
       "packageDetails": {
         "items": [
           {
@@ -73,15 +72,6 @@ class DeliveryService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("✅ Delivery request submitted successfully.");
         return true;
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        final responseData = jsonDecode(response.body);
-        final errorCode = responseData['error']['code'] ?? "";
-        if (errorCode == "INVALID_TOKEN") {
-          print("🚫 Authentication error: Token invalid or expired.");
-        } else {
-          print("🚫 Authorization error: ${response.body}");
-        }
-        return false;
       } else {
         print("❌ Failed with status code ${response.statusCode}");
         return false;

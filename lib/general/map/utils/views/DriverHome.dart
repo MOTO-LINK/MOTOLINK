@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 const String googleApiKey = 'AIzaSyDGpmZp2VIQqerj6ZOm9k-0ECoDovTAS8Q';
 
 class DriverHomeScreen extends StatefulWidget {
+  const DriverHomeScreen({super.key});
+
   @override
   _DriverHomeScreenState createState() => _DriverHomeScreenState();
 }
