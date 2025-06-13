@@ -399,6 +399,17 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
                                   value: 'Credit Card',
                                   title: 'Credit Card',
                                 ),
+                                Ratiolisttile(
+                                  groupValue: selectedpayment,
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      selectedpayment = value;
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                                  value: 'Vodafone Cash',
+                                  title: 'Vodafone Cash',
+                                ),
                               ],
                             ),
                           ),

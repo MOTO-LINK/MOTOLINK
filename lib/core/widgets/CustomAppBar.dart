@@ -8,6 +8,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onIconPressed;
   final double appBarHeight;
   final bool showBackButton;
+  final String? amount;
+  final bool? centerTitle;
 
   const CustomAppBar({
     super.key,
@@ -17,6 +19,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onIconPressed,
     this.appBarHeight = 100,
     this.showBackButton = false, required Null Function() onBackPressed,
+    this.amount, this.centerTitle = false,
   });
 
   @override
@@ -25,6 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      centerTitle: centerTitle,
       automaticallyImplyLeading: false,
       // لو عايزه السهم يظهر هعمل showBackButton true
       leading:
@@ -36,6 +40,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               : null,
       toolbarHeight: appBarHeight,
       actions: [
+        (amount != null)?Text(amount! , style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600 , color: Colors.white)):Text(""),
         if (icon != null)
           IconButton(
             onPressed: onIconPressed ?? () {},

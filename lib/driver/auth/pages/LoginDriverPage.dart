@@ -220,7 +220,8 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                           });
                           // showSnackBar(context, 'There was an Error.');
                         }
-                        Navigator.pushNamed(context, "home_page_dafult");
+                        Navigator.pushNamed(context, "AccountPage");
+
                       }
                     },
                     child: Container(
