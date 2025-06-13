@@ -11,6 +11,7 @@ import rideRoutes from "./ride.routes";
 import walletRoutes from "./wallet.routes";
 import ratingRoutes from "./rating.routes";
 import chatRoutes from "./chat.routes";
+import reportsRoutes from "./report.routes";
 
 const router = Router();
 
@@ -61,5 +62,5 @@ router.use("/rides", rideRoutes);
 router.use("/wallet", walletRoutes);
 router.use("/ratings", ratingRoutes);
 router.use("/chats", chatRoutes);
-
+router.use("/reports",reportsRoutes);
 export default router;
