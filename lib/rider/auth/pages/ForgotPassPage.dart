@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
-import 'package:moto/rider/auth/widgets/api.dart';
+import 'package:moto/general/core/service/auth_service.dart';
 
 class ForgotpassPage extends StatefulWidget {
   const ForgotpassPage({super.key});
 
   @override
-  State<ForgotpassPage> createState() => _ConfirmPassState();
+  State<ForgotpassPage> createState() => _ForgotPassPageState();
 }
 
-class _ConfirmPassState extends State<ForgotpassPage> {
-  final Api api = Api();
+class _ForgotPassPageState extends State<ForgotpassPage> {
   final _formKey = GlobalKey<FormState>();
+  final AuthService _authService = AuthService();
+  final TextEditingController _phoneController = TextEditingController();
+
   bool isPhoneValid = false;
 
   void _validatePhone(String value) {
-    final isValid = value.isNotEmpty && value.length >= 10;
+    final isValid =
+        value.isNotEmpty && value.length == 11 && value.startsWith("01");
     if (isPhoneValid != isValid) {
       setState(() {
         isPhoneValid = isValid;
@@ -32,7 +35,8 @@ class _ConfirmPassState extends State<ForgotpassPage> {
         title:
             "Recover your password!\nYou will receive a message\ncontaining a secret code to\nconfirm your phone number.",
         imagePath: "assets/images/DELIVERY.png",
-        appBarHeight: 150, onBackPressed: () {  },
+        appBarHeight: 150,
+        onBackPressed: () {},
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),
@@ -49,7 +53,7 @@ class _ConfirmPassState extends State<ForgotpassPage> {
               ),
               SizedBox(height: 5),
               TextFormField(
-                controller: api.phoneNumberRider,
+                controller: _phoneController,
                 decoration: InputDecoration(
                   hintText: "Enter your Phone Number",
                   hintStyle: TextStyle(color: Colors.grey),
@@ -65,12 +69,32 @@ class _ConfirmPassState extends State<ForgotpassPage> {
                   suffixIcon: GestureDetector(
                     onTap:
                         isPhoneValid
-                            ? () {
+                            ? () async {
                               if (_formKey.currentState!.validate()) {
-                                Navigator.pushNamed(
-                                  context,
-                                  "Verfication_Page",
-                                );
+                                final phone = _phoneController.text;
+                                final response = await _authService
+                                    .forgotPassword(phone);
+
+                                if (response["success"] == true) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        response["message"] ?? "Success",
+                                      ),
+                                    ),
+                                  );
+                                  Navigator.pushNamed(
+                                    context,
+                                    "Verfication_Page",
+                                    arguments: {"phone": _phoneController.text},
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Phone number not found"),
+                                    ),
+                                  );
+                                }
                               }
                             }
                             : null,

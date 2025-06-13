@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:moto/core/utils/colors.dart';
+import 'package:moto/core/widgets/CustomSnackBar.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
-import 'package:moto/rider/auth/widgets/api.dart';
+import 'package:moto/general/core/service/auth_service.dart';
 
 class ResetPassPage extends StatefulWidget {
   const ResetPassPage({super.key});
@@ -16,9 +17,23 @@ class _ResetPassPageState extends State<ResetPassPage> {
   bool isVisabilty2 = true;
   String? password;
   String? confirmPassword;
+  late String phone;
+  late String code;
 
-  final Api api = Api();
   final GlobalKey<FormState> formState = GlobalKey();
+  final AuthService _authService = AuthService();
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)!.settings.arguments as Map?;
+    phone = args?['phone'] ?? '';
+    code = args?['code'] ?? '';
+    print("Reset page received phone: $phone, code: $code");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +42,8 @@ class _ResetPassPageState extends State<ResetPassPage> {
       appBar: CustomAppBar(
         title: "New Password!\nCreate a new password",
         imagePath: "assets/images/DELIVERY.png",
-        appBarHeight: 150, onBackPressed: () {  },
+        appBarHeight: 150,
+        onBackPressed: () {},
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),
@@ -43,7 +59,7 @@ class _ResetPassPageState extends State<ResetPassPage> {
               ),
               SizedBox(height: 5),
               TextFormField(
-                //controller: ,
+                controller: newPasswordController,
                 decoration: InputDecoration(
                   hintText: "Enter your New Password",
                   hintStyle: TextStyle(color: Colors.grey),
@@ -102,7 +118,7 @@ class _ResetPassPageState extends State<ResetPassPage> {
               ),
               SizedBox(height: 5),
               TextFormField(
-                //controller: ,
+                controller: confirmPasswordController,
                 decoration: InputDecoration(
                   hintText: "Enter your New Password",
                   hintStyle: TextStyle(color: Colors.grey),
@@ -143,7 +159,7 @@ class _ResetPassPageState extends State<ResetPassPage> {
                   if (value == null || value.isEmpty) {
                     return "Confirm password is required";
                   }
-                  if (value != api.passwordRider.text) {
+                  if (value != newPasswordController.text) {
                     return "Passwords do not match";
                   }
                   return null;
@@ -156,9 +172,27 @@ class _ResetPassPageState extends State<ResetPassPage> {
               SizedBox(height: 50),
 
               GestureDetector(
-                onTap: () {
+                onTap: () async {
                   if (formState.currentState!.validate()) {
-                    Navigator.of(context).pushNamed("Login_Rider_Page");
+                    print(
+                      "Sending to backend => phone: $phone, code: $code, newPassword: ${newPasswordController.text}",
+                    );
+                    /*ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("phone: $phone, code: $code"),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );*/
+                    final success = await _authService.resetPassword(
+                      phone: phone,
+                      code: code,
+                      newPassword: newPasswordController.text,
+                    );
+                    if (success) {
+                      Navigator.of(context).pushNamed("Login_Rider_Page");
+                    } else {
+                      CustomSnackBar(context, "Reset password failed");
+                    }
                   }
                 },
                 child: Container(

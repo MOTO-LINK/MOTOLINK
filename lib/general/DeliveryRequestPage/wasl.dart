@@ -29,7 +29,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   Map<String, dynamic>? selectedDropoffAddress;
   DateTime? selectedDateTime;
   String selectedPayment = 'cash';
-  List<String> paymentMethods = ['cash', 'wallet', ];
+  List<String> paymentMethods = ['cash', ];
   List<Map<String, dynamic>> savedAddresses = [];
 
   String? currentToken;

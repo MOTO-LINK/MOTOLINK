@@ -5,18 +5,23 @@ class CustomButton extends StatelessWidget {
     super.key,
     required this.txt,
     required this.nameNextPage,
+    this.onPressed, // خليتها اختيارية
   });
 
   final String txt;
   final String nameNextPage;
+  final Future<Null> Function()? onPressed; // خليتها nullable
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed(nameNextPage);
+      onTap: () async {
+        if (onPressed != null) {
+          await onPressed!();
+        } else {
+          Navigator.of(context).pushNamed(nameNextPage);
+        }
       },
-
       child: Container(
         width: double.infinity,
         height: 60,
@@ -31,7 +36,7 @@ class CustomButton extends StatelessWidget {
         child: Center(
           child: Text(
             txt,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
