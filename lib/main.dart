@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moto/driver/auth/pages/LoginDriverPage.dart';
 import 'package:moto/driver/auth/pages/SignupDriverPage.dart';
+import 'package:moto/driver/wallet/pages/accounts_page.dart';
 import 'package:moto/general/DeliveryRequestPage/wasl.dart';
 import 'package:moto/general/SelectUserTypePage.dart';
 import 'package:moto/general/map/utils/views/DriverHome.dart';
@@ -16,8 +18,18 @@ import 'package:moto/rider/auth/pages/VerficationPage.dart';
 import 'package:moto/rider/auth/pages/forgotPassPage.dart';
 import 'package:moto/rider/home/dafualthome.dart';
 
+import 'driver/wallet/controller/wallet_cubit.dart';
+import 'driver/wallet/pages/commetion_page.dart';
+import 'driver/wallet/pages/dues_page.dart';
+import 'driver/wallet/pages/order_page.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider(create: (_) => WalletCubit()),
+    ],
+    child: const MyApp(),
+  ),);
 }
 
 class MyApp extends StatelessWidget {
@@ -45,6 +57,11 @@ class MyApp extends StatelessWidget {
         // driver pages
         "Signup_driver_page": (context) => SignupDriverPage(),
         "Login_driver_page": (context) => LoginDriverPage(),
+        //wallet page
+        "AccountPage":(context)=>  AccountsPage(),
+        "DuesPage": (context) =>  DuesPage(),
+        "CommissionPage": (context) =>  CommissionPage(),
+        "OrdersPage": (context) =>  OrdersPage(),
       },
       debugShowCheckedModeBanner: false,
       color: Colors.white,
