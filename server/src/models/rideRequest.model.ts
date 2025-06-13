@@ -10,7 +10,7 @@ export interface RideRequest {
 	end_location_id: string;
 	ride_type: VehicleType;
 	service_type: "delivery" | "transportation";
-	service_time?: Date;
+	scheduled_time?: Date;
 	package_details?: any;
 	distance?: number;
 	estimated_fee?: number;
@@ -29,7 +29,7 @@ export interface CreateRideRequestInput {
 	end_location_id: string;
 	ride_type: VehicleType;
 	service_type: "delivery" | "transportation";
-	service_time?: Date;
+	scheduled_time?: Date;
 	package_details?: any;
 	distance: number;
 	estimated_fee: number;
@@ -42,7 +42,7 @@ export class RideRequestModel {
 		const result = await pool.query(
 			`INSERT INTO ride_requests (
         request_id, rider_id, start_location_id, end_location_id,
-        ride_type, service_type, service_time, package_details,
+        ride_type, service_type, scheduled_time, package_details,
         distance, estimated_fee, request_time, payment_type,
         status, notes
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
@@ -54,7 +54,7 @@ export class RideRequestModel {
 				requestData.end_location_id,
 				requestData.ride_type,
 				requestData.service_type,
-				requestData.service_time || null,
+				requestData.scheduled_time || null,
 				requestData.package_details ? JSON.stringify(requestData.package_details) : null,
 				requestData.distance,
 				requestData.estimated_fee,

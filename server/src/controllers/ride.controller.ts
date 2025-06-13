@@ -113,7 +113,7 @@ class RideController {
 				end_location_id: endLocationId,
 				ride_type: vehicleType,
 				service_type: serviceType,
-				service_time: scheduledTime,
+				scheduled_time: scheduledTime,
 				package_details: packageDetails,
 				distance,
 				estimated_fee: fareBreakdown.total,
