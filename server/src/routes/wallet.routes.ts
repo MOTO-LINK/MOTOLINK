@@ -4,13 +4,10 @@ import { authenticateToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
-// All routes require authentication
-router.use(authenticateToken);
-
-router.get("/balance", walletController.getBalance);
-router.get("/transactions", walletController.getTransactions);
-router.post("/topup/initialize", walletController.initializeTopUp);
-router.post("/withdraw", walletController.requestWithdrawal);
+router.get("/balance", authenticateToken, walletController.getBalance);
+router.get("/transactions", authenticateToken, walletController.getTransactions);
+router.post("/topup/initialize", authenticateToken, walletController.initializeTopUp);
+router.post("/withdraw", authenticateToken, walletController.requestWithdrawal);
 
 // Paymob webhook (no auth required)
 router.post("/paymob/callback", walletController.handlePaymobCallback);
