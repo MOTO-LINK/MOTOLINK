@@ -3,10 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moto/driver/auth/pages/LoginDriverPage.dart';
 import 'package:moto/driver/auth/pages/SignupDriverPage.dart';
 import 'package:moto/driver/wallet/pages/accounts_page.dart';
-import 'package:moto/general/DeliveryRequestPage/delivery_cubit.dart';
 import 'package:moto/general/DeliveryRequestPage/wasl.dart';
 import 'package:moto/general/SelectUserTypePage.dart';
-import 'package:moto/general/map/utils/views/DriverHome.dart';
+import 'package:moto/general/map/utils/views/adresses.dart';
 import 'package:moto/general/onboardingPages/boarding1.dart';
 import 'package:moto/general/onboardingPages/boarding2.dart';
 import 'package:moto/general/onboardingPages/boarding3.dart';
@@ -22,17 +21,14 @@ import 'driver/wallet/controller/wallet_cubit.dart';
 import 'driver/wallet/pages/commetion_page.dart';
 import 'driver/wallet/pages/dues_page.dart';
 import 'driver/wallet/pages/order_page.dart';
-import 'general/DeliveryRequestPage/delivery_anything.dart';
-import 'general/map/utils/views/adresses.dart';
 
 void main() {
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider(create: (_) => WalletCubit()),
-      BlocProvider(create: (_) => DeliveryCubit()),
     ],
     child: const MyApp(),
-  ),);
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -41,6 +37,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      color: Colors.white,
       routes: {
         "splash_page": (context) => SplashView(),
         "boarding_one": (context) => BoardingOne(),
@@ -48,29 +46,19 @@ class MyApp extends StatelessWidget {
         "boarding_three": (context) => BoardingThree(),
         "Forgot_Pass_Page": (context) => ForgotpassPage(),
         "Enter_New_Pass_Page": (context) => ResetPassPage(),
-        "Verfication_Page": (context) => VerficodePage(),
-
+        "Verfication_Page": (context) => VerficodePage(), // ركز هنا الاسم الصحيح
         "home_page_dafult": (context) => homePageDAFUALT(),
         "Rider_OR_Driver": (context) => SelectUserType(),
-
-        //rider pages
         "Signup_Rider_Page": (context) => SignupRiderPage(),
         "Login_Rider_Page": (context) => LoginRiderPage(),
-
-        // driver pages
         "Signup_driver_page": (context) => SignupDriverPage(),
         "Login_driver_page": (context) => LoginDriverPage(),
-        //wallet page
-        "AccountPage":(context)=>  AccountsPage(),
-        "DuesPage": (context) =>  DuesPage(),
-        "CommissionPage": (context) =>  CommissionPage(),
-        "OrdersPage": (context) =>  OrdersPage(),
-        "DeliveryRequestPage": (context) =>  DeliveryRequestPage(),
-        "DeliveryAnything": (context) =>  DeliveryAnything(),
-        "Adresses" : (context)=> Adresses()
+        "AccountPage": (context) => AccountsPage(),
+        "DuesPage": (context) => DuesPage(),
+        "CommissionPage": (context) => CommissionPage(),
+        "OrdersPage": (context) => OrdersPage(),
       },
-      color: Colors.white,
-      home: SignupRiderPage()
+      home: DeliveryRequestPage(), // تقدر تغيرها حسب صفحة البداية اللي تحب تبدأ بيها
     );
   }
 }

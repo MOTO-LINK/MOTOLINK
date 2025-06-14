@@ -18,10 +18,11 @@ class TransactionModel {
     this.description,
     required this.createdAt,
   });
+
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
       transactionId: json['transaction_id'],
-      amount: double.tryParse(json['amount'].toString()) ?? 0.0,
+      amount: json['amount']?.toDouble() ?? 0.0,
       type: json['type'],
       purpose: json['purpose'],
       status: json['status'],
@@ -30,5 +31,4 @@ class TransactionModel {
       createdAt: DateTime.parse(json['created_at']),
     );
   }
-
 }

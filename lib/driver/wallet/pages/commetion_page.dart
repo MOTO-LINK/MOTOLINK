@@ -6,6 +6,7 @@ import '../controller/wallet_cubit.dart';
 import '../widgets/content_model_sheet.dart';
 import '../widgets/custom_loading_indicator.dart';
 
+
 class CommissionPage extends StatefulWidget {
   const CommissionPage({super.key});
 
@@ -25,6 +26,8 @@ class _CommissionPageState extends State<CommissionPage> {
       month: false,
   };
 
+  int availableBalance = 0;
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +41,8 @@ class _CommissionPageState extends State<CommissionPage> {
       final walletCubit = context.read<WalletCubit>();
       walletCubit.fetchRides();
       walletCubit.fetchBalance();
+    } else {
+      print("⚠️ Token not found!");
     }
   }
 
@@ -49,12 +54,10 @@ class _CommissionPageState extends State<CommissionPage> {
         child: BlocBuilder<WalletCubit, WalletState>(
           builder: (context, walletState) {
             String amountText = '0 EGP';
-            double balanceValue = 0;
             if (walletState is BalanceSuccess) {
-              balanceValue = walletState.balance.balance;
-              amountText = '${balanceValue.toStringAsFixed(2)} EGP';
+              amountText = '${walletState.balance.amountOwed.toStringAsFixed(2)} EGP';
+              availableBalance = walletState.balance.amountOwed.toInt();
             }
-
             return CustomAppBar(
               title: "Balance",
               centerTitle: true,
@@ -70,137 +73,122 @@ class _CommissionPageState extends State<CommissionPage> {
           ? const CustomLoadingIndicator()
           : Padding(
         padding: const EdgeInsets.all(18.0),
-        child: BlocBuilder<WalletCubit, WalletState>(
-          builder: (context, walletState) {
-            double balanceValue = 0;
-            if (walletState is BalanceSuccess) {
-              balanceValue = walletState.balance.balance;
-            }
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Flexible(
-                      child: GestureDetector(
-                        onTap: () => _showBottomSheet('Deposit', balanceValue),
-                        child: buildActionButton('Deposit', Icons.arrow_circle_up_outlined, Colors.red),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: GestureDetector(
-                        onTap: () => _showBottomSheet('Withdraw', balanceValue),
-                        child: buildActionButton('Withdraw', Icons.arrow_circle_down_outlined, Colors.green),
-                      ),
-                    ),
-                  ],
+                GestureDetector(
+                  onTap: () => _showBottomSheet('Deposit'),
+                  child: buildActionButton('Deposit', Icons.arrow_circle_up_outlined, Colors.red),
                 ),
-                DropdownButton<String>(
-                  value: selectedYear,
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() {
-                        selectedYear = val;
+                GestureDetector(
+                  onTap: () => _showBottomSheet('Withdraw'),
+                  child: buildActionButton('Withdraw', Icons.arrow_circle_down_outlined, Colors.green),
+                ),
+              ],
+            ),
+            DropdownButton<String>(
+              value: selectedYear,
+              onChanged: (val) {
+                if (val != null) {
+                  setState(() {
+                    selectedYear = val;
+                  });
+                }
+              },
+              items: years.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: BlocBuilder<WalletCubit, WalletState>(
+                builder: (context, state) {
+                  if (state is RidesLoading) {
+                    return const CustomLoadingIndicator();
+                  } else if (state is RidesLoaded) {
+                    final ridesByMonth = <String, List<Map<String, dynamic>>>{};
+                    int totalCommission = 0;
+
+                    for (final ride in state.rides) {
+                      final month = _getMonthName(ride.requestTime.month);
+                      final commission = (ride.estimatedFee * 0.2).toInt();
+                      totalCommission += commission;
+
+                      ridesByMonth.putIfAbsent(month, () => []).add({
+                        'icon': ride.rideType == 'delivery' ? '📦' : '🛵',
+                        'title': ride.serviceType,
+                        'amount': commission,
+                        'code': ride.requestId,
+                        'date': '${ride.requestTime.day}-${ride.requestTime.month}-${ride.requestTime.year}'
                       });
                     }
-                  },
-                  items: years.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: BlocBuilder<WalletCubit, WalletState>(
-                    builder: (context, state) {
-                      if (state is RidesLoading) {
-                        return const CustomLoadingIndicator();
-                      } else if (state is RidesLoaded) {
-                        final ridesByMonth = <String, List<Map<String, dynamic>>>{};
 
-                        for (final ride in state.rides) {
-                          final month = _getMonthName(ride.requestTime.month);
-                          final commission = (ride.estimatedFee * 0.2).toInt();
+                    availableBalance += totalCommission;
 
-                          ridesByMonth.putIfAbsent(month, () => []).add({
-                            'icon': ride.rideType == 'delivery' ? '📦' : '🛵',
-                            'title': ride.serviceType,
-                            'amount': commission,
-                            'code': ride.requestId,
-                            'date':
-                            '${ride.requestTime.day}-${ride.requestTime.month}-${ride.requestTime.year}'
-                          });
-                        }
+                    return ListView(
+                      children: ridesByMonth.entries.map((entry) {
+                        final month = entry.key;
+                        final orders = entry.value;
+                        final isExpanded = expanded[month]!;
+                        final monthTotal = orders.fold(0, (int sum, o) => sum + (o['amount'] as int));
 
-                        return ListView(
-                          children: ridesByMonth.entries.map((entry) {
-                            final month = entry.key;
-                            final orders = entry.value;
-                            final isExpanded = expanded[month]!;
-                            final monthTotal =
-                            orders.fold(0, (int sum, o) => sum + (o['amount'] as int));
-
-                            return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                children: [
-                                  ListTile(
-                                    title: Text('Commission of $month'),
-                                    trailing: IconButton(
-                                      icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-                                      onPressed: () {
-                                        setState(() {
-                                          expanded[month] = !isExpanded;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  if (isExpanded)
-                                    Column(
-                                      children: [
-                                        ...orders.map((o) => ListTile(
-                                          leading: Text(o['icon'], style: const TextStyle(fontSize: 24)),
-                                          title: Text(o['title']),
-                                          subtitle: Text('${o['date']} • ${o['code']}'),
-                                          trailing: Text(
-                                            '${o['amount']} EGP',
-                                            style: const TextStyle(
-                                                color: Color(0xFFB5022F),
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        )),
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(right: 12.0, bottom: 10),
-                                            child: Text(
-                                              'Total: $monthTotal EGP',
-                                              style: const TextStyle(
-                                                  color: Colors.green, fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                ],
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            children: [
+                              ListTile(
+                                title: Text('Commission of $month'),
+                                trailing: IconButton(
+                                  icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
+                                  onPressed: () {
+                                    setState(() {
+                                      expanded[month] = !isExpanded;
+                                    });
+                                  },
+                                ),
                               ),
-                            );
-                          }).toList(),
+                              if (isExpanded)
+                                Column(
+                                  children: [
+                                    ...orders.map((o) => ListTile(
+                                      leading: Text(o['icon'], style: const TextStyle(fontSize: 24)),
+                                      title: Text(o['title']),
+                                      subtitle: Text('${o['date']} • ${o['code']}'),
+                                      trailing: Text(
+                                        '${o['amount']} EGP',
+                                        style: const TextStyle(color: Color(0xFFB5022F), fontWeight: FontWeight.bold),
+                                      ),
+                                    )),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(right: 12.0, bottom: 10),
+                                        child: Text(
+                                          'Total: $monthTotal EGP',
+                                          style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                )
+                            ],
+                          ),
                         );
-                      }
-                      return const SizedBox();
-                    },
-                  ),
-                )
-              ],
-            );
-          },
+                      }).toList(),
+                    );
+                  }
+                  return const SizedBox();
+                },
+              ),
+            )
+          ],
         ),
       ),
     );
   }
 
-  void _showBottomSheet(String label, double balanceValue) {
+  void _showBottomSheet(String label) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -210,11 +198,15 @@ class _CommissionPageState extends State<CommissionPage> {
       builder: (context) {
         return ContentModelSheet(
           label: label,
-          amount: '${balanceValue.toStringAsFixed(2)} EGP',
+          amount: '$availableBalance EGP',
           hint: label == 'Deposit' ? 'The amount required to be paid' : 'Your outstanding balance',
           txtButton: label == 'Deposit' ? 'Confirm payment' : 'Confirm request',
-          availableBalance: balanceValue.toInt(),
-          onTransactionComplete: (_) {},
+          availableBalance: availableBalance,
+          onTransactionComplete: (amount) {
+            setState(() {
+              availableBalance -= amount;
+            });
+          },
         );
       },
     );

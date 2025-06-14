@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:moto/general/DeliveryRequestPage/DelveryRequestServices.dart';
+import 'package:moto/general/DeliveryRequestPage/delivery_anything.dart';
+import 'package:moto/general/DeliveryRequestPage/delivery_cubit.dart';
 import 'package:moto/general/map/utils/widgets/custombuttonnew.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moto/core/utils/colors.dart';
@@ -9,7 +12,7 @@ import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomTextField.dart';
 import 'package:moto/core/widgets/OrderdetailsTextField.dart';
 import 'package:moto/models/textfieldmodel.dart';
-import 'package:moto/rider/auth/core/services/storage_service.dart'; 
+import 'package:moto/rider/auth/core/services/storage_service.dart';
 
 class DeliveryRequestPage extends StatefulWidget {
   const DeliveryRequestPage({super.key});
@@ -29,7 +32,7 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   Map<String, dynamic>? selectedDropoffAddress;
   DateTime? selectedDateTime;
   String selectedPayment = 'cash';
-  List<String> paymentMethods = ['cash', 'wallet', ];
+  List<String> paymentMethods = ['cash'];
   List<Map<String, dynamic>> savedAddresses = [];
 
   String? currentToken;
@@ -312,31 +315,39 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   }
 
   void submitRequest() async {
-  if (selectedPickupAddress == null || selectedDropoffAddress == null || descriptionController.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please complete all fields")));
-    return;
-  }
+    if (selectedPickupAddress == null ||
+        selectedDropoffAddress == null ||
+        descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Please complete all fields")));
+      return;
+    }
 
-  bool success = await DeliveryService().createDeliveryRequest(
-    pickupLocation: selectedPickupAddress!,
-    dropoffLocation: selectedDropoffAddress!,
-    description: descriptionController.text,
-    quantity: 1,
-    weight: 2,
-    paymentMethod: selectedPayment
-  );
-
-  if (success) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Delivery request submitted")));
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => DeliveryRequestPage()
-      ),
+    bool success = await DeliveryService().createDeliveryRequest(
+      pickupLocation: selectedPickupAddress!,
+      dropoffLocation: selectedDropoffAddress!,
+      description: descriptionController.text,
+      quantity: 1,
+      weight: 2,
+      paymentMethod: selectedPayment,
     );
 
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Submission failed")));
+    if (success) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Delivery request submitted")));
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            create: (_) => DeliveryCubit(),
+            child: const DeliveryAnything(),
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Submission failed")));
+    }
   }
-}
 }

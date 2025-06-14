@@ -35,7 +35,7 @@ class CustomButton extends StatelessWidget {
       return;
     }
 
-    if (isWithdraw && amount  > availableBalance) {
+    if (amount > availableBalance) {
       Navigator.pop(context);
       showSnackBar(context, "Insufficient balance");
       return;

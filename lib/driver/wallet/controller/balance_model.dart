@@ -13,11 +13,10 @@ class BalanceModel {
 
   factory BalanceModel.fromJson(Map<String, dynamic> json) {
     return BalanceModel(
-      balance: double.tryParse(json['balance'].toString()) ?? 0.0,
-      amountOwed: double.tryParse(json['amountOwed'].toString()) ?? 0.0,
+      balance: (json['balance'] ?? 0).toDouble(),
+      amountOwed: (json['amountOwed'] ?? 0).toDouble(),
       currency: json['currency'] ?? '',
       status: json['status'] ?? '',
     );
   }
-
 }
