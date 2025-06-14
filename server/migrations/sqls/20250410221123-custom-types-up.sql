@@ -85,7 +85,7 @@ CREATE TYPE service_type AS ENUM ('delivery', 'transportation');
 -- Ride Status
 DROP TYPE IF EXISTS ride_status;
 
-CREATE TYPE ride_status AS ENUM ('pending', 'accepted', 'completed', 'cancelled');
+CREATE TYPE ride_status AS ENUM ('pending', 'accepted', 'in_progress', 'arrived', 'completed', 'cancelled');
 
 -- Payment Status
 DROP TYPE IF EXISTS payment_status;

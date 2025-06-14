@@ -394,7 +394,7 @@ class RideController {
 
 			// Check if driver already has an active ride
 			const activeRide = await rideRequestModel.findActiveByDriverId(driverId);
-			if (activeRide) {
+			if (activeRide.length) {
 				res.status(400).json({
 					success: false,
 					error: {

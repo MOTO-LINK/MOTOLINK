@@ -204,7 +204,7 @@ class AuthController {
 			let additionalInfo = {};
 			if (user.user_type === UserType.DRIVER) {
 				additionalInfo = (await driverModel.findById(user.user_id)) || {};
-				await driverModel.updateOnlineStatus(user.user_id, true);
+				//await driverModel.updateOnlineStatus(user.user_id, true);
 			} else if (user.user_type === UserType.RIDER) {
 				additionalInfo = (await riderModel.findById(user.user_id)) || {};
 			}
@@ -399,11 +399,11 @@ class AuthController {
 				});
 				return;
 			}
-
-			if (req.user.user_type !== UserType.DRIVER) {
+/**
+			if (req.user.user_type == UserType.DRIVER) {
 				await driverModel.updateOnlineStatus(req.user.user_id, false);
 			}
-
+*/
 			// TODO: Implement logout by blacklisting the JWT token
 			res.status(200).json({
 				success: true,

@@ -85,7 +85,7 @@ export class RideRequestModel {
 		return result.rows || null;
 	}
 
-	async findActiveByDriverId(driverId: string): Promise<RideRequest[] | null> {
+	async findActiveByDriverId(driverId: string): Promise<RideRequest[]> {
 		const result = await pool.query(
 			`SELECT * FROM ride_requests 
        WHERE driver_id = $1 
@@ -94,7 +94,7 @@ export class RideRequestModel {
        LIMIT 1`,
 			[driverId]
 		);
-		return result.rows || null;
+		return result.rows;
 	}
 
 	async findPendingRequests(
