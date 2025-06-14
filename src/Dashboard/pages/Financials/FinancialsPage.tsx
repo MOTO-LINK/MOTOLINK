@@ -15,8 +15,7 @@ const FinancialsPage = () => {
           </Button>
         </a>
         <p className='w-[95%] h-[1.5px] bg-[#E5E5E5] ml-5 mt-2'></p>    
-      </div>
-     
+      </div> 
      </div>
     </>
   )

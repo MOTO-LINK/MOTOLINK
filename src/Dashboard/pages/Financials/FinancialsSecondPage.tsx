@@ -216,17 +216,6 @@ const FinancialsSecondPage = () => {
           <div className="px-8 pb-8 flex flex-col gap-4">
             <div>
               <label className="block text-gray-500 text-sm mb-1">
-                Number of Orders:
-              </label>
-              <input
-                type="text"
-                value={orderCount}
-                readOnly
-                className="w-full py-3 px-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-700"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-500 text-sm mb-1">
                 Due Amount:
               </label>
               <input

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { MoveLeft, Trash2, Check } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axiosInstance from "@/api/axiosInstance";
 import {
   Dialog,
   DialogContent,
@@ -11,96 +12,51 @@ import {
 } from '@/components/ui/dialog';
 import { Dialog as ConfirmDialog, DialogContent as ConfirmDialogContent, DialogHeader as ConfirmDialogHeader, DialogTitle as ConfirmDialogTitle, DialogTrigger as ConfirmDialogTrigger, DialogClose as ConfirmDialogClose } from '@/components/ui/dialog';
 
-const complaints = [
-  {
-    date: '22 / 2 / 2025',
-    name: 'Ali Adel Mohammed',
-    phone: '+20 01183925678',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    status: 'active',
-    id: 'DFw4567quhg',
-    message:
-      'I have an issue with the delivery of my order with id: 1456RTSGsGS\nThe order arrived broken and I want a solution.',
-  },
-  {
-    date: '22 / 2 / 2025',
-    name: 'Ali Adel Mohammed',
-    phone: '+20 01183925678',
-    avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-    status: 'active',
-    id: 'DFw4567quhg',
-    message:
-      'I have an issue with the delivery of my order with id: 1456RTSGsGS\nThe order arrived broken and I want a solution.',
-  },
-  {
-    date: '22 / 2 / 2025',
-    name: 'Ali Adel Mohammed',
-    phone: '+20 01183925678',
-    avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-    status: 'active',
-    id: 'DFw4567quhg',
-    message:
-      'I have an issue with the delivery of my order with id: 1456RTSGsGS\nThe order arrived broken and I want a solution.',
-  },
-  {
-    date: '22 / 2 / 2025',
-    name: 'Ali Adel Mohammed',
-    phone: '+20 01183925678',
-    avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
-    status: 'active',
-    id: 'DFw4567quhg',
-    message:
-      'I have an issue with the delivery of my order with id: 1456RTSGsGS\nThe order arrived broken and I want a solution.',
-  },
-  {
-    date: '22 / 2 / 2025',
-    name: 'Ali Adel Mohammed',
-    phone: '+20 01183925678',
-    avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-    status: 'active',
-    id: 'DFw4567quhg',
-    message:
-      'I have an issue with the delivery of my order with id: 1456RTSGsGS\nThe order arrived broken and I want a solution.',
-  },
-  {
-    date: '22 / 2 / 2025',
-    name: 'Ali Adel Mohammed',
-    phone: '+20 01183925678',
-    avatar: 'https://randomuser.me/api/portraits/men/6.jpg',
-    status: 'active',
-    id: 'DFw4567quhg',
-    message:
-      'I have an issue with the delivery of my order with id: 1456RTSGsGS\nThe order arrived broken and I want a solution.',
-  },
-  {
-    date: '22 / 2 / 2025',
-    name: 'Ali Adel Mohammed',
-    phone: '+20 01183925678',
-    avatar: 'https://randomuser.me/api/portraits/men/7.jpg',
-    status: 'active',
-    id: 'DFw4567quhg',
-    message:
-      'I have an issue with the delivery of my order with id: 1456RTSGsGS\nThe order arrived broken and I want a solution.',
-  },
-  {
-    date: '22 / 2 / 2025',
-    name: 'Ali Adel Mohammed',
-    phone: '+20 01183925678',
-    avatar: 'https://randomuser.me/api/portraits/men/8.jpg',
-    status: 'active',
-    id: 'DFw4567quhg',
-    message:
-      'I have an issue with the delivery of my order with id: 1456RTSGsGS\nThe order arrived broken and I want a solution.',
-  },
-];
-
 const ComplaintsSecondPage = () => {
   const [openDialogIdx, setOpenDialogIdx] = useState<number | null>(null);
   const [reply, setReply] = useState('');
   const [deleteIdx, setDeleteIdx] = useState<number | null>(null);
-  const [complaintsList, setComplaintsList] = useState(complaints);
+  const [complaintsList, setComplaintsList] = useState<any[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showReplySuccess, setShowReplySuccess] = useState(false);
+
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      try {
+        const res = await axiosInstance.get("/admin/reports/");
+        console.log("Complaints API:", res.data);
+
+        const complaintsWithAvatars = await Promise.all(
+          (res.data.data || []).map(async (item: any, idx: number) => {
+            let avatar = "https://randomuser.me/api/portraits/men/" + ((idx % 8) + 1) + ".jpg";
+            try {
+              if (item.reporter_id) {
+                const profileRes = await axiosInstance.get(`/profile/${item.reporter_id}`);
+                console.log(`Profile API for ${item.reporter_id}:`, profileRes.data);
+                avatar = profileRes.data?.data?.avatar || avatar;
+              }
+            } catch (profileErr) {
+              console.log("Profile API Error:", profileErr);
+            }
+            return {
+              date: item.created_at?.split("T")[0] || "",
+              name: `${item.reporter_first_name || ""} ${item.reporter_last_name || ""}`,
+              email: item.reporter_email || "",
+              avatar,
+              status: item.status,
+              id: item.report_id,
+              message: item.description,
+            };
+          })
+        );
+        setComplaintsList(complaintsWithAvatars);
+      } catch (error) {
+        setComplaintsList([]);
+        console.log("API Error:", error);
+      }
+    };
+    fetchComplaints();
+  }, []);
 
   return (
     <div className="bg-white min-h-screen flex flex-col justify-between" dir="ltr">
@@ -115,12 +71,11 @@ const ComplaintsSecondPage = () => {
                   <img src={item.avatar} alt={item.name} className="w-12 h-12 rounded-full object-cover" />
                   <div className="flex flex-col">
                     <span className="font-medium text-gray-800">{item.name}</span>
-                    <span className="text-gray-500 text-sm">{item.phone}</span>
+                    <span className="text-gray-500 text-sm">{item.email}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-end gap-4 w-2/4">
                   <span className="text-gray-500 text-sm">{item.date}</span>
-                  <span className="inline-block w-3 h-3 rounded-full bg-green-500"></span>
                 </div>
               </div>
             </DialogTrigger>
@@ -132,7 +87,7 @@ const ComplaintsSecondPage = () => {
                     <img src={item.avatar} alt={item.name} className="w-20 h-20 rounded-full object-cover mx-auto" />
                   </div>
                   <span className="mt-3 font-medium text-gray-800">{item.name}</span>
-                  <span className="text-gray-500 text-sm">{item.phone}</span>
+                  <span className="text-gray-500 text-sm">{item.email}</span>
                 </div>
               </DialogHeader>
               <div className="px-8 pb-8 flex flex-col gap-4">

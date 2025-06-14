@@ -1,14 +1,4 @@
-import React, { useState } from 'react'
-import person1 from "../../../assets/images/0f916cdadaecaba6d1e55ac9bc1814e257022ea1.jpg";
-import person2 from "../../../assets/images/99c43eded20a16e728d814dc14da5c32dfddc0d7.jpg";
-import person3 from "../../../assets/images/0556e0fdfc52b75ae4016a6367ec1f8b74e07e36.jpg";
-import person4 from "../../../assets/images/029100c72534e0bb83fd68d29ae8d1bafc7c218d.jpg";
-import person5 from "../../../assets/images/718524aebde45fdcec463b558377def879e84ea8.jpg";
-import person6 from "../../../assets/images/d58bd1b02b714dbfc3d334e6297d8a44927fca27.jpg";
-import person7 from "../../../assets/images/d870e8fa9a405a5dc598bea57607ea6a72ebe15a.jpg";
-import person8 from "../../../assets/images/029100c72534e0bb83fd68d29ae8d1bafc7c218d.jpg";
-import idCardImg from "../../../assets/images/619cb6bd963e077a60fe460667cc37b735093dea.jpg";
-import licenseImg from "../../../assets/images/8d2cb6109a5852423c6edc6127e51979b9d03c7c.jpg";
+import React, { useState, useEffect } from 'react';
 import { MoveLeft, Phone, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,133 +8,175 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-const RepresentativesData = [
-  {
-    id: 1,
-    name: "Mohamed Hassan Ali",
-    phone: "+20 1001234567",
-    country: "Egypt",
-    city: "Cairo",
-    img: person1,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 2,
-    name: "Ahmed Adel",
-    phone: "+20 1002345678",
-    country: "Egypt",
-    city: "Alexandria",
-    img: person2,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 3,
-    name: "Omar Khaled",
-    phone: "+20 1003456789",
-    country: "Egypt",
-    city: "Giza",
-    img: person3,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 4,
-    name: "Youssef Ibrahim",
-    phone: "+20 1004567890",
-    country: "Egypt",
-    city: "Mansoura",
-    img: person4,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 5,
-    name: "Mahmoud Tarek",
-    phone: "+20 1005678901",
-    country: "Egypt",
-    city: "Tanta",
-    img: person5,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 6,
-    name: "Karim Mostafa",
-    phone: "+20 1006789012",
-    country: "Egypt",
-    city: "Aswan",
-    img: person6,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 7,
-    name: "Hossam Mohamed",
-    phone: "+20 1007890123",
-    country: "Egypt",
-    city: "Luxor",
-    img: person7,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 8,
-    name: "Ali Samir",
-    phone: "+20 1008901234",
-    country: "Egypt",
-    city: "Ismailia",
-    img: person8,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 9,
-    name: "Mostafa Fathy",
-    phone: "+20 1009012345",
-    country: "Egypt",
-    city: "Port Said",
-    img: person1,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-  {
-    id: 10,
-    name: "Ehab Nabil",
-    phone: "+20 1000123456",
-    country: "Egypt",
-    city: "Suez",
-    img: person2,
-    idCardImg: idCardImg,
-    licenseImg: licenseImg,
-  },
-];
-
+import axiosInstance from "../../../api/axiosInstance"; 
+import national_id_front from "../../../assets/images/8d2cb6109a5852423c6edc6127e51979b9d03c7c.jpg"
+import driving_license_front from "../../../assets/images/619cb6bd963e077a60fe460667cc37b735093dea.jpg"
 const JoinRequests = () => {
   const [search, setSearch] = useState("");
-  const [representatives, setRepresentatives] = useState(RepresentativesData);
+  const [representatives, setRepresentatives] = useState<any[]>([]);
   const [selectedRepresentatives, setSelectedRepresentatives] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [showBlockDialog, setShowBlockDialog] = useState(false);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [showUnbanDialog, setShowUnbanDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showUnbanSuccess, setShowUnbanSuccess] = useState(false);
-  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
   const [showAcceptSuccess, setShowAcceptSuccess] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showRejectSuccess, setShowRejectSuccess] = useState(false);
-  const [mainRepresentatives, setMainRepresentatives] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [documents, setDocuments] = useState<any[]>([]);
+
+  const getDriverImage = async (user_id: string) => {
+    try {
+      const response = await axiosInstance.get(`/profile?id=${user_id}`);
+      if (response.data && response.data.data && response.data.data.profile_picture){
+        return response.data.data.profile_picture;
+      }
+      return "/default-avatar.png";
+    } catch {
+      return "/default-avatar.png";
+    }
+  };
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      setLoading(true);
+      try {
+        const response = await axiosInstance.get("/admin/drivers/pending?page=1");
+        if (!response.data && !response.data.success && !response.data.data?.items) {
+          const drivers = await Promise.all(
+            response.data.data.items.map(async (d: any) => {
+              const img = await getDriverImage(d.driver_id);
+              return { ...d, img, account_locked: false,};
+            })
+          );
+          setRepresentatives(drivers);
+        } else {
+           setRepresentatives([
+          {
+            driver_id: "1",
+            name: "Ahmed Mohamed Mostafa",
+            email: "ahmed@email.com",
+            phone_number: "01012345678",
+            img: "https://randomuser.me/api/portraits/men/1.jpg",
+          },
+          {
+            driver_id: "2",
+            name: "Mohamed Mostafa",
+            email: "ahmedMohamed@email.com",
+            phone_number: "01012345678",
+            img: "https://randomuser.me/api/portraits/men/1.jpg",
+          },
+        ]);
+        }
+      } catch (error) {
+        setRepresentatives([
+        {
+          driver_id: "1",
+          name: "Ahmed Mohamed Mostafa",
+          email: "ahmed@email.com",
+          phone_number: "01012345678",
+          img: "https://randomuser.me/api/portraits/men/1.jpg",
+        },
+      ]);
+      }
+      setLoading(false);
+    };
+    fetchDrivers();
+  }, []);
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const res = await axiosInstance.get("/admin/documents/pending?page=1");
+        if (!res.data?.success && !res.data.data?.items) {
+          setDocuments(res.data.data.items);
+        }else {
+        setDocuments([
+          {
+            document_id: "doc1",
+            document_type: "national_id_front",
+            document_url: national_id_front,
+            phone_number: "01012345678",
+            user_email: "ahmed@email.com",
+          },
+          {
+            document_id: "doc2",
+            document_type: "driving_license_front",
+            document_url: driving_license_front,
+            phone_number: "01012345678",
+            user_email: "ahmed@email.com",
+          },
+        ]);
+      }
+      } catch {
+        setDocuments([
+          {
+            document_id: "doc1",
+            document_type: "national_id_front",
+            document_url: national_id_front,
+            phone_number: "01012345678",
+            user_email: "ahmed@email.com",
+          },
+          {
+            document_id: "doc2",
+            document_type: "driving_license_front",
+            document_url: driving_license_front,
+            phone_number: "01012345678",
+            user_email: "ahmed@email.com",
+          },
+        ]);
+      }
+    };
+    fetchDocuments();
+  }, []);
 
   const filteredRepresentatives = representatives.filter(
     (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search) ||
-      c.city.toLowerCase().includes(search.toLowerCase())
+      c.name?.toLowerCase().includes(search.toLowerCase()) ||
+      c.phone_number?.includes(search) 
   );
+
+  const handleAccept = async () => {
+    const userDocs = documents.filter(
+      (d) =>
+        (d.phone_number === selectedRepresentatives.phone_number ||
+          d.user_email === selectedRepresentatives.email) &&
+        (d.document_type === "national_id" || d.document_type === "vehicle_reg")
+    );
+    await Promise.all(
+      userDocs.map((doc) =>
+        axiosInstance.post(`/admin/documents/${doc.document_id}/verify`, {
+          status: "accepted",
+        })
+      )
+    );
+    setRepresentatives((prev) =>
+      prev.filter((r) => r.driver_id !== selectedRepresentatives.driver_id)
+    );
+    setShowAcceptDialog(false);
+    setIsOpen(false);
+    setTimeout(() => setShowAcceptSuccess(true), 200);
+  };
+
+  const handleReject = async () => {
+    const userDocs = documents.filter(
+      (d) =>
+        (d.phone_number === selectedRepresentatives.phone_number ||
+          d.user_email === selectedRepresentatives.email) &&
+        (d.document_type === "national_id" || d.document_type === "vehicle_reg")
+    );
+    await Promise.all(
+      userDocs.map((doc) =>
+        axiosInstance.post(`/admin/documents/${doc.document_id}/verify`, {
+          status: "rejected",
+        })
+      )
+    );
+    setRepresentatives((prev) =>
+      prev.filter((r) => r.driver_id !== selectedRepresentatives.driver_id)
+    );
+    setShowRejectDialog(false);
+    setIsOpen(false);
+    setTimeout(() => setShowRejectSuccess(true), 200);
+  };
 
   return (
     <div className="min-h-[90vh] flex flex-col bg-white" dir="ltr">
@@ -166,30 +198,34 @@ const JoinRequests = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 px-8 pb-8">
-        {filteredRepresentatives.map((representative) => (
-          <div
-            key={representative.id}
-            className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm py-8 cursor-pointer transition hover:shadow-lg"
-            onClick={() => {
-              setSelectedRepresentatives(representative);
-              setIsOpen(true);
-            }}
-          >
-            <img
-              src={representative.img}
-              alt={representative.name}
-              className="w-20 h-20 rounded-full object-cover border mb-4"
-            />
-            <div className="text-center text-base font-medium text-gray-800">
-              {representative.name}
+      {loading ? (
+        <div className="text-center text-lg">Loading...</div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 px-8 pb-8">
+          {filteredRepresentatives.map((representative) => (
+            <div
+              key={representative.driver_id}
+              className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm py-8 cursor-pointer transition hover:shadow-lg"
+              onClick={() => {
+                setSelectedRepresentatives(representative);
+                setIsOpen(true);
+              }}
+            >
+              <img
+                src={representative.img}
+                alt={representative.name}
+                className="w-20 h-20 rounded-full object-cover border mb-4"
+              />
+              <div className="text-center text-base font-medium text-gray-800">
+                {representative.name}
+              </div>
+              <div className="text-center text-sm text-gray-400 mt-1">
+                {representative.phone_number}
+              </div>
             </div>
-            <div className="text-center text-sm text-gray-400 mt-1">
-              {representative.phone}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-4xl flex flex-col items-center">
@@ -224,12 +260,12 @@ const JoinRequests = () => {
               <div className="flex-1 flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-4">
                   <Input
-                    value="Ahmed"
+                    value={selectedRepresentatives.name}
                     readOnly
                     className="h-12 rounded-xl border w-full text-center bg-gray-50"
                   />
                   <Input
-                    value="Salem Ali Mohamadean"
+                    value={selectedRepresentatives.email}
                     readOnly
                     className="h-12 rounded-xl border w-full text-center bg-gray-50"
                   />
@@ -237,44 +273,41 @@ const JoinRequests = () => {
                 <div className="flex items-center bg-gray-50 border rounded-xl px-4 py-2">
                   <span className="mr-2 text-gray-500 min-w-[110px]">Phone:</span>
                   <Input
-                    value={selectedRepresentatives.phone}
+                    value={selectedRepresentatives.phone_number}
                     readOnly
                     className="bg-transparent border-0 flex-1 text-left"
                   />
                   <Phone className="ml-2 text-gray-400" />
                 </div>
-                <div className="flex items-center bg-gray-50 border rounded-xl px-4 py-2">
-                  <span className="mr-2 text-gray-500 min-w-[110px]">Country:</span>
-                  <Input
-                    value={selectedRepresentatives.country}
-                    readOnly
-                    className="bg-transparent border-0 flex-1 text-left"
-                  />
-                </div>
-                <div className="flex items-center bg-gray-50 border rounded-xl px-4 py-2">
-                  <span className="mr-2 text-gray-500 min-w-[110px]">City:</span>
-                  <Input
-                    value={selectedRepresentatives.city}
-                    readOnly
-                    className="bg-transparent border-0 flex-1 text-left"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <img
-                      src={selectedRepresentatives.idCardImg}
-                      alt="ID Card"
-                      className="w-full h-32 object-contain rounded-xl border mb-2"
-                    />
-                    <div className="text-center text-gray-600 text-sm">ID Card Photo</div>
-                  </div>
-                  <div>
-                    <img
-                      src={selectedRepresentatives.licenseImg}
-                      alt="License"
-                      className="w-full h-32 object-contain rounded-xl border mb-2"
-                    />
-                    <div className="text-center text-gray-600 text-sm">Driving License Photo</div>
+                <div className="flex flex-col gap-2 mt-6">
+                  <div className="font-bold mb-2">Documents:</div>
+                  <div className="flex gap-4">
+                    {["national_id_front", "driving_license_front"].map((type) => {
+                      const doc = documents.find(
+                        (d) =>
+                          d.document_type === type &&
+                          (d.phone_number === selectedRepresentatives.phone_number ||
+                            d.user_email === selectedRepresentatives.email)
+                      );
+                      return (
+                        <div key={type} className="flex flex-col items-center">
+                          <div className="text-lg mb-1">
+                            {type === "national_id_front" ? "National ID" : "Driving License"}
+                          </div>
+                          {doc ? (
+                            <img
+                              src={doc.document_url}
+                              alt={type}
+                              className="w-72 h-32 object-cover border rounded"
+                            />
+                          ) : (
+                            <div className="w-32 h-20 flex items-center justify-center border rounded text-gray-400">
+                              Not Uploaded
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -282,8 +315,6 @@ const JoinRequests = () => {
           )}
         </DialogContent>
       </Dialog>
-
-     
 
       <Dialog open={showAcceptDialog} onOpenChange={setShowAcceptDialog}>
         <DialogContent className="max-w-md flex flex-col items-center justify-between">
@@ -294,19 +325,7 @@ const JoinRequests = () => {
           </DialogHeader>
           <Button
             className="bg-gradient-to-r from-[#303030] to-[#a15b26] text-white mt-6 px-10 text-lg py-5 rounded-full"
-            onClick={() => {
-              const reps = JSON.parse(localStorage.getItem("acceptedRepresentatives") || "[]");
-              localStorage.setItem(
-                "acceptedRepresentatives",
-                JSON.stringify([...reps, selectedRepresentatives])
-              );
-              setRepresentatives((prev) =>
-                prev.filter((r) => r.id !== selectedRepresentatives.id)
-              );
-              setShowAcceptDialog(false);
-              setIsOpen(false);
-              setTimeout(() => setShowAcceptSuccess(true), 200);
-            }}
+            onClick={handleAccept}
           >
             Confirm
           </Button>
@@ -332,19 +351,7 @@ const JoinRequests = () => {
           </DialogHeader>
           <Button
             className="bg-gradient-to-r from-[#303030] to-[#a15b26] text-white mt-6 px-10 text-lg py-5 rounded-full"
-            onClick={() => {
-              const rejected = JSON.parse(localStorage.getItem("prohibitedRepresentatives") || "[]");
-              localStorage.setItem(
-                "prohibitedRepresentatives",
-                JSON.stringify([...rejected, selectedRepresentatives])
-              );
-              setRepresentatives((prev) =>
-                prev.filter((r) => r.id !== selectedRepresentatives.id)
-              );
-              setShowRejectDialog(false);
-              setIsOpen(false);
-              setTimeout(() => setShowRejectSuccess(true), 200);
-            }}
+            onClick={handleReject}
           >
             Confirm
           </Button>

@@ -8,28 +8,56 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MoveLeft } from "lucide-react";
+import axiosInstance from "../../../api/axiosInstance";
 
 const Customers = () => {
   const [search, setSearch] = useState("");
   const [customersData, setCustomersData] = useState<any[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const getRiderImage = async (rider_id: string) => {
+    try {
+      const response = await axiosInstance.get(
+        `/profile/picture?rider_id=${rider_id}`,
+        { responseType: "blob" }
+      );
+      return URL.createObjectURL(response.data);
+    } catch {
+      return "/default-avatar.png";
+    }
+  };
 
   useEffect(() => {
-    fetch("{{baseUrl}}/rider/profile")
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.success && res.data) {
-          const apiData = Array.isArray(res.data) ? res.data : [res.data];
-          setCustomersData(apiData);
-          console.log(apiData);
+    const fetchCustomers = async () => {
+      setLoading(true);
+      try {
+        const response = await axiosInstance.get("/rider/profile");
+        if (response.data.success && response.data.data) {
+          const apiData = Array.isArray(response.data.data)
+            ? response.data.data
+            : [response.data.data];
+
+          const customersWithImages = await Promise.all(
+            apiData.map(async (customer: any) => ({
+              ...customer,
+              img: await getRiderImage(customer.rider_id),
+            }))
+          );
+          setCustomersData(customersWithImages);
         }
-      })
-      .catch((error) => {
-          setCustomersData([])
-          console.log("error ocquried",error)
+        setLoading(false);
+      } catch (error: any) {
+        setCustomersData([]);
+        setLoading(false);
+        console.log(
+          "error occurred",
+          error.response?.data?.message || error.message
+        );
       }
-    );
+    };
+    fetchCustomers();
   }, []);
 
   const filteredCustomers = customersData.filter(
@@ -37,9 +65,6 @@ const Customers = () => {
       c.name?.toLowerCase().includes(search.toLowerCase()) ||
       c.phone?.includes(search)
   );
-
-  const getRiderImage = (rider_id: string) =>
-    `{{baseUrl}}/profile/picture?rider_id=${rider_id}`;
 
   return (
     <div className="min-h-[90vh] flex flex-col bg-white" dir="ltr">
@@ -61,30 +86,34 @@ const Customers = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 px-8 pb-8">
-        {filteredCustomers.map((customer) => (
-          <div
-            key={customer.id || customer.rider_id}
-            className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm py-8 cursor-pointer transition hover:shadow-lg"
-            onClick={() => {
-              setSelectedCustomer(customer);
-              setIsOpen(true);
-            }}
-          >
-            <img
-              src={getRiderImage(customer.rider_id)}
-              alt={customer.name}
-              className="w-20 h-20 rounded-full object-cover border mb-4"
-            />
-            <div className="text-center text-base font-medium text-gray-800">
-              {customer.name}
+      {loading ? (
+        <div className="text-center py-10 text-lg">Loading...</div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 px-8 pb-8">
+          {filteredCustomers.map((customer) => (
+            <div
+              key={customer.id || customer.rider_id}
+              className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm py-8 cursor-pointer transition hover:shadow-lg"
+              onClick={() => {
+                setSelectedCustomer(customer);
+                setIsOpen(true);
+              }}
+            >
+              <img
+                src={customer.img}
+                alt={customer.name}
+                className="w-20 h-20 rounded-full object-cover border mb-4"
+              />
+              <div className="text-center text-base font-medium text-gray-800">
+                {customer.name}
+              </div>
+              <div className="text-center text-sm text-gray-400 mt-1">
+                {customer.phone}
+              </div>
             </div>
-            <div className="text-center text-sm text-gray-400 mt-1">
-              {customer.phone}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-2xl flex flex-col items-center">
@@ -96,7 +125,7 @@ const Customers = () => {
           {selectedCustomer && (
             <>
               <img
-                src={getRiderImage(selectedCustomer.rider_id)}
+                src={selectedCustomer.img}
                 alt={selectedCustomer.name}
                 className="w-56 h-56 rounded-full object-cover border mb-8"
               />

@@ -9,14 +9,13 @@ import RestartPasswordPage3 from "../Dashboard/pages/RestartPasswordPage3"
 import AdsPage from "@/Dashboard/pages/Ads/AdsPage"
 import FinancialsPage from "@/Dashboard/pages/Financials/FinancialsPage"
 import ComplaintsPage from "@/Dashboard/pages/Complaints/ComplaintsPage"
-import ReportsPage from "@/Dashboard/pages/ReportsPage"
+import ReportsPage from "@/Dashboard/pages/Reports/ReportsPage"
 import WorkflowPage from "@/Dashboard/pages/WorkFlowPages/WorkflowPage"
 import Layout from "@/Layout"
 import WorkFlowsecond from "@/Dashboard/pages/WorkFlowPages/WorkFlowsecond"
 import Customers from "@/Dashboard/pages/WorkFlowPages/Customers"
 import Representatives from "@/Dashboard/pages/WorkFlowPages/Representatives/Representatives"
 import JoinRequests from "@/Dashboard/pages/WorkFlowPages/JoinRequests"
-import Orders from "@/Dashboard/pages/WorkFlowPages/Orders"
 import ShowAreas from "@/Dashboard/pages/WorkFlowPages/ShowAreas"
 import AddNewArea from "@/Dashboard/pages/WorkFlowPages/AddNewArea"
 import RepresentativesPage from "@/Dashboard/pages/WorkFlowPages/Representatives/RepresentativesPage"
@@ -44,12 +43,9 @@ export const router=createBrowserRouter(
             <Route path="/dashboard/WorkflowPage/WorkFlowsecond/Representatives/RepresentativesPage" element={<RepresentativesPage/>} />
             <Route path="/dashboard/WorkflowPage/WorkFlowsecond/Representatives/ProhibitedRepresentatives" element={<ProhibitedRepresentatives/>} />
             <Route path="/dashboard/WorkflowPage/WorkFlowsecond/JoinRequests" element={<JoinRequests/>} />
-            <Route path="/dashboard/WorkflowPage/WorkFlowsecond/Orders" element={<Orders/>} />
             <Route path="/dashboard/WorkflowPage/WorkFlowsecond/ShowAreas" element={<ShowAreas/>} />
             <Route path="/dashboard/WorkflowPage/WorkFlowsecond/AddNewArea" element={<AddNewArea/>} />
             <Route path="/dashboard/WorkflowPage" element={<WorkflowPage/>} />
-         
-
          </Route>
         </>
      )

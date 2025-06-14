@@ -4,5 +4,4 @@ export const EGYPT_AREAS = [
   { name: "Giza", lat: 30.0131, lng: 31.2089 },
   { name: "Sohag", lat: 26.5595, lng: 31.6956 },
   { name: "Sharqia", lat: 30.7326, lng: 31.7195 },
-  // ... باقي المناطق
 ];

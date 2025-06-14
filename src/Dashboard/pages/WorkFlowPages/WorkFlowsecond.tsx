@@ -25,11 +25,6 @@ const cards = [
     link: "/dashboard/WorkflowPage/WorkFlowsecond/JoinRequests",
   },
   {
-    label: "Orders",
-    icon: order,
-    link: "/dashboard/WorkflowPage/WorkFlowsecond/Orders",
-  },
-  {
     label: "Show Areas",
     icon: Add1,
     link: "/dashboard/WorkflowPage/WorkFlowsecond/ShowAreas",

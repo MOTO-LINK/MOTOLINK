@@ -113,8 +113,7 @@ const HeaderBar: React.FC = () => {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Language</SelectLabel>
-                  <SelectItem value="apple">Arabic</SelectItem>
-                  <SelectItem value="banana">English</SelectItem>
+                  <SelectItem value="english">English</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
