@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:moto/core/utils/showSnackBar.dart';
+import 'package:moto/driver/wallet/widgets/custom_loading_indicator.dart';
 import '../../core/utils/colors.dart';
 import '../../core/widgets/CustomAppBar.dart';
 import 'custom_expansion_tile.dart';
@@ -28,7 +30,7 @@ class _DeliveryAnythingState extends State<DeliveryAnything> {
     return Scaffold(
       appBar: CustomAppBar(
         title: "Delivery Anything",
-        centerTitle: true, onBackPressed: () {  },
+        centerTitle: true, onBackPressed: () {},
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -143,11 +145,29 @@ class _DeliveryAnythingState extends State<DeliveryAnything> {
             ),
             const SizedBox(height: 20),
             Center(
-              child: TextButton(
-                child: const Text("Cancel Order", style: TextStyle(color: Colors.red)),
-                onPressed: () {},
+              child: BlocConsumer<DeliveryCubit, DeliveryState>(
+                listener: (context, state) {
+                  if (state is CancelRideSuccess) {
+                    showSnackBar(context, state.message);
+
+                  } else if (state is CancelRideError) {
+                    showSnackBar(context, state.message);
+                  }
+                },
+                builder: (context, state) {
+                  if (state is CancelRideLoading) {
+                    return const CustomLoadingIndicator();
+                  }
+                  return TextButton(
+                    child: const Text("Cancel Order", style: TextStyle(color: Colors.red)),
+                    onPressed: () {
+                      context.read<DeliveryCubit>().cancelRide(reason: "User canceled");
+                    },
+                  );
+                },
               ),
             ),
+
             const SizedBox(height: 10),
             Expanded(
               child: BlocBuilder<DeliveryCubit, DeliveryState>(
@@ -156,10 +176,7 @@ class _DeliveryAnythingState extends State<DeliveryAnything> {
                     return Center(
                       child: Column(
                         children: [
-                          LoadingAnimationWidget.fourRotatingDots(
-                            color: ColorsApp().secondaryColor,
-                            size: 80,
-                          ),
+                          CustomLoadingIndicator(),
                           const SizedBox(height: 15),
                           const Text("Waiting Offers", style: TextStyle(fontWeight: FontWeight.w800)),
                         ],

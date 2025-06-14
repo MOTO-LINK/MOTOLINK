@@ -17,3 +17,15 @@ class DeliveryError extends DeliveryState {
   final String message;
   DeliveryError(this.message);
 }
+
+class CancelRideLoading extends DeliveryState {}
+
+class CancelRideSuccess extends DeliveryState {
+  final String message;
+  CancelRideSuccess(this.message);
+}
+
+class CancelRideError extends DeliveryState {
+  final String message;
+  CancelRideError(this.message);
+}

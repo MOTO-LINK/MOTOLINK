@@ -12,7 +12,7 @@ part 'wallet_state.dart';
 class WalletCubit extends Cubit<WalletState> {
   WalletCubit() : super(WithdrawInitial());
 
-  final StorageService _storageService = StorageService();
+ // final StorageService _storageService = StorageService();
 
   double _totalOrdersAmount = 0;
   double get totalOrdersAmount => _totalOrdersAmount;
@@ -23,8 +23,8 @@ class WalletCubit extends Cubit<WalletState> {
     required String accountDetails,
   }) async {
     emit(WithdrawLoading());
-
-    final token = await _storageService.getToken();
+    final token = await StorageService().getToken();
+    print("++++++++++++$token");
     if (token == null) {
       emit(WithdrawFailure("Token not found"));
       return;
@@ -55,7 +55,7 @@ class WalletCubit extends Cubit<WalletState> {
   Future<void> fetchBalance() async {
     emit(BalanceLoading());
 
-    final token = await _storageService.getToken();
+    final token = await StorageService().getToken();
     if (token == null) {
       emit(BalanceFailure("Token not found"));
       return;
@@ -82,7 +82,7 @@ class WalletCubit extends Cubit<WalletState> {
   Future<void> fetchTransactions({int page = 1, String? type}) async {
     emit(TransactionsLoading());
 
-    final token = await _storageService.getToken();
+    final token = await StorageService().getToken();
     if (token == null) {
       emit(TransactionsError("Token not found"));
       return;
@@ -113,7 +113,7 @@ class WalletCubit extends Cubit<WalletState> {
   Future<void> fetchRides() async {
     emit(RidesLoading());
 
-    final token = await _storageService.getToken();
+    final token = await StorageService().getToken();
     if (token == null) {
       emit(RidesError("Token not found"));
       return;

@@ -44,9 +44,14 @@ class _PaymentPageState extends State<PaymentPage> {
         options: Options(
           headers: {
             "Authorization": "Bearer ${widget.token}",
+            "Content-Type": "application/json",
           },
         ),
       );
+      print("amount: ${widget.amount}");
+      print("method: ${widget.paymentMethod}");
+      print("token: ${widget.token}");
+
 
       if (response.data['success'] == true &&
           response.data['data']?['paymentUrl'] != null) {
@@ -57,6 +62,7 @@ class _PaymentPageState extends State<PaymentPage> {
           ..setNavigationDelegate(
             NavigationDelegate(
               onPageFinished: (url) {
+                print("Navigated to: $url");
                 setState(() => _isLoading = false);
                 if (url.contains("paymob/callback")) {
                   Navigator.of(context).pop(true); // الدفع تم
@@ -68,10 +74,11 @@ class _PaymentPageState extends State<PaymentPage> {
 
         setState(() => _controller = controller);
       } else {
-        showError('فشل إنشاء رابط الدفع');
+        showError('Failed to create payment link');
       }
     } catch (e) {
-      showError("حدث خطأ: ${e.toString()}");
+      print("Error ${e.toString()}");
+      showError("An error occurred: ${e.toString()}");
     }
   }
 
@@ -83,7 +90,7 @@ class _PaymentPageState extends State<PaymentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("إكمال الدفع")),
+      appBar: AppBar(title: const Text("Complete the payment")),
       body: paymentUrl == null
           ? const CustomLoadingIndicator()
           : Stack(
