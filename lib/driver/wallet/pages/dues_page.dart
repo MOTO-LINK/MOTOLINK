@@ -12,9 +12,9 @@ class DuesPage extends StatefulWidget {
   @override
   State<DuesPage> createState() => _DuesPageState();
 }
+
 class _DuesPageState extends State<DuesPage> {
-  late String token;
-  double availableBalance = 0;
+  String? token;
 
   @override
   void initState() {
@@ -42,11 +42,11 @@ class _DuesPageState extends State<DuesPage> {
     return BlocBuilder<WalletCubit, WalletState>(
       builder: (context, state) {
         double duesAmount = 0;
+        double availableBalance = 0;
 
         if (state is BalanceSuccess) {
           duesAmount = state.balance.amountOwed;
           availableBalance = state.balance.balance;
-          print ("successful++++++++");
         }
 
         return Scaffold(
@@ -55,7 +55,8 @@ class _DuesPageState extends State<DuesPage> {
             showBackButton: true,
             amount: "${duesAmount.toStringAsFixed(2)} EGP",
             centerTitle: true,
-            appBarHeight: 80, onBackPressed: () {  },
+            appBarHeight: 80,
+            onBackPressed: () {},
           ),
           body: Padding(
             padding: const EdgeInsets.all(16),
@@ -65,60 +66,61 @@ class _DuesPageState extends State<DuesPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                          ),
-                          builder: (context) {
-                            return ContentModelSheet(
-                              label: 'Pay Dues',
-                              amount: '$duesAmount EGP',
-                              hint: 'The amount required to be paid',
-                              txtButton: "Confirm payment",
-                              availableBalance: availableBalance.toInt(),
-                              onTransactionComplete: (amount) {
-                                context.read<WalletCubit>().fetchTransactions();
-                                setState(() {
-                                  availableBalance -= amount;
-                                });
-                              },
-                            );
-                          },
-                        );
-                      },
-                      child: buildActionButton('Pay Dues', Icons.arrow_circle_up_outlined, Colors.red),
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                            ),
+                            builder: (context) {
+                              return ContentModelSheet(
+                                label: 'Pay Dues',
+                                amount: '$duesAmount EGP',
+                                hint: 'The amount required to be paid',
+                                txtButton: "Confirm payment",
+                                availableBalance: availableBalance.toInt(),
+                                onTransactionComplete: (amount) {
+                                  context.read<WalletCubit>().fetchBalance();
+                                  context.read<WalletCubit>().fetchTransactions();
+                                },
+                              );
+                            },
+                          );
+                        },
+                        child: buildActionButton('Pay Dues', Icons.arrow_circle_up_outlined, Colors.red),
+                      ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                          ),
-                          builder: (context) {
-                            return ContentModelSheet(
-                              label: 'Withdraw Request',
-                              amount: '$availableBalance EGP',
-                              hint: 'Your outstanding balance',
-                              txtButton: "Confirm request",
-                              availableBalance: availableBalance.toInt(),
-                              onTransactionComplete: (amount) {
-                                context.read<WalletCubit>().fetchTransactions();
-                                setState(() {
-                                  availableBalance -= amount;
-                                });
-                              },
-                            );
-                          },
-                        );
-                      },
-                      child: buildActionButton('Withdraw Request', Icons.arrow_circle_down_outlined, Colors.green),
-                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                            ),
+                            builder: (context) {
+                              return ContentModelSheet(
+                                label: 'Withdraw Request',
+                                amount: '$availableBalance EGP',
+                                hint: 'Your outstanding balance',
+                                txtButton: "Confirm request",
+                                availableBalance: availableBalance.toInt(),
+                                onTransactionComplete: (amount) {
+                                  context.read<WalletCubit>().fetchBalance();
+                                  context.read<WalletCubit>().fetchTransactions();
+                                },
+                              );
+                            },
+                          );
+                        },
+                        child: buildActionButton('Withdraw Request', Icons.arrow_circle_down_outlined, Colors.green),
+                      ),
+                    )
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -126,7 +128,6 @@ class _DuesPageState extends State<DuesPage> {
                 const SizedBox(height: 14),
                 const Text("The Transactions", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 10),
-
                 Expanded(
                   child: BlocBuilder<WalletCubit, WalletState>(
                     builder: (context, state) {
@@ -167,9 +168,7 @@ class _DuesPageState extends State<DuesPage> {
                           },
                         );
                       } else if (state is TransactionsError) {
-                        print("Error: ${state.message}");
-                        return const Center(child: Text("There was an error ,please try again later"));
-
+                        return const Center(child: Text("There was an error, please try again later"));
                       } else {
                         return const SizedBox();
                       }
@@ -194,12 +193,15 @@ class _DuesPageState extends State<DuesPage> {
         border: Border.all(color: const Color(0xFFB5022F)),
       ),
       child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-            Icon(icon, color: iconColor),
-          ],
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            children: [
+              Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 8),
+              Icon(icon, color: iconColor),
+            ],
+          ),
         ),
       ),
     );

@@ -15,7 +15,7 @@ class ContentModelSheet extends StatefulWidget {
     required this.amount,
     required this.hint,
     required this.txtButton,
-    required this.onTransactionComplete,
+   required this.onTransactionComplete,
     required this.availableBalance,
   });
 
