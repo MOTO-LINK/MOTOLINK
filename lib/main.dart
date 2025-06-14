@@ -5,7 +5,7 @@ import 'package:moto/driver/auth/pages/SignupDriverPage.dart';
 import 'package:moto/driver/wallet/pages/accounts_page.dart';
 import 'package:moto/general/DeliveryRequestPage/wasl.dart';
 import 'package:moto/general/SelectUserTypePage.dart';
-import 'package:moto/general/map/utils/views/DriverHome.dart';
+import 'package:moto/general/map/utils/views/adresses.dart';
 import 'package:moto/general/onboardingPages/boarding1.dart';
 import 'package:moto/general/onboardingPages/boarding2.dart';
 import 'package:moto/general/onboardingPages/boarding3.dart';
@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
         "CommissionPage": (context) => CommissionPage(),
         "OrdersPage": (context) => OrdersPage(),
       },
-      home: SignupRiderPage(), // تقدر تغيرها حسب صفحة البداية اللي تحب تبدأ بيها
+      home: DeliveryRequestPage(), // تقدر تغيرها حسب صفحة البداية اللي تحب تبدأ بيها
     );
   }
 }

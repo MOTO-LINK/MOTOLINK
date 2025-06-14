@@ -1,4 +1,3 @@
-
 import 'package:moto/general/core/models/login_response_model.dart';
 import 'package:moto/general/core/models/signup_response_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +10,10 @@ class StorageService {
   static const String _userEmailKey = 'user_email';
   static const String _userPhoneKey = 'user_phone';
   static const String _userTypeKey = 'user_type';
+
+  // 🆕 مفاتيح حالة السواق
+  static const String _driverOnlineKey = 'is_driver_online';
+  static const String _driverAvailableKey = 'is_driver_available';
 
   Future<void> saveUserSession(SignUpSuccessResponse response) async {
     final prefs = await SharedPreferences.getInstance();
@@ -47,7 +50,7 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userNameKey);
   }
-  
+
   Future<String?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userIdKey);
@@ -67,10 +70,42 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
   }
-  
+
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     print("Session Cleared (Logout).");
+  }
+
+  Future<String?> getUserType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userTypeKey);
+  }
+
+  Future<String?> getRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_refreshTokenKey);
+  }
+
+  // 🟢 سويتش الأونلاين
+  Future<void> saveDriverOnlineStatus(bool online) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_driverOnlineKey, online);
+  }
+
+  Future<bool> getDriverOnlineStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_driverOnlineKey) ?? false;
+  }
+
+  // 🟢 سويتش التوفر
+  Future<void> saveDriverAvailability(bool available) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_driverAvailableKey, available);
+  }
+
+  Future<bool> getDriverAvailability() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_driverAvailableKey) ?? false;
   }
 }
