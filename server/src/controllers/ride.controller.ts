@@ -659,7 +659,7 @@ class RideController {
 
 			// Get driver's current location
 			const driver = await driverModel.findById(rideRequest.driver_id);
-			if (!driver || !driver.current_location) {
+			if (!driver || !driver.current_location_id) {
 				res.status(404).json({
 					success: false,
 					error: {
@@ -670,7 +670,7 @@ class RideController {
 				return;
 			}
 
-			const driverLocation = await locationModel.findById(driver.current_location);
+			const driverLocation = await locationModel.findById(driver.current_location_id);
 
 			res.status(200).json({
 				success: true,

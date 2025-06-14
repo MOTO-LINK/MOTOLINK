@@ -8,7 +8,7 @@ export interface Driver {
 	vehicle_registration_number?: string;
 	vehicle_type: VehicleType;
 	order_types: OrderType[];
-	current_location?: string;
+	current_location_id?: string;
 	is_online: boolean;
 	is_available: boolean;
 	verified: boolean;
@@ -169,7 +169,7 @@ export class DriverModel {
 	async updateLocation(driverId: string, locationId: string): Promise<void> {
 		await pool.query(
 			`UPDATE drivers 
-       SET current_location = $1, updated_at = CURRENT_TIMESTAMP
+       SET current_location_id = $1, updated_at = CURRENT_TIMESTAMP
        WHERE driver_id = $2`,
 			[locationId, driverId]
 		);

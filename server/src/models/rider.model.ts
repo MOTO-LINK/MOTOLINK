@@ -2,7 +2,7 @@ import pool from "../utils/database";
 
 export interface Rider {
 	rider_id: string;
-	current_location?: string;
+	current_location_id?: string;
 	rating?: number;
 	created_at?: Date;
 	updated_at?: Date;
@@ -50,7 +50,7 @@ export class RiderModel {
 	async updateLocation(riderId: string, locationId: string): Promise<void> {
 		await pool.query(
 			`UPDATE riders 
-       SET current_location = $1, updated_at = CURRENT_TIMESTAMP
+       SET current_location_id = $1, updated_at = CURRENT_TIMESTAMP
        WHERE rider_id = $2`,
 			[locationId, riderId]
 		);
