@@ -265,6 +265,15 @@ export class DriverModel {
 
 		return result.rows[0].total;
 	}
+
+	async updateOnlineStatus(driverId: string, isOnline: boolean): Promise<void> {
+		await pool.query(
+			`UPDATE drivers 
+	   		SET is_online = $1
+	   		WHERE driver_id = $2`,
+			[isOnline, driverId]
+		);
+	}
 }
 
 export default new DriverModel();

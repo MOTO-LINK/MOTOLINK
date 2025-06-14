@@ -204,6 +204,7 @@ class AuthController {
 			let additionalInfo = {};
 			if (user.user_type === UserType.DRIVER) {
 				additionalInfo = (await driverModel.findById(user.user_id)) || {};
+				await driverModel.updateOnlineStatus(user.user_id, true);
 			} else if (user.user_type === UserType.RIDER) {
 				additionalInfo = (await riderModel.findById(user.user_id)) || {};
 			}
@@ -386,8 +387,23 @@ class AuthController {
 		}
 	}
 
-	async logout(_req: Request, res: Response, next: NextFunction): Promise<void> {
+	async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
+			if (!req.user) {
+				res.status(401).json({
+					success: false,
+					error: {
+						code: "UNAUTHORIZED",
+						message: "Authentication required"
+					}
+				});
+				return;
+			}
+
+			if (req.user.user_type !== UserType.DRIVER) {
+				await driverModel.updateOnlineStatus(req.user.user_id, false);
+			}
+
 			// TODO: Implement logout by blacklisting the JWT token
 			res.status(200).json({
 				success: true,
