@@ -45,7 +45,7 @@ const config = {
 	// Paymob
 	paymob: {
 		apiKey: process.env.PAYMOB_API_KEY,
-		integrationIds: JSON.parse(process.env.PAYMOB_INTEGRATION_ID || "[]"), // array of integration ids
+		integrationIds: JSON.parse(process.env.PAYMOB_INTEGRATION_IDS || "[]"), // array of integration ids
 		iframeId: process.env.PAYMOB_IFRAME_ID,
 		hmacSecret: process.env.PAYMOB_HMAC_SECRET
 	},
