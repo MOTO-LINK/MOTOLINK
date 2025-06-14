@@ -3,26 +3,25 @@ import crypto from "crypto";
 import config from "../utils/config";
 
 interface PaymentSessionData {
-  paymentUrl: string;
-  paymentId: string;
-  iframeId: string;
+	paymentUrl: string;
+	paymentId: string;
 }
 
 interface PaymentInfo {
-  userId: string;
-  amount: number;
-  orderId: string;
+	userId: string;
+	amount: number;
+	orderId: string;
 }
 
 class PaymobService {
 	private apiUrl = "https://accept.paymob.com/api";
 	private apiKey: string;
-	private integrationId: string;
+	private integrationIds: string;
 	private hmacSecret: string;
 
 	constructor() {
 		this.apiKey = config.paymob.apiKey || "";
-		this.integrationId = config.paymob.integrationId || "";
+		this.integrationIds = config.paymob.integrationIds || [];
 		this.hmacSecret = config.paymob.hmacSecret || "";
 	}
 
@@ -42,19 +41,23 @@ class PaymobService {
 			// Step 2: Create Order
 			const orderResponse = await axios.post(`${this.apiUrl}/ecommerce/orders`, {
 				auth_token: authToken,
-				delivery_needed: "false",
+				api_source: "INVOICE",
 				amount_cents: data.amount * 100, // Convert to cents
 				currency: data.currency,
+				integrations: this.integrationIds,
 				items: [
 					{
 						name: "Wallet Top-up",
 						amount_cents: data.amount * 100,
 						quantity: 1
 					}
-				]
+				],
+				delivery_needed: "false"
 			});
 			const orderId = orderResponse.data.id;
+			const orderPaymentUrl = orderResponse.data.url;
 
+			/**
 			// Step 3: Create Payment Key
 			const paymentKeyResponse = await axios.post(`${this.apiUrl}/acceptance/payment_keys`, {
 				auth_token: authToken,
@@ -84,14 +87,14 @@ class PaymobService {
 					purpose: data.purpose
 				}
 			});
+			
 
 			const paymentToken = paymentKeyResponse.data.token;
 			const iframeId = config.paymob.iframeId || "YOUR_IFRAME_ID";
-
+			*/
 			return {
-				paymentUrl: `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${paymentToken}`,
-				paymentId: orderId.toString(),
-				iframeId
+				paymentUrl: orderPaymentUrl,
+				paymentId: orderId.toString()
 			};
 		} catch (error) {
 			console.error("Paymob payment session creation failed:", error);
@@ -99,7 +102,7 @@ class PaymobService {
 		}
 	}
 
-	 verifyPayment(paymentData: any): boolean {
+	verifyPayment(paymentData: any): boolean {
 		try {
 			// Verify HMAC
 			const concatenatedString = [

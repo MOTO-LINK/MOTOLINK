@@ -103,7 +103,7 @@ class WalletController {
 			const paymentData = req.body;
 
 			// Verify payment with Paymob
-			const isValid = await paymobService.verifyPayment(paymentData);
+			const isValid = paymobService.verifyPayment(paymentData);
 			if (!isValid) {
 				res.status(400).json({
 					success: false,
