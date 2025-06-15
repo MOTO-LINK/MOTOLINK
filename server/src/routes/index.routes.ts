@@ -11,7 +11,8 @@ import rideRoutes from "./ride.routes";
 import walletRoutes from "./wallet.routes";
 import ratingRoutes from "./rating.routes";
 import chatRoutes from "./chat.routes";
-import notificationRoutes from "./notification.routes"
+import notificationRoutes from "./notification.routes";
+import ordersReportsRoutes from "./rides-reports.routes";
 
 const router = Router();
 
@@ -64,5 +65,6 @@ router.use("/wallet", walletRoutes);
 router.use("/ratings", ratingRoutes);
 router.use("/chats", chatRoutes);
 router.use("/notifications", notificationRoutes);
+router.use("/rides-reports", ordersReportsRoutes);
 
 export default router;
