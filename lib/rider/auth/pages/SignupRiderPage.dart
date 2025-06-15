@@ -467,7 +467,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
         password: _passwordController.text,
         phone: _phoneController.text,
         dob: _dateController.text,
-        userType: 'driver',
+        userType: 'rider',
         vehicleType: 'motorcycle',
         orderTypes: ['anything'],
       );

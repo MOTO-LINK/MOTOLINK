@@ -1,13 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:moto/core/utils/colors.dart';
-import 'package:moto/core/utils/showSnackBar.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
-import 'package:moto/core/widgets/CustomGoogleField.dart';
-import 'package:moto/rider/auth/widgets/api.dart';
 import 'package:intl/intl.dart';
+import 'package:moto/driver/auth/pages/SelectVehiclePage.dart';
 
 class SignupDriverPage extends StatefulWidget {
   const SignupDriverPage({super.key});
@@ -24,423 +20,400 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
   String? name;
   String? phoneNumber;
   String? confirmPassword;
-  bool isLoading = false;
 
-  final Api api = Api();
   final GlobalKey<FormState> formState = GlobalKey();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return ModalProgressHUD(
-      inAsyncCall: isLoading,
-      child: Scaffold(
-        backgroundColor: ColorsApp().backgroundColor,
-        appBar: CustomAppBar(
-          title: "Welcome,\nCreate your account",
-          imagePath: "assets/images/DELIVERY.png",
-          appBarHeight: 110, onBackPressed: () {  },
-          //icon: FontAwesomeIcons.arrowLeft,
-          /* onIconPressed: () {
-            Navigator.pop(context);
-          },*/
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(15),
-          child: SingleChildScrollView(
-            child: Form(
-              key: formState,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("*Name", style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 5),
-                  TextFormField(
-                    //controller: api.nameRider,
-                    decoration: InputDecoration(
-                      hintText: "Enter your Name",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(
-                        FontAwesomeIcons.solidCircleUser,
+    return Scaffold(
+      backgroundColor: ColorsApp().backgroundColor,
+      appBar: CustomAppBar(
+        title: "Welcome,\nCreate your account",
+        imagePath: "assets/images/DELIVERY.png",
+        appBarHeight: 110,
+        onBackPressed: () {},
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(15),
+        child: SingleChildScrollView(
+          child: Form(
+            key: formState,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("*Name", style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    hintText: "Enter your Name",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.solidCircleUser,
+                      color: Color(0xFFB5022F),
+                      size: 20,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
                         color: Color(0xFFB5022F),
-                        size: 20,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey, width: 2),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFB5022F),
-                          width: 2,
-                        ),
+                        width: 2,
                       ),
                     ),
-                    keyboardType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Name is required";
-                      }
-                      return null;
-                    },
-                    onChanged: (data) {
-                      name = data;
-                    },
                   ),
-                  SizedBox(height: 10),
-
-                  Text(
-                    "*Phone Number",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 5),
-                  TextFormField(
-                    //controller: api.phoneNumberRider,
-                    decoration: InputDecoration(
-                      hintText: "Enter your Phone Number",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(
-                        FontAwesomeIcons.mobileScreenButton,
+                  keyboardType: TextInputType.text,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Name is required";
+                    }
+                    return null;
+                  },
+                  onChanged: (data) {
+                    name = data;
+                  },
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "*Phone Number",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 5),
+                TextFormField(
+                  controller: _phoneController,
+                  decoration: InputDecoration(
+                    hintText: "Enter your Phone Number",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.mobileScreenButton,
+                      color: Color(0xFFB5022F),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
                         color: Color(0xFFB5022F),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey, width: 2),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFB5022F),
-                          width: 2,
-                        ),
+                        width: 2,
                       ),
                     ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Phone Number is required";
-                      }
-                      if (value.length < 10) {
-                        return "Phone Number must be at least 10 digits";
-                      }
-                      return null;
-                    },
-                    onChanged: (data) {
-                      phoneNumber = data;
-                    },
                   ),
-                  SizedBox(height: 10),
-
-                  Text("*Email", style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 5),
-                  TextFormField(
-                    //controller: api.emailRider,
-                    decoration: InputDecoration(
-                      hintText: "Enter your Email",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(
-                        FontAwesomeIcons.solidEnvelope,
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Phone Number is required";
+                    }
+                    if (value.length < 10) {
+                      return "Phone Number must be at least 10 digits";
+                    }
+                    if (!RegExp(r'^\d+$').hasMatch(value)) {
+                      return "Phone number must contain only digits";
+                    }
+                    return null;
+                  },
+                  onChanged: (data) {
+                    phoneNumber = data;
+                  },
+                ),
+                SizedBox(height: 10),
+                Text("*Email", style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    hintText: "Enter your Email",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.solidEnvelope,
+                      color: Color(0xFFB5022F),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
                         color: Color(0xFFB5022F),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey, width: 2),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFB5022F),
-                          width: 2,
-                        ),
+                        width: 2,
                       ),
                     ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Email is required";
-                      }
-                      if (!value.contains('@')) {
-                        return "Enter a valid email must contain '@'";
-                      }
-                      return null;
-                    },
-                    onChanged: (data) {
-                      email = data;
-                    },
                   ),
-                  SizedBox(height: 10),
-
-                  Text(
-                    "*Date of Birth",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 5),
-                  TextFormField(
-                    //controller: api.emailRider,
-                    controller: _dateController,
-
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: "Enter your date of birth",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(
-                        FontAwesomeIcons.calendarDays,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Email is required";
+                    }
+                    if (!value.contains('@')) {
+                      return "Enter a valid email must contain '@'";
+                    }
+                    return null;
+                  },
+                  onChanged: (data) {
+                    email = data;
+                  },
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "*Date of Birth",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 5),
+                TextFormField(
+                  controller: _dateController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: "Enter your date of birth",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.calendarDays,
+                      color: Color(0xFFB5022F),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
                         color: Color(0xFFB5022F),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey, width: 2),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFB5022F),
-                          width: 2,
-                        ),
+                        width: 2,
                       ),
                     ),
-                    keyboardType: TextInputType.datetime,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Date of birth is required";
-                      }
-                      return null;
-                    },
-                    onChanged: (data) {
-                      email = data;
-                    },
-                    onTap: () async {
-                      DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
-                      );
-                      if (picked != null) {
+                  ),
+                  keyboardType: TextInputType.datetime,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Date of birth is required";
+                    }
+                    return null;
+                  },
+                  onChanged: (data) {},
+                  onTap: () async {
+                    DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _dateController.text = DateFormat(
+                          'yyyy-MM-dd',
+                        ).format(picked);
+                      });
+                    }
+                  },
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "*Password",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 5),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    hintText: "Enter your Password",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.userLock,
+                      color: Color(0xFFB5022F),
+                      size: 20,
+                    ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
                         setState(() {
-                          _dateController.text = DateFormat(
-                            'dd/MM/yyyy',
-                          ).format(picked);
+                          isVisabiltyPass1 = !isVisabiltyPass1;
                         });
-                      }
-                    },
-                  ),
-                  SizedBox(height: 10),
-
-                  Text(
-                    "*Password",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 5),
-                  TextFormField(
-                    //controller: api.passwordRider,
-                    decoration: InputDecoration(
-                      hintText: "Enter your Password",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(
-                        FontAwesomeIcons.userLock,
+                      },
+                      icon:
+                          isVisabiltyPass1 == false
+                              ? const Icon(
+                                Icons.visibility_off_outlined,
+                                color: Color(0xFFB5022F),
+                              )
+                              : const Icon(
+                                Icons.visibility_outlined,
+                                color: Color(0xFFB5022F),
+                              ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
                         color: Color(0xFFB5022F),
-                        size: 20,
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isVisabiltyPass1 = !isVisabiltyPass1;
-                          });
-                        },
-                        icon:
-                            isVisabiltyPass1 == false
-                                ? const Icon(
-                                  Icons.visibility_off_outlined,
-                                  color: Color(0xFFB5022F),
-                                )
-                                : const Icon(
-                                  Icons.visibility_outlined,
-                                  color: Color(0xFFB5022F),
-                                ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey, width: 2),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFB5022F),
-                          width: 2,
-                        ),
+                        width: 2,
                       ),
                     ),
-                    keyboardType: TextInputType.text,
-                    obscureText: isVisabiltyPass1,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Password is required";
-                      }
-                      if (value.length < 6) {
-                        return "Password must be at least 6 characters";
-                      }
-                      return null;
-                    },
-                    onChanged: (data) {
-                      password = data;
-                    },
                   ),
-
-                  SizedBox(height: 10),
-
-                  Text(
-                    "*Confirm the password",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 5),
-                  TextFormField(
-                    //controller: api.confirmPasswordRider,
-                    decoration: InputDecoration(
-                      hintText: "Enter your Password",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(
-                        FontAwesomeIcons.userLock,
+                  keyboardType: TextInputType.text,
+                  obscureText: isVisabiltyPass1,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Password is required";
+                    }
+                    if (value.length < 6) {
+                      return "Password must be at least 6 characters";
+                    }
+                    return null;
+                  },
+                  onChanged: (data) {
+                    password = data;
+                  },
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "*Confirm the password",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 5),
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: InputDecoration(
+                    hintText: "Enter your Password",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.userLock,
+                      color: Color(0xFFB5022F),
+                      size: 20,
+                    ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isVisabiltyPass2 = !isVisabiltyPass2;
+                        });
+                      },
+                      icon:
+                          isVisabiltyPass2 == false
+                              ? const Icon(
+                                Icons.visibility_off_outlined,
+                                color: Color(0xFFB5022F),
+                              )
+                              : const Icon(
+                                Icons.visibility_outlined,
+                                color: Color(0xFFB5022F),
+                              ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
                         color: Color(0xFFB5022F),
-                        size: 20,
+                        width: 2,
                       ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isVisabiltyPass2 = !isVisabiltyPass2;
-                          });
-                        },
-                        icon:
-                            isVisabiltyPass2 == false
-                                ? const Icon(
-                                  Icons.visibility_off_outlined,
-                                  color: Color(0xFFB5022F),
-                                )
-                                : const Icon(
-                                  Icons.visibility_outlined,
-                                  color: Color(0xFFB5022F),
-                                ),
+                    ),
+                  ),
+                  keyboardType: TextInputType.text,
+                  obscureText: isVisabiltyPass2,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Confirm password is required";
+                    }
+                    if (value != _passwordController.text) {
+                      return "Passwords do not match";
+                    }
+                    return null;
+                  },
+                  onChanged: (data) {
+                    confirmPassword = data;
+                  },
+                ),
+                SizedBox(height: 40),
+
+
+                GestureDetector(
+                  onTap: navigateToVehicleSelection,
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFB5022F), Colors.black],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey, width: 2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Next",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+    
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Have an account?",
+                      style: TextStyle(color: Colors.black),
+                    ),
+    
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed("Login_driver_page");
+                      },
+                      child: Text(
+                        "Login",
+                        style: TextStyle(
                           color: Color(0xFFB5022F),
-                          width: 2,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    keyboardType: TextInputType.text,
-                    obscureText: isVisabiltyPass2,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Confirm password is required";
-                      }
-                      if (value != api.passwordRider.text) {
-                        return "Passwords do not match";
-                      }
-                      return null;
-                    },
-                    onChanged: (data) {
-                      confirmPassword = data;
-                    },
-                  ),
-
-                  SizedBox(height: 40),
-
-                  GestureDetector(
-                    onTap: () async {
-                      if (formState.currentState!.validate()) {
-                        isLoading = true;
-                        setState(() {});
-                        //api.ip = "http://";
-                        await api.signUpRider();
-                        showSnackBar(context, 'Sign Up Successful.');
-                        //Navigator.pushNamed(context, "Login_driver_page");
-                        try {
-                          UserCredential user = await FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                                email: email!,
-                                password: password!,
-                              );
-                          print(user);
-                          Navigator.pushNamed(context, "Login_driver_page");
-                        } on FirebaseAuthException catch (ex) {
-                          if (ex.code == 'weak-password') {
-                            showSnackBar(context, 'The password is too weak.');
-                          } else if (ex.code == 'email-already-in-use') {
-                            showSnackBar(
-                              context,
-                              'The account already used for this email.',
-                            );
-                          }
-                        } catch (ex) {
-                          //showSnackBar(context, 'Error: $ex');
-                        }
-                        isLoading = false;
-                        setState(() {});
-                        Navigator.pushNamed(context, "Login_driver_page");
-                      }
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 55,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFFB5022F), Colors.black],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Sign Up",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  CustomGoogle(),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Have an account?",
-                        style: TextStyle(color: Colors.black),
-                      ),
-
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed("Login_driver_page");
-                        },
-                        child: Text(
-                          "Login",
-                          style: TextStyle(
-                            color: Color(0xFFB5022F),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
   }
+
+
+  void navigateToVehicleSelection() {
+    if (formState.currentState!.validate()) {
+
+      final personalData = {
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+        'dob': _dateController.text,
+        'password': _passwordController.text,
+      };
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SelectVehiclePage(personalData: personalData),
+        ),
+      );
+    }
+  }
+  
 }

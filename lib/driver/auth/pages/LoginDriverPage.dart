@@ -1,12 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:moto/core/utils/colors.dart';
-import 'package:moto/core/utils/showSnackBar.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
-import 'package:moto/core/widgets/CustomGoogleField.dart';
-import 'package:moto/rider/auth/widgets/api.dart';
+import 'package:moto/core/widgets/CustomSnackBar.dart';
+import 'package:moto/general/core/models/login_response_model.dart';
+import 'package:moto/general/core/service/auth_service.dart';
+import 'package:moto/general/core/service/storage_service.dart';
 import 'package:moto/rider/auth/widgets/customText.dart';
 
 class LoginDriverPage extends StatefulWidget {
@@ -19,12 +19,14 @@ class LoginDriverPage extends StatefulWidget {
 class _LoginRiderPageState extends State<LoginDriverPage> {
   bool isVisabilty = true;
   bool isLoading = false;
-  String? email;
   String? password;
   String? phoneNumber;
 
-  final Api api = Api();
   final GlobalKey<FormState> formState = GlobalKey();
+  final AuthService _authService = AuthService();
+  final StorageService storageService = StorageService();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +37,8 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
         appBar: CustomAppBar(
           title: "Welcome, log in.",
           imagePath: "assets/images/DELIVERY.png",
-          appBarHeight: 110, onBackPressed: () {  },
-          //icon: FontAwesomeIcons.arrowLeft,
-          /*onIconPressed: () {
-            Navigator.pop(context);
-          },*/
+          appBarHeight: 110,
+          onBackPressed: () {},
         ),
         body: Padding(
           padding: const EdgeInsets.all(15),
@@ -55,7 +54,7 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                   ),
                   SizedBox(height: 5),
                   CustomText(
-                    controller: api.phoneNumberLoginRider,
+                    controller: _phoneController,
                     hintTxt: "Enter your Phone Number",
                     icon: Icon(Icons.call, color: Color(0xFFB5022F)),
                     textInputType: TextInputType.phone,
@@ -74,38 +73,13 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                   ),
 
                   SizedBox(height: 10),
-                  Text("*Email", style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 5),
-                  CustomText(
-                    controller: api.emailLoginRider,
-                    hintTxt: "Enter your Email",
-                    icon: Icon(
-                      FontAwesomeIcons.solidEnvelope,
-                      color: Color(0xFFB5022F),
-                    ),
-                    textInputType: TextInputType.emailAddress,
-                    validatorEdit: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Email is required";
-                      }
-                      if (!value.contains('@')) {
-                        return "Enter a valid email must contain '@'";
-                      }
-                      return null;
-                    },
-                    onChanged: (data) {
-                      email = data;
-                    },
-                  ),
-                  SizedBox(height: 10),
-
                   Text(
                     "*Password",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 5),
                   TextFormField(
-                    controller: api.passwordLoginRider,
+                    controller: _passwordController,
                     decoration: InputDecoration(
                       hintText: "Enter your Password",
                       hintStyle: TextStyle(color: Colors.grey),
@@ -120,16 +94,12 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                             isVisabilty = !isVisabilty;
                           });
                         },
-                        icon:
-                            isVisabilty == false
-                                ? const Icon(
-                                  Icons.visibility_off_outlined,
-                                  color: Color(0xFFB5022F),
-                                )
-                                : const Icon(
-                                  Icons.visibility_outlined,
-                                  color: Color(0xFFB5022F),
-                                ),
+                        icon: Icon(
+                          isVisabilty
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: Color(0xFFB5022F),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -163,7 +133,7 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, "Forgot_Pass_Page");
+                        Navigator.pushNamed(context, "Forgot_Pass_Page_driver");
                       },
                       child: Text(
                         "Forgot Password ?",
@@ -172,58 +142,8 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                     ),
                   ),
                   SizedBox(height: 40),
-
                   GestureDetector(
-                    onTap: () async {
-                      // Navigator.pushNamed(context, "home_page_rider");
-
-                      if (formState.currentState!.validate()) {
-                        //api.ip = "";
-                        setState(() {
-                          isLoading = true;
-                        });
-                        await api.loginRider();
-                        showSnackBar(context, 'Login Successful');
-                        try {
-                          //هدخل الداتا بتاعتي الايميل والباس
-                          UserCredential user = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                email: email!,
-                                password: password!,
-                              );
-                          print(user);
-                          //Navigator.pushReplacementNamed(context, ChatPage.id,
-                          // arguments: email);
-                        } on FirebaseAuthException catch (ex) {
-                          setState(() {
-                            isLoading = false;
-                          });
-                          if (ex.code == 'user-not-found') {
-                            showSnackBar(
-                              context,
-                              'No user found for that email.',
-                            );
-                          } else if (ex.code == 'wrong-password') {
-                            showSnackBar(
-                              context,
-                              'Wrong password provided for that user.',
-                            );
-                          } else {
-                            showSnackBar(
-                              context,
-                              'Authentication error: ${ex.message}',
-                            );
-                          }
-                        } catch (ex) {
-                          setState(() {
-                            isLoading = false;
-                          });
-                          // showSnackBar(context, 'There was an Error.');
-                        }
-                        Navigator.pushNamed(context, "AccountPage");
-
-                      }
-                    },
+                    onTap: _handleLoginDriver,
                     child: Container(
                       width: double.infinity,
                       height: 55,
@@ -250,8 +170,6 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
 
                   SizedBox(height: 20),
 
-                  CustomGoogle(),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -259,7 +177,6 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                         "Don't have an account?",
                         style: TextStyle(color: Colors.black),
                       ),
-
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pushNamed("Signup_driver_page");
@@ -281,5 +198,41 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLoginDriver() async {
+    if (formState.currentState!.validate()) {
+      setState(() => isLoading = true);
+
+      try {
+        final response = await _authService.login(
+          phone: _phoneController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        //print("User login Data: ${response.toJson()}");
+        if (!mounted) return;
+        setState(() => isLoading = false);
+
+        if (response is LoginResponseModel) {
+          // مؤقتا هندخله على الهوم على طول
+          await storageService.saveLoginSession(response);
+          CustomSnackBar(context, 'Login Successful!');
+          Navigator.pushReplacementNamed(context, "home_page_dafult");
+        } else if (response is LoginErrorResponse) {
+          CustomSnackBar(context, 'Error: ${response.error.message}');
+        } else {
+          CustomSnackBar(context, 'Unexpected response format.');
+          print("Unexpected response: $response");
+        }
+      } catch (e) {
+        setState(() => isLoading = false);
+        CustomSnackBar(
+          context,
+          'Something went wrong. Please try again later.',
+        );
+        print("Login Exception: $e");
+      }
+    }
   }
 }
