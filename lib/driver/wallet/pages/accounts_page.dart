@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moto/driver/wallet/controller/balance_cubit.dart';
 import '../../../core/widgets/CustomAppBar.dart';
 import '../../../rider/auth/core/services/storage_service.dart';
 import '../controller/balance_model.dart';
-import '../controller/wallet_cubit.dart';
+
 import '../widgets/buils_state_card.dart';
 import '../widgets/custom_loading_indicator.dart';
 
@@ -33,10 +34,11 @@ class _AccountsPageState extends State<AccountsPage> {
 
   Future<void> _loadTokenAndFetchData() async {
     final t = await StorageService().getToken();
+    print("tokenAccount++++$t");
     if (t != null) {
       token = t;
-      context.read<WalletCubit>().fetchRides();
-      context.read<WalletCubit>().fetchBalance();
+
+      context.read<BalanceCubit>().fetchBalance();
     }
   }
 
@@ -52,36 +54,44 @@ class _AccountsPageState extends State<AccountsPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: BlocBuilder<WalletCubit, WalletState>(
+          child: BlocBuilder<BalanceCubit, BalanceState>(
             builder: (context, state) {
               if (state is BalanceLoading) {
                 return const CustomLoadingIndicator();
               } else if (state is BalanceFailure) {
+
                 return Column(
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Column(
-                          children: [
-                            BuildStateCard(
-                              isSmall: true,
-                              label: 'Orders',
-                              amount: '700 EGP',
-                              nextPage: "OrdersPage",
-                            ),
-                            BuildStateCard(
-                              label: 'Balance',
-                              amount: '0',
-                              nextPage: "CommissionPage",
-                              isSmall: true,
-                            ),
-                          ],
+
+                        Flexible(
+                          flex: 2,
+                          child: Column(
+                            children: const [
+                              BuildStateCard(
+                                isSmall: true,
+                                label: 'Orders',
+                                amount: '700 EGP',
+                                nextPage: "OrdersPage",
+                              ),
+                              BuildStateCard(
+                                label: 'Balance',
+                                amount: '0',
+                                nextPage: "CommissionPage",
+                                isSmall: true,
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 15),
-                        BuildStateCard(
-                          label: 'Dues',
-                          amount: '0',
-                          nextPage: "DuesPage",
+                        const SizedBox(width: 8),
+                        const Flexible(
+                          flex: 1,
+                          child: BuildStateCard(
+                            label: 'Dues',
+                            amount: '0',
+                            nextPage: "DuesPage",
+                          ),
                         ),
                       ],
                     ),
@@ -132,38 +142,43 @@ class _AccountsPageState extends State<AccountsPage> {
                   ],
                 );
               } else if (state is BalanceSuccess) {
-                final total = context.read<WalletCubit>().totalOrdersAmount;
+                final total = context.read<BalanceCubit>().totalOrdersAmount;
                 BalanceModel data = state.balance;
                 return Column(
                   children: [
                     Row(
                       children: [
-                        Column(
-                          children: [
-                            BuildStateCard(
-                              isSmall: true,
-                              label: 'Orders',
-                              amount: 'Total Orders: ${total.toStringAsFixed(2)} EGP',
-                              nextPage: "OrdersPage",
-                            ),
-                            BuildStateCard(
-                              label: 'Balance',
-                              amount: '${data.balance.toStringAsFixed(2)} ${data.currency}',
-                              nextPage: "CommissionPage",
-                              isSmall: true,
-                            ),
-                          ],
+                        Flexible(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              BuildStateCard(
+                                isSmall: true,
+                                label: 'Orders',
+                                amount: 'Total Orders: ${total.toStringAsFixed(2)} EGP',
+                                nextPage: "OrdersPage",
+                              ),
+                              BuildStateCard(
+                                label: 'Balance',
+                                amount: '${data.balance.toStringAsFixed(2)} ${data.currency}',
+                                nextPage: "CommissionPage",
+                                isSmall: true,
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: 15),
-                        BuildStateCard(
-                          label: 'Dues',
-                          amount: '-${data.amountOwed.toStringAsFixed(2)} ${data.currency}',
-                          nextPage: "DuesPage",
+                        const SizedBox(width: 8),
+                        Flexible(
+                          flex: 1,
+                          child: BuildStateCard(
+                            label: 'Dues',
+                            amount: '-${data.amountOwed.toStringAsFixed(2)} ${data.currency}',
+                            nextPage: "DuesPage",
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -171,6 +186,7 @@ class _AccountsPageState extends State<AccountsPage> {
                           "Account payments",
                           style: TextStyle(fontWeight: FontWeight.w900),
                         ),
+                        SizedBox(width: 10,),
                         DropdownButton<int>(
                           value: selectedMonth,
                           items: months
@@ -203,9 +219,8 @@ class _AccountsPageState extends State<AccountsPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildPaymentTile('Total', '700 EGP'),
-                    _buildPaymentTile('Cash', '300 EGP'),
-                    _buildPaymentTile('Visa', '400 EGP'),
+                    _buildPaymentTile('Total', '0.00 EGP'),
+                    _buildPaymentTile('Cash', '0.00 EGP'),
                     const SizedBox(height: 24),
                   ],
                 );
@@ -232,8 +247,10 @@ class _AccountsPageState extends State<AccountsPage> {
           title,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
-        trailing: Text(value,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+        trailing: Text(
+          value,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }

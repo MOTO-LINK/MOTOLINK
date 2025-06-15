@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
-
 import '../../core/utils/colors.dart';
 
-
 class CustomExpansionTile extends StatelessWidget {
-  const CustomExpansionTile(
-      {super.key, required this.titleText, required this.details});
-  final String titleText, details;
+  const CustomExpansionTile({
+    super.key,
+    required this.titleText,
+    required this.details,
+  });
+
+  final String titleText;
+  final String details;
+
   @override
   Widget build(BuildContext context) {
+    // تقسيم التفاصيل إلى أسطر باستخدام line breaks
+    final List<String> lines = details.trim().split('\n');
+
     return ExpansionTile(
       title: Text(titleText),
       collapsedIconColor: ColorsApp().secondaryColor,
@@ -23,7 +30,13 @@ class CustomExpansionTile extends StatelessWidget {
         borderSide: const BorderSide(color: Colors.black),
       ),
       children: [
-        ListTile(title: Text(details)),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: lines.map((line) => Text(line.trim())).toList(),
+          ),
+        ),
       ],
     );
   }

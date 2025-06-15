@@ -4,7 +4,6 @@ import 'package:moto/driver/wallet/controller/wallet_cubit.dart';
 import '../../../core/utils/showSnackBar.dart';
 import '../../../rider/auth/core/services/storage_service.dart';
 import '../pages/payment_page.dart';
-
 class CustomButton extends StatelessWidget {
   const CustomButton({
     super.key,
@@ -24,7 +23,6 @@ class CustomButton extends StatelessWidget {
   final String accountDetails;
   final int availableBalance;
   final Function(int amount) onSuccess;
-
   Future<void> _handleTap(BuildContext context) async {
     final amountText = amountController.text.trim();
     final int? amount = int.tryParse(amountText);
@@ -35,30 +33,33 @@ class CustomButton extends StatelessWidget {
       return;
     }
 
-    if (amount > availableBalance) {
-      Navigator.pop(context);
-      showSnackBar(context, "Insufficient balance");
-      return;
-    }
-
-    // جلب التوكن من التخزين
-    final token = await StorageService().getToken();
-
-    if (token == null || token.isEmpty) {
-      Navigator.pop(context);
-      showSnackBar(context, "Session expired. Please login again.");
-      return;
-    }
-
     if (isWithdraw) {
+      if (amount > availableBalance) {
+        Navigator.pop(context);
+        showSnackBar(context, "Insufficient balance");
+        return;
+      }
+
+      final token = await StorageService().getToken();
+      if (token == null || token.isEmpty) {
+        Navigator.pop(context);
+        showSnackBar(context, "Session expired. Please login again.");
+        return;
+      }
+
       context.read<WalletCubit>().sendWithdrawRequest(
         amount: amount,
         method: method,
         accountDetails: accountDetails,
-
       );
-      onSuccess(amount);
     } else {
+      final token = await StorageService().getToken();
+      if (token == null || token.isEmpty) {
+        Navigator.pop(context);
+        showSnackBar(context, "Session expired. Please login again.");
+        return;
+      }
+
       Navigator.pop(context);
       Navigator.push(
         context,

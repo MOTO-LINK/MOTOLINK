@@ -1,4 +1,6 @@
-part of 'delivery_cubit.dart';
+import 'package:moto/general/DeliveryRequestPage/ride_model.dart';
+
+
 
 abstract class DeliveryState {}
 
@@ -7,25 +9,13 @@ class DeliveryInitial extends DeliveryState {}
 class DeliveryLoading extends DeliveryState {}
 
 class DeliveryLoaded extends DeliveryState {
-  final List<Map<String, dynamic>> offers;
-  final Map<String, dynamic> orderDetails;
+  final DeliveryModel ride;
 
-  DeliveryLoaded(this.offers, {required this.orderDetails});
+  DeliveryLoaded(this.ride);
 }
 
 class DeliveryError extends DeliveryState {
   final String message;
+
   DeliveryError(this.message);
-}
-
-class CancelRideLoading extends DeliveryState {}
-
-class CancelRideSuccess extends DeliveryState {
-  final String message;
-  CancelRideSuccess(this.message);
-}
-
-class CancelRideError extends DeliveryState {
-  final String message;
-  CancelRideError(this.message);
 }

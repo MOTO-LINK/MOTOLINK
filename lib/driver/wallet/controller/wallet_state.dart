@@ -13,6 +13,7 @@ class WithdrawFailure extends WalletState {
 
   WithdrawFailure(this.error);
 }
+/*
 
 class BalanceInitial extends WalletState {}
 
@@ -29,6 +30,7 @@ class BalanceFailure extends WalletState {
 
   BalanceFailure(this.error);
 }
+*/
 
 class TransactionsInitial extends WalletState {}
 
@@ -44,6 +46,8 @@ class TransactionsError extends WalletState {
   TransactionsError(this.message);
 }
 
+/*
+
 class RidesInitial extends WalletState {}
 
 class RidesLoading extends WalletState {}
@@ -57,3 +61,4 @@ class RidesError extends WalletState {
   final String message;
   RidesError(this.message);
 }
+*/

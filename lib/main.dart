@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moto/driver/auth/pages/LoginDriverPage.dart';
 import 'package:moto/driver/auth/pages/SignupDriverPage.dart';
 import 'package:moto/driver/wallet/pages/accounts_page.dart';
+import 'package:moto/general/DeliveryRequestPage/delivery_anything.dart';
 import 'package:moto/general/DeliveryRequestPage/wasl.dart';
 import 'package:moto/general/SelectUserTypePage.dart';
-import 'package:moto/general/map/utils/views/DriverHome.dart';
 import 'package:moto/general/map/utils/views/adresses.dart';
 import 'package:moto/general/onboardingPages/boarding1.dart';
 import 'package:moto/general/onboardingPages/boarding2.dart';
@@ -18,15 +18,24 @@ import 'package:moto/rider/auth/pages/VerficationPage.dart';
 import 'package:moto/rider/auth/pages/forgotPassPage.dart';
 import 'package:moto/rider/home/dafualthome.dart';
 
+import 'driver/wallet/controller/balance_cubit.dart';
+import 'driver/wallet/controller/commetion_cubit.dart';
 import 'driver/wallet/controller/wallet_cubit.dart';
 import 'driver/wallet/pages/commetion_page.dart';
 import 'driver/wallet/pages/dues_page.dart';
 import 'driver/wallet/pages/order_page.dart';
+import 'general/DeliveryRequestPage/cancel_rider_cubit.dart';
+import 'general/DeliveryRequestPage/delivery_cubit.dart';
 
 void main() {
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider(create: (_) => WalletCubit()),
+      BlocProvider(create: (_) => DeliveryCubit()),
+      BlocProvider(create: (_) => BalanceCubit()),
+      BlocProvider(create: (_) => RidesCubit()),
+      BlocProvider(create: (_) => CancelRideCubit()),
+      BlocProvider(create: (_) => DeliveryCubit()),
     ],
     child: const MyApp(),
   ));
@@ -59,7 +68,7 @@ class MyApp extends StatelessWidget {
         "CommissionPage": (context) => CommissionPage(),
         "OrdersPage": (context) => OrdersPage(),
       },
-      home: DriverHomePage(), // تقدر تغيرها حسب صفحة البداية اللي تحب تبدأ بيها
+      home: LoginRiderPage(), // تقدر تغيرها حسب صفحة البداية اللي تحب تبدأ بيها
     );
   }
 }

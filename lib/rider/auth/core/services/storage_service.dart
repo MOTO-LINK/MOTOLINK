@@ -54,4 +54,10 @@ class StorageService {
     await prefs.clear();
     print("Session Cleared (Logout).");
   }
+  Future<String?> getUserType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userTypeKey);
+
+  }
+
 }

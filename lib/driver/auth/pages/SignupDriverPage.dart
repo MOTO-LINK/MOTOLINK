@@ -28,7 +28,7 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -239,15 +239,15 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                         });
                       },
                       icon:
-                          isVisabiltyPass1 == false
-                              ? const Icon(
-                                Icons.visibility_off_outlined,
-                                color: Color(0xFFB5022F),
-                              )
-                              : const Icon(
-                                Icons.visibility_outlined,
-                                color: Color(0xFFB5022F),
-                              ),
+                      isVisabiltyPass1 == false
+                          ? const Icon(
+                        Icons.visibility_off_outlined,
+                        color: Color(0xFFB5022F),
+                      )
+                          : const Icon(
+                        Icons.visibility_outlined,
+                        color: Color(0xFFB5022F),
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -299,15 +299,15 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                         });
                       },
                       icon:
-                          isVisabiltyPass2 == false
-                              ? const Icon(
-                                Icons.visibility_off_outlined,
-                                color: Color(0xFFB5022F),
-                              )
-                              : const Icon(
-                                Icons.visibility_outlined,
-                                color: Color(0xFFB5022F),
-                              ),
+                      isVisabiltyPass2 == false
+                          ? const Icon(
+                        Icons.visibility_off_outlined,
+                        color: Color(0xFFB5022F),
+                      )
+                          : const Icon(
+                        Icons.visibility_outlined,
+                        color: Color(0xFFB5022F),
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -338,7 +338,6 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                 ),
                 SizedBox(height: 40),
 
-
                 GestureDetector(
                   onTap: navigateToVehicleSelection,
                   child: Container(
@@ -364,8 +363,8 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
-    
+                SizedBox(height: 3),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -373,7 +372,7 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                       "Have an account?",
                       style: TextStyle(color: Colors.black),
                     ),
-    
+
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed("Login_driver_page");
@@ -396,10 +395,8 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
     );
   }
 
-
   void navigateToVehicleSelection() {
     if (formState.currentState!.validate()) {
-
       final personalData = {
         'name': _nameController.text,
         'email': _emailController.text,
@@ -415,5 +412,4 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
       );
     }
   }
-  
 }

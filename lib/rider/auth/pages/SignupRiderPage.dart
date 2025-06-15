@@ -38,7 +38,7 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -262,15 +262,15 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                           });
                         },
                         icon:
-                            isVisabiltyPass1 == false
-                                ? const Icon(
-                                  Icons.visibility_off_outlined,
-                                  color: Color(0xFFB5022F),
-                                )
-                                : const Icon(
-                                  Icons.visibility_outlined,
-                                  color: Color(0xFFB5022F),
-                                ),
+                        isVisabiltyPass1 == false
+                            ? const Icon(
+                          Icons.visibility_off_outlined,
+                          color: Color(0xFFB5022F),
+                        )
+                            : const Icon(
+                          Icons.visibility_outlined,
+                          color: Color(0xFFB5022F),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -324,15 +324,15 @@ class _SignupRiderPageState extends State<SignupRiderPage> {
                           });
                         },
                         icon:
-                            isVisabiltyPass2 == false
-                                ? const Icon(
-                                  Icons.visibility_off_outlined,
-                                  color: Color(0xFFB5022F),
-                                )
-                                : const Icon(
-                                  Icons.visibility_outlined,
-                                  color: Color(0xFFB5022F),
-                                ),
+                        isVisabiltyPass2 == false
+                            ? const Icon(
+                          Icons.visibility_off_outlined,
+                          color: Color(0xFFB5022F),
+                        )
+                            : const Icon(
+                          Icons.visibility_outlined,
+                          color: Color(0xFFB5022F),
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),

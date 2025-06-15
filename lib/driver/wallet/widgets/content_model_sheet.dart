@@ -1,12 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-
+import 'package:moto/driver/wallet/widgets/custom_loading_indicator.dart';
 import '../../../core/utils/showSnackBar.dart';
 import '../controller/wallet_cubit.dart';
 import 'custom_wallet_button.dart';
-
 
 class ContentModelSheet extends StatefulWidget {
   const ContentModelSheet({
@@ -16,7 +13,7 @@ class ContentModelSheet extends StatefulWidget {
     required this.hint,
     required this.txtButton,
     required this.onTransactionComplete,
-    required this.availableBalance,
+    required this.availableBalance, required this.isWithdraw,
   });
 
   final String label;
@@ -25,6 +22,7 @@ class ContentModelSheet extends StatefulWidget {
   final String txtButton;
   final Function(int amount) onTransactionComplete;
   final int availableBalance;
+  final bool isWithdraw;
 
   @override
   State<ContentModelSheet> createState() => _ContentModelSheetState();
@@ -32,7 +30,7 @@ class ContentModelSheet extends StatefulWidget {
 
 class _ContentModelSheetState extends State<ContentModelSheet> {
   final TextEditingController _amountController = TextEditingController();
-  String _selectedMethod = "vodafone_cash";
+  String _selectedMethod = "Wallet";
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +40,7 @@ class _ContentModelSheetState extends State<ContentModelSheet> {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (_) => Center(
-              child: LoadingAnimationWidget.fourRotatingDots(
-                color: const Color(0xFFB5022F),
-                size: 80,
-              ),
-            ),
+            builder: (_) => const CustomLoadingIndicator(),
           );
         } else {
           Navigator.of(context, rootNavigator: true).pop();
@@ -57,7 +50,6 @@ class _ContentModelSheetState extends State<ContentModelSheet> {
             Navigator.pop(context);
             showSnackBar(context, "Withdraw request sent successfully");
           } else if (state is WithdrawFailure) {
-            Navigator.pop(context);
             showSnackBar(context, "Sorry, there was an error. Please try again later.");
             debugPrint(state.error);
           }
@@ -107,27 +99,26 @@ class _ContentModelSheetState extends State<ContentModelSheet> {
                     ),
                   ),
                   const SizedBox(height: 12),
-
                   DropdownButton<String>(
                     value: _selectedMethod,
                     items: const [
-                      DropdownMenuItem(value: "vodafone_cash", child: Text("Vodafone Cash")),
-                      DropdownMenuItem(value: "Visa", child: Text("Visa")),
+                      DropdownMenuItem(value: "Wallet", child: Text("Wallet")),
+                      DropdownMenuItem(value: "Card", child: Text("Card")),
                     ],
                     onChanged: (value) => setState(() => _selectedMethod = value!),
                   ),
+
                   const SizedBox(height: 16),
                   CustomButton(
                     txt: widget.txtButton,
                     amountController: _amountController,
-                    isWithdraw: widget.label == "Withdraw Request",
+                    isWithdraw: widget.label == "Withdraw Request" ,
                     method: _selectedMethod,
-                    accountDetails: "01012345678",
+                    accountDetails: "01010101010",
                     availableBalance: widget.availableBalance,
-                    onSuccess: (amount) {
-                      widget.onTransactionComplete(amount);
-                    },
+                    onSuccess: widget.onTransactionComplete,
                   ),
+
                   const SizedBox(height: 30),
                 ],
               ),
