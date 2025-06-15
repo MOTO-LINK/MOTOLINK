@@ -11,6 +11,7 @@ import rideRoutes from "./ride.routes";
 import walletRoutes from "./wallet.routes";
 import ratingRoutes from "./rating.routes";
 import chatRoutes from "./chat.routes";
+import notificationRoutes from "./notification.routes"
 
 const router = Router();
 
@@ -43,6 +44,8 @@ router.get("/", (_req, res) => {
 			rides: "/api/rides",
 			wallet: "/api/wallet",
 			ratings: "/api/ratings",
+			chats: "/api/chats",
+			notifications: "/api/notifications"
 		}
 	});
 });
@@ -60,4 +63,6 @@ router.use("/rides", rideRoutes);
 router.use("/wallet", walletRoutes);
 router.use("/ratings", ratingRoutes);
 router.use("/chats", chatRoutes);
+router.use("/notifications", notificationRoutes);
+
 export default router;
