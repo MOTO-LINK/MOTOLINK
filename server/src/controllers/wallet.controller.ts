@@ -64,6 +64,36 @@ class WalletController {
 		}
 	}
 
+	async getGatewayTransactions(req: Request, res: Response, next: NextFunction): Promise<void> {
+		try {
+			const userId = req.user!.user_id;
+			const { page = 1, limit = 20 } = req.query;
+
+			const { gatewayTransactions, total } = await walletModel.getGatewayTransactions(
+				userId,
+				Number(page),
+				Number(limit)
+			);
+
+			const totalPages = Math.ceil(total / Number(limit));
+
+			res.status(200).json({
+				success: true,
+				data: {
+					items: gatewayTransactions,
+					pagination: {
+						page: Number(page),
+						limit: Number(limit),
+						total,
+						totalPages
+					}
+				}
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+
 	async initializeTopUp(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			const userId = req.user!.user_id;
@@ -120,7 +150,7 @@ class WalletController {
 				const { userId, amount } = await paymobService.extractPaymentInfo(paymentData);
 
 				// Credit wallet
-				await walletModel.credit(
+				const walletTransaction = await walletModel.credit(
 					userId,
 					amount,
 					"top_up",
@@ -128,8 +158,15 @@ class WalletController {
 					`Wallet top-up via Paymob`
 				);
 
+				const gatewayTransaction = paymobService.savePaymentData(
+					paymentData,
+					userId,
+					walletTransaction.transaction_id
+				);
+
 				res.status(200).json({
 					success: true,
+					data: gatewayTransaction,
 					message: "Wallet topped up successfully"
 				});
 			} else {

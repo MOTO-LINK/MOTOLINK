@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import geocodingService from "../services/geocoding.service";
+import locationModel, { Location } from "../models/location.model";
 
 class LocationController {
 	async reverseGeocode(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -66,6 +67,35 @@ class LocationController {
 			res.status(200).json({
 				success: true,
 				data: result
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async getLocationById(req: Request, res: Response, next: NextFunction): Promise<void> {
+		try {
+			const locationId = req.params.id;
+			const location = await locationModel.findById(locationId);
+
+			if (!location) {
+				res.status(404).json({
+					success: false,
+					error: {
+						code: "LOCATION_NOT_FOUND",
+						message: "Location not found"
+					}
+				});
+				return;
+			}
+
+			res.status(200).json({
+				success: true,
+				data: {
+					address: location.address,
+					latitude: location.latitude,
+					longitude: location.longitude
+				}
 			});
 		} catch (error) {
 			next(error);

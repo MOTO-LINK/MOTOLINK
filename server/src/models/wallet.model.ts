@@ -25,6 +25,18 @@ export interface WalletTransaction {
 	created_at?: Date;
 }
 
+export interface GatewayTransaction {
+	gateway_transaction_id: string;
+	user_id: string;
+	wallet_transaction_id: string;
+	total_fee: number;
+	payment_status: 'pending' | 'success' | 'failure' | 'refunded';
+	invoice_id: string;
+	payment_data: object;
+	created_at?: Date;
+	updated_at?: Date;
+}
+
 export class WalletModel {
 	async findByUserId(userId: string): Promise<Wallet | null> {
 		const result = await pool.query("SELECT * FROM wallets WHERE user_id = $1", [userId]);
@@ -199,6 +211,27 @@ export class WalletModel {
 
 		return {
 			transactions: transactionsResult.rows,
+			total: parseInt(countResult.rows[0].total)
+		};
+	}
+
+	async getGatewayTransactions(
+		userId: string,
+		page: number = 1,
+		limit: number = 20,
+	): Promise<{ gatewayTransactions: GatewayTransaction[]; total: number }> {
+		let query = `SELECT * FROM gateway_transactions WHERE user_id = $1`
+		const countQuery = query.replace("*", "COUNT(*) as total");
+
+		query += ` ORDER BY created_at DESC LIMIT $2 OFFSET $3`
+
+		const [countResult, transactionsResult] = await Promise.all([
+			pool.query(countQuery, [userId]),
+			pool.query(query, [userId, limit, (page - 1) * limit])
+		]);
+
+		return {
+			gatewayTransactions: transactionsResult.rows,
 			total: parseInt(countResult.rows[0].total)
 		};
 	}

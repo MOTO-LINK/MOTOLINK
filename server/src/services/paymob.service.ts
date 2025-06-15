@@ -1,6 +1,7 @@
 import axios from "axios";
 import crypto from "crypto";
 import config from "../utils/config";
+import pool from "../utils/database";
 
 interface PaymentSessionData {
 	paymentUrl: string;
@@ -170,6 +171,30 @@ class PaymobService {
 		} catch (error) {
 			console.error("Refund failed:", error);
 			return false;
+		}
+	}
+
+	async savePaymentData(paymentData: any, userId: string, walletTransactionId: string) {
+		const query =
+			"INSERT INTO gateway_transactions (invoice_id, userId, wallet_transaction_id, payment_data, payment_status) VALUES ($1, $2, $3, $4, $5) RETURNING *";
+
+		try {
+			let paymentStatus = "success";
+			if (paymentData.pending) paymentStatus = "pending";
+			if (paymentData.is_refunded) paymentStatus = "refunded";
+			if (paymentData.is_voided) paymentStatus = "cancelled";
+
+			const result = await pool.query(query, [
+				paymentData.id,
+				userId,
+				walletTransactionId,
+				JSON.stringify(paymentData),
+				paymentStatus
+			]);
+			return result.rows[0];
+		} catch (error) {
+			console.error("Failed to save payment data:", error);
+			return null;
 		}
 	}
 }
