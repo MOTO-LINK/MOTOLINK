@@ -228,7 +228,6 @@ const RepresentativesPage = () => {
           <div className="text-center w-full text-lg font-bold mb-4">
             The Representative has been successfully banned.
           </div>
-          {/* يمكنك وضع صورة نجاح هنا إذا أردت */}
         </DialogContent>
       </Dialog>
     </div>

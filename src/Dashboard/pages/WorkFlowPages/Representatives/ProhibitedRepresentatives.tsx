@@ -200,7 +200,6 @@ const ProhibitedRepresentatives = () => {
                     className="bg-transparent border-0 flex-1 text-left"
                   />
                 </div>
-                {/* يمكنك إضافة صور البطاقة والرخصة إذا كانت متوفرة في بيانات الـ API */}
               </div>
             </div>
           )}

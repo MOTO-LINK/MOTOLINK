@@ -14,23 +14,23 @@ import {
 const initialAds = [
   {
     id: 1,
-    img: "https://img.freepik.com/free-photo/yellow-scooter-delivery-service-concept_23-2149436197.jpg",
+    img: "https://img.freepik.com/free-photo/delicious-burger-with-french-fries_23-2148234980.jpg",
   },
   {
     id: 2,
-    img: "https://img.freepik.com/free-photo/young-delivery-man-with-yellow-backpack-riding-scooter-delivering-food-city_155003-28268.jpg",
+    img: "https://img.freepik.com/free-photo/food-delivery-courier-yellow-background_23-2148884987.jpg",
   },
   {
     id: 3,
-    img: "https://img.freepik.com/free-photo/yellow-scooter-delivery-service-concept_23-2149436197.jpg",
+    img: "https://img.freepik.com/free-photo/fast-food-delivery-concept_23-2148884992.jpg",
   },
   {
     id: 4,
-    img: "https://img.freepik.com/free-psd/food-delivery-banner-template_23-2148684976.jpg",
+    img: "https://img.freepik.com/free-photo/young-delivery-man-with-yellow-backpack-riding-scooter-delivering-food-city_155003-28268.jpg",
   },
   {
     id: 5,
-    img: "https://img.freepik.com/free-psd/food-delivery-banner-template_23-2148684976.jpg",
+    img: "https://img.freepik.com/free-photo/food-delivery-banner-template_23-2148684976.jpg",
   },
 ];
 
