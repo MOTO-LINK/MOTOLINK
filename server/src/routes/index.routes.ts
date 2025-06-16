@@ -13,6 +13,7 @@ import ratingRoutes from "./rating.routes";
 import chatRoutes from "./chat.routes";
 import notificationRoutes from "./notification.routes";
 import ordersReportsRoutes from "./rides-reports.routes";
+import driversReportsRoutes from "./drivers-reports.routes";
 
 const router = Router();
 
@@ -66,5 +67,6 @@ router.use("/ratings", ratingRoutes);
 router.use("/chats", chatRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/rides-reports", ordersReportsRoutes);
+router.use("/drivers-reports", driversReportsRoutes);
 
 export default router;
