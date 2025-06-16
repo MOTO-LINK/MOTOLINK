@@ -1,13 +1,13 @@
 class DeliveryModel {
   final String requestId;
   final String riderId;
-  final String driverId;
+  final String? driverId;
   final String startLocationId;
   final String endLocationId;
   final String rideType;
   final String serviceType;
-  final int distance;
-  final int estimatedFee;
+  final double distance;
+  final double estimatedFee;
   final String paymentType;
   final String status;
   final String? cancelReason;
@@ -21,7 +21,7 @@ class DeliveryModel {
   DeliveryModel({
     required this.requestId,
     required this.riderId,
-    required this.driverId,
+    this.driverId,
     required this.startLocationId,
     required this.endLocationId,
     required this.rideType,
@@ -42,13 +42,13 @@ class DeliveryModel {
     return DeliveryModel(
       requestId: json['request_id'],
       riderId: json['rider_id'],
-      driverId: json['driver_id'],
+      driverId: json['driver_id'], // هنا بقت nullable
       startLocationId: json['start_location_id'],
       endLocationId: json['end_location_id'],
       rideType: json['ride_type'],
       serviceType: json['service_type'],
-      distance: json['distance'],
-      estimatedFee: json['estimated_fee'],
+      distance: double.tryParse(json['distance'].toString()) ?? 0.0,
+      estimatedFee: double.tryParse(json['estimated_fee'].toString()) ?? 0.0,
       paymentType: json['payment_type'],
       status: json['status'],
       cancelReason: json['cancel_reason'],
