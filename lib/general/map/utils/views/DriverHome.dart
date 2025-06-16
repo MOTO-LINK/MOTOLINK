@@ -27,6 +27,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
   bool _hasAcceptedOrder = false;
   bool _hasPickedUp = false;
   bool _isMapInitialized = false;
+  bool _isCameraLocked = false;
   Map<String, dynamic>? _pendingOrder;
   String _userName = '';
   String? _pickupAddress;
@@ -34,10 +35,16 @@ class _DriverHomePageState extends State<DriverHomePage> {
 
   GoogleMapController? _mapController;
   LatLng? _currentLatLng;
+  LatLng? _lastRouteLatLng;
   Timer? _locationTimer;
   Timer? _ridesTimer;
 
   Set<Polyline> _polylines = {};
+  Set<Marker> _markers = {};
+
+  static const Color primaryColor = Color(0xFFB5022F);
+  static const Color secondaryColor = Colors.black;
+  static const Color accentColor = Colors.white;
 
   @override
   void initState() {
@@ -53,11 +60,9 @@ class _DriverHomePageState extends State<DriverHomePage> {
         print('تخطي جلب الطلبات: الطلب مقبول بالفعل');
         return;
       }
-
       bool online = await storageService.getDriverOnlineStatus();
       bool available = await storageService.getDriverAvailability();
       print('حالة السائق: أونلاين=$online, متاح=$available');
-
       if (online && available) {
         try {
           final availableRides = await driverService.fetchAvailableRides();
@@ -66,6 +71,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
             _pendingOrder = availableRides.isNotEmpty ? availableRides.first : null;
             _pickupAddress = null;
             _dropoffAddress = null;
+            _updateMarkers();
           });
           if (_pendingOrder != null) {
             print('طلب جديد: ${jsonEncode(_pendingOrder)}');
@@ -84,6 +90,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
           _pickupAddress = null;
           _dropoffAddress = null;
           _polylines = {};
+          _markers = {};
         });
       }
     });
@@ -97,23 +104,78 @@ class _DriverHomePageState extends State<DriverHomePage> {
     super.dispose();
   }
 
+  Future<bool> _checkAndRequestLocationPermissions() async {
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        print('خدمة الموقع غير مفعلة');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ يرجى تفعيل خدمة الموقع')),
+        );
+        return false;
+      }
+    }
+
+    PermissionStatus permission = await location.hasPermission();
+    if (permission == PermissionStatus.denied) {
+      permission = await location.requestPermission();
+      if (permission != PermissionStatus.granted) {
+        print('إذن الموقع مرفوض');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ يرجى منح إذن الموقع')),
+        );
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<LocationData?> _getCurrentLocation({int retries = 3}) async {
+    for (int i = 0; i < retries; i++) {
+      try {
+        LocationData locationData = await location.getLocation();
+        if (locationData.latitude != null && locationData.longitude != null) {
+          print('تم جلب الموقع: lat=${locationData.latitude}, lng=${locationData.longitude}');
+          return locationData;
+        } else {
+          print('إحداثيات الموقع فارغة: lat=${locationData.latitude}, lng=${locationData.longitude}');
+        }
+      } catch (e) {
+        print('خطأ جلب الموقع (محاولة ${i + 1}): $e');
+        if (i < retries - 1) await Future.delayed(const Duration(seconds: 2));
+      }
+    }
+    print('فشل جلب الموقع بعد $retries محاولات');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('❌ فشل جلب الموقع، تحقق من إعدادات GPS')),
+    );
+    return null;
+  }
+
   Future<void> _initialize() async {
     setState(() => _isLoading = true);
-
+    print('بدء التهيئة');
     try {
+      if (!await _checkAndRequestLocationPermissions()) {
+        throw Exception('فشل في تفعيل الموقع أو الحصول على الإذن');
+      }
+
       final name = await storageService.getUserName();
       final availableRides = await driverService.fetchAvailableRides();
       print('الطلبات المتاحة الأولية: ${jsonEncode(availableRides)}');
-
       _isOnline = await storageService.getDriverAvailability();
       _isDriverOnline = await storageService.getDriverOnlineStatus();
 
-      LocationData locationData = await location.getLocation();
-      if (locationData.latitude != null && locationData.longitude != null) {
-        _currentLatLng = LatLng(locationData.latitude!, locationData.longitude!);
+      LocationData? locationData = await _getCurrentLocation();
+      if (locationData?.latitude != null && locationData?.longitude != null) {
+        _currentLatLng = LatLng(locationData!.latitude!, locationData!.longitude!);
         print('موقع السائق الأولي: $_currentLatLng');
+        _updateMarkers();
       } else {
-        throw Exception('فشل في جلب موقع السائق');
+        print('فشل جلب الموقع الأولي، استخدام إحداثيات افتراضية');
+        _currentLatLng = const LatLng(30.0444, 31.2357);
+        _updateMarkers();
       }
 
       setState(() {
@@ -123,26 +185,35 @@ class _DriverHomePageState extends State<DriverHomePage> {
       });
 
       if (_pendingOrder != null) {
+        print('طلب أولي موجود: ${jsonEncode(_pendingOrder)}');
         await _fetchAddresses();
+        await _drawRouteToPickup();
+      } else {
+        print('لا توجد طلبات أولية');
       }
-      await _drawRouteToPickup();
 
       _locationTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
         try {
-          LocationData locationData = await location.getLocation();
-          if (locationData.latitude != null && locationData.longitude != null) {
-            _currentLatLng = LatLng(locationData.latitude!, locationData.longitude!);
+          LocationData? locationData = await _getCurrentLocation(retries: 2);
+          if (locationData?.latitude != null && locationData?.longitude != null) {
+            LatLng newLatLng = LatLng(locationData!.latitude!, locationData!.longitude!);
+            bool significantChange = _currentLatLng == null ||
+                _calculateDistance(_currentLatLng!, newLatLng) > 0.05;
+            _currentLatLng = newLatLng;
             print('تحديث موقع السائق: $_currentLatLng');
-            await driverService.updateDriverLocation(locationData.latitude!, locationData.longitude!);
-            if (_mapController != null && _isMapInitialized) {
-              await _updateCameraPosition();
-            }
+            await driverService.updateDriverLocation(locationData!.latitude!, locationData!.longitude!);
+            _updateMarkers();
             if (!_hasPickedUp) {
               await _drawRouteToPickup();
             } else {
               await _drawRouteToDropoff();
             }
+            if (significantChange && !_isCameraLocked) {
+              await _updateCameraPosition();
+            }
             setState(() {});
+          } else {
+            print('فشل تحديث الموقع: لا توجد إحداثيات');
           }
         } catch (e) {
           print('خطأ تحديث الموقع: $e');
@@ -152,17 +223,15 @@ class _DriverHomePageState extends State<DriverHomePage> {
       print('خطأ التهيئة: $e');
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ حدث خطأ أثناء التهيئة')),
+        SnackBar(content: Text('❌ خطأ أثناء التهيئة: $e')),
       );
     }
   }
 
   Future<void> _fetchAddresses() async {
     if (_pendingOrder == null) return;
-
     String pickupAddress = 'غير متوفر';
     String dropoffAddress = 'غير متوفر';
-
     if (_pendingOrder!['start_location'] != null &&
         _pendingOrder!['start_location'] is Map &&
         _pendingOrder!['start_location']['address'] != null) {
@@ -183,7 +252,6 @@ class _DriverHomePageState extends State<DriverHomePage> {
         }
       }
     }
-
     if (_pendingOrder!['end_location'] != null &&
         _pendingOrder!['end_location'] is Map &&
         _pendingOrder!['end_location']['address'] != null) {
@@ -204,7 +272,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
         }
       }
     }
-
+    pickupAddress = pickupAddress.length > 80 ? '${pickupAddress.substring(0, 77)}...' : pickupAddress;
+    dropoffAddress = dropoffAddress.length > 80 ? '${dropoffAddress.substring(0, 77)}...' : dropoffAddress;
     setState(() {
       _pickupAddress = pickupAddress;
       _dropoffAddress = dropoffAddress;
@@ -214,12 +283,15 @@ class _DriverHomePageState extends State<DriverHomePage> {
   }
 
   Future<void> _updateCameraPosition() async {
-    if (_mapController != null && _currentLatLng != null && _isMapInitialized) {
+    if (_mapController != null && _currentLatLng != null && _isMapInitialized && !_isCameraLocked) {
       try {
         await _mapController!.animateCamera(CameraUpdate.newLatLng(_currentLatLng!));
+        print('تم تحديث كاميرا الخريطة إلى: $_currentLatLng');
       } catch (e) {
         print('خطأ تحريك الكاميرا: $e');
       }
+    } else {
+      print('لا يمكن تحديث الكاميرا: mapController=$_mapController, currentLatLng=$_currentLatLng, isMapInitialized=$_isMapInitialized, isCameraLocked=$_isCameraLocked');
     }
   }
 
@@ -270,25 +342,22 @@ class _DriverHomePageState extends State<DriverHomePage> {
     try {
       bool online = await storageService.getDriverOnlineStatus();
       bool available = await storageService.getDriverAvailability();
-
       if (!online || !available) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("❌ لازم تكون أونلاين ومتاح عشان تستلم طلب")),
         );
         return;
       }
-
       if (_pendingOrder == null) {
         print('خطأ: _pendingOrder فارغ في _handleAcceptOrder');
         return;
       }
-
       String requestId = _pendingOrder!['request_id'];
       bool success = await driverService.acceptOrder(requestId);
-
       if (success) {
         setState(() {
           _hasAcceptedOrder = true;
+          _isCameraLocked = true;
           print('قبول الطلب: _hasAcceptedOrder=$_hasAcceptedOrder, _pendingOrder=${jsonEncode(_pendingOrder)}');
         });
         await _drawRouteToPickup();
@@ -312,26 +381,26 @@ class _DriverHomePageState extends State<DriverHomePage> {
     try {
       bool online = await storageService.getDriverOnlineStatus();
       bool available = await storageService.getDriverAvailability();
-
       if (!online || !available) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("❌ لازم تكون أونلاين ومتاح عشان ترفض طلب")),
         );
         return;
       }
-
       if (_pendingOrder == null) return;
-
       String requestId = _pendingOrder!['request_id'];
       bool success = await driverService.declineOrder(requestId);
-
       if (success) {
         setState(() {
           _pendingOrder = null;
           _pickupAddress = null;
           _dropoffAddress = null;
           _polylines = {};
+          _markers = {};
+          _isCameraLocked = false;
+          _lastRouteLatLng = null;
         });
+        await _updateCameraPosition();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ تم رفض الطلب")),
         );
@@ -351,10 +420,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
   Future<void> _handleCancelOrder() async {
     try {
       if (_pendingOrder == null) return;
-
       String requestId = _pendingOrder!['request_id'];
       bool success = await driverService.cancelOrder(requestId);
-
       if (success) {
         setState(() {
           _hasAcceptedOrder = false;
@@ -363,8 +430,12 @@ class _DriverHomePageState extends State<DriverHomePage> {
           _pickupAddress = null;
           _dropoffAddress = null;
           _polylines = {};
+          _markers = {};
+          _isCameraLocked = false;
+          _lastRouteLatLng = null;
         });
         _startFetchingRides();
+        await _updateCameraPosition();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ تم إلغاء الطلب")),
         );
@@ -384,16 +455,29 @@ class _DriverHomePageState extends State<DriverHomePage> {
   Future<void> _handlePickupConfirmation() async {
     try {
       if (_pendingOrder == null) return;
-
       String requestId = _pendingOrder!['request_id'];
       bool success = await driverService.updateRideStatus(requestId, "in_progress");
       print('تأكيد الاستلام لـ requestId: $requestId، الحالة: in_progress');
-
       if (success) {
+        LocationData? locationData = await _getCurrentLocation();
+        if (locationData?.latitude != null && locationData?.longitude != null) {
+          _currentLatLng = LatLng(locationData!.latitude!, locationData!.longitude!);
+          print('موقع السائق بعد الاستلام: $_currentLatLng');
+          await driverService.updateDriverLocation(locationData!.latitude!, locationData!.longitude!);
+        } else {
+          print('فشل جلب الموقع بعد الاستلام');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('❌ فشل في جلب موقعك الحالي')),
+          );
+        }
+
         setState(() {
           _hasPickedUp = true;
           _polylines = {};
+          _lastRouteLatLng = null;
+          _updateMarkers();
         });
+
         await _drawRouteToDropoff();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ تم تأكيد الاستلام")),
@@ -414,12 +498,17 @@ class _DriverHomePageState extends State<DriverHomePage> {
   Future<void> _handleDeliveryConfirmation() async {
     try {
       if (_pendingOrder == null) return;
-
       String requestId = _pendingOrder!['request_id'];
       bool success = await driverService.updateRideStatus(requestId, "arrived");
       print('تأكيد التوصيل لـ requestId: $requestId، الحالة: arrived');
-
       if (success) {
+        LocationData? locationData = await _getCurrentLocation();
+        if (locationData?.latitude != null && locationData?.longitude != null) {
+          _currentLatLng = LatLng(locationData!.latitude!, locationData!.longitude!);
+          print('موقع السائق بعد التوصيل: $_currentLatLng');
+          await driverService.updateDriverLocation(locationData!.latitude!, locationData!.longitude!);
+        }
+
         setState(() {
           _hasAcceptedOrder = false;
           _hasPickedUp = false;
@@ -427,8 +516,12 @@ class _DriverHomePageState extends State<DriverHomePage> {
           _pickupAddress = null;
           _dropoffAddress = null;
           _polylines = {};
+          _markers = {};
+          _isCameraLocked = false;
+          _lastRouteLatLng = null;
         });
         _startFetchingRides();
+        await _updateCameraPosition();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("✅ تم تأكيد التوصيل")),
         );
@@ -445,258 +538,214 @@ class _DriverHomePageState extends State<DriverHomePage> {
     }
   }
 
-  Set<Marker> _getMapMarkers() {
-    LatLng? targetLatLng;
-    String markerId = 'pickup';
-    String markerTitle = 'موقع العميل';
-    double markerHue = BitmapDescriptor.hueRed;
-
-    if (_pendingOrder != null) {
-      if (!_hasPickedUp) {
-        if (_pendingOrder?['start_lat'] != null && _pendingOrder?['start_lng'] != null) {
-          final startLat = double.tryParse(_pendingOrder!['start_lat'].toString().trim());
-          final startLng = double.tryParse(_pendingOrder!['start_lng'].toString().trim());
-          if (startLat != null &&
-              startLng != null &&
-              startLat >= -90 &&
-              startLat <= 90 &&
-              startLng >= -180 &&
-              startLng <= 180) {
-            targetLatLng = LatLng(startLat, startLng);
-          }
-        }
-      } else {
-        if (_pendingOrder?['end_lat'] != null && _pendingOrder?['end_lng'] != null) {
-          final endLat = double.tryParse(_pendingOrder!['end_lat'].toString().trim());
-          final endLng = double.tryParse(_pendingOrder!['end_lng'].toString().trim());
-          if (endLat != null &&
-              endLng != null &&
-              endLat >= -90 &&
-              endLat <= 90 &&
-              endLng >= -180 &&
-              endLng <= 180) {
-            targetLatLng = LatLng(endLat, endLng);
-            markerId = 'dropoff';
-            markerTitle = 'موقع التسليم';
-            markerHue = BitmapDescriptor.hueBlue;
-          }
-        }
-      }
-    }
-
-    Set<Marker> markers = {};
+  void _updateMarkers() {
+    print('بدء تحديث المؤشرات: currentLatLng=$_currentLatLng, pendingOrder=${_pendingOrder != null}');
+    _markers.clear();
     if (_currentLatLng != null) {
-      markers.add(Marker(
+      _markers.add(Marker(
         markerId: const MarkerId('driver'),
         position: _currentLatLng!,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        infoWindow: const InfoWindow(title: "موقعك"),
+        infoWindow: const InfoWindow(title: 'موقع السائق'),
       ));
+      print('تم إضافة مؤشر السائق: $_currentLatLng');
+    } else {
+      print('تخطي مؤشر السائق: _currentLatLng=null');
     }
-    if (targetLatLng != null) {
-      markers.add(Marker(
-        markerId: MarkerId(markerId),
-        position: targetLatLng,
-        icon: BitmapDescriptor.defaultMarkerWithHue(markerHue),
-        infoWindow: InfoWindow(title: markerTitle),
-      ));
+    if (_pendingOrder != null) {
+      print('إحداثيات الطلب: start_lat=${_pendingOrder!['start_lat']}, start_lng=${_pendingOrder!['start_lng']}, end_lat=${_pendingOrder!['end_lat']}, end_lng=${_pendingOrder!['end_lng']}');
+      if (!_hasPickedUp) {
+        final pickupLat = double.tryParse(_pendingOrder!['start_lat']?.toString().trim() ?? '');
+        final pickupLng = double.tryParse(_pendingOrder!['start_lng']?.toString().trim() ?? '');
+        if (pickupLat != null &&
+            pickupLng != null &&
+            pickupLat >= -90 &&
+            pickupLat <= 90 &&
+            pickupLng >= -180 &&
+            pickupLng <= 180) {
+          _markers.add(Marker(
+            markerId: const MarkerId('pickup'),
+            position: LatLng(pickupLat, pickupLng),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+            infoWindow: const InfoWindow(title: 'موقع العميل'),
+          ));
+          print('تم إضافة مؤشر الاستلام: LatLng($pickupLat, $pickupLng)');
+        } else {
+          print('إحداثيات الاستلام غير صالحة: start_lat=${_pendingOrder!['start_lat']}, start_lng=${_pendingOrder!['start_lng']}');
+        }
+      } else {
+        final dropoffLat = double.tryParse(_pendingOrder!['end_lat']?.toString().trim() ?? '');
+        final dropoffLng = double.tryParse(_pendingOrder!['end_lng']?.toString().trim() ?? '');
+        if (dropoffLat != null &&
+            dropoffLng != null &&
+            dropoffLat >= -90 &&
+            dropoffLat <= 90 &&
+            dropoffLng >= -180 &&
+            dropoffLng <= 180) {
+          _markers.add(Marker(
+            markerId: const MarkerId('dropoff'),
+            position: LatLng(dropoffLat, dropoffLng),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            infoWindow: const InfoWindow(title: 'موقع التسليم'),
+          ));
+          print('تم إضافة مؤشر التوصيل: LatLng($dropoffLat, $dropoffLng)');
+        } else {
+          print('إحداثيات التوصيل غير صالحة: end_lat=${_pendingOrder!['end_lat']}, end_lng=${_pendingOrder!['end_lng']}');
+        }
+      }
+    } else {
+      print('لا يوجد طلب معلق: _pendingOrder=null');
     }
-    return markers;
+    setState(() {});
+    print('عدد المؤشرات بعد التحديث: ${_markers.length}');
   }
 
   Future<void> _drawRouteToPickup() async {
+    print('بدء رسم مسار الاستلام: hasPickedUp=$_hasPickedUp, pendingOrder=${_pendingOrder != null}, currentLatLng=$_currentLatLng');
     if (_hasPickedUp || _pendingOrder == null || _currentLatLng == null) {
       print('تخطي مسار الاستلام: hasPickedUp=$_hasPickedUp, pendingOrder=$_pendingOrder, currentLatLng=$_currentLatLng');
       setState(() => _polylines = {});
       return;
     }
-
-    final pickupLat = double.tryParse(_pendingOrder!['start_lat'].toString().trim() ?? '');
-    final pickupLng = double.tryParse(_pendingOrder!['start_lng'].toString().trim() ?? '');
+    final pickupLat = double.tryParse(_pendingOrder!['start_lat']?.toString().trim() ?? '');
+    final pickupLng = double.tryParse(_pendingOrder!['start_lng']?.toString().trim() ?? '');
     if (pickupLat == null ||
         pickupLng == null ||
         pickupLat < -90 ||
         pickupLat > 90 ||
         pickupLng < -180 ||
         pickupLng > 180) {
-      print('إحداثيات الاستلام غير صالحة: ${_pendingOrder!['start_lat']}, ${_pendingOrder!['start_lng']}');
+      print('إحداثيات الاستلام غير صالحة: start_lat=${_pendingOrder!['start_lat']}, start_lng=${_pendingOrder!['start_lng']}');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ إحداثيات العميل غير صالحة، حاول تحديث الطلب')),
+        const SnackBar(content: Text('❌ إحداثيات العميل غير صالحة')),
       );
       setState(() => _polylines = {});
       return;
     }
-
     final pickupLatLng = LatLng(pickupLat, pickupLng);
-
     final distance = _calculateDistance(_currentLatLng!, pickupLatLng);
+    print('المسافة إلى الاستلام: $distance كم');
     if (distance > 100) {
-      print('المسافة كبيرة: $distance كم');
+      print('المسافة كبيرة جدًا: $distance كم');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('❌ المسافة كبيرة جدًا، تحقق من إحداثيات العميل')),
       );
       setState(() => _polylines = {});
       return;
     }
-
-    const apiKey = 'AIzaSyDGpmZp2VIQqerj6ZOm9k-0ECoDovTAS8Q'; // TODO: انقل لـ .env
+    if (_lastRouteLatLng != null &&
+        _calculateDistance(_currentLatLng!, _lastRouteLatLng!) < 0.05 &&
+        _polylines.isNotEmpty) {
+      print('تخطي إعادة رسم المسار: التغيير في الموقع < 50 متر');
+      return;
+    }
+    const apiKey = 'AIzaSyDGpmZp2VIQqerj6ZOm9k-0ECoDovTAS8Q';
     final url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=${_currentLatLng!.latitude},${_currentLatLng!.longitude}&destination=$pickupLat,$pickupLng&mode=driving&region=eg&language=ar&key=$apiKey';
-
+        'https://maps.googleapis.com/maps/api/directions/json?origin=${_currentLatLng!.latitude},${_currentLatLng!.longitude}&destination=$pickupLat,$pickupLng&mode=driving&language=ar&key=$apiKey';
+    print('رابط API المسارات: $url');
     try {
       final response = await http.get(Uri.parse(url));
-      print('استجابة API المسارات (الاستلام): ${response.statusCode} - ${response.body}');
+      print('استجابة API المسارات (الاستلام): statusCode=${response.statusCode}');
       if (response.statusCode != 200) {
-        print('خطأ API المسارات: ${response.statusCode} - ${response.body}');
+        print('خطأ HTTP: ${response.statusCode} - ${response.body}');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ فشل في جلب المسار، تحقق من الاتصال بالإنترنت')),
+          const SnackBar(content: Text('❌ فشل جلب المسار، تحقق من الاتصال')),
         );
-        if (distance < 1) {
-          setState(() {
-            _polylines = {
-              Polyline(
-                polylineId: const PolylineId('manual_route'),
-                color: Colors.red,
-                width: 5,
-                points: [_currentLatLng!, pickupLatLng],
-              ),
-            };
-          });
-        } else {
-          setState(() => _polylines = {});
-        }
+        setState(() => _polylines = {});
         return;
       }
-
       final data = jsonDecode(response.body);
+      print('بيانات API: status=${data['status']}, routes=${data['routes']?.length ?? 0}');
       if (data['status'] != 'OK') {
-        print('حالة API المسارات: ${data['status']} - ${data['error_message']}');
+        print('خطأ API: ${data['status']} - ${data['error_message']}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ خطأ في جلب المسار: ${data['error_message'] ?? 'غير معروف'}')),
+          SnackBar(content: Text('❌ خطأ جلب المسار: ${data['error_message'] ?? 'غير معروف'}')),
         );
-        if (distance < 1) {
-          setState(() {
-            _polylines = {
-              Polyline(
-                polylineId: const PolylineId('manual_route'),
-                color: Colors.red,
-                width: 5,
-                points: [_currentLatLng!, pickupLatLng],
-              ),
-            };
-          });
-        } else {
-          setState(() => _polylines = {});
-        }
+        setState(() => _polylines = {});
         return;
       }
-
       if (data['routes'] != null && data['routes'].isNotEmpty) {
         final route = data['routes'][0];
         final legs = route['legs'];
         if (legs != null && legs.isNotEmpty) {
           final distanceText = legs[0]['distance']['text'] ?? 'غير معروف';
           final durationText = legs[0]['duration']['text'] ?? 'غير معروف';
-          print('مسافة مسار الاستلام: $distanceText, المدة: $durationText');
-
+          print('مسار الاستلام: مسافة=$distanceText, مدة=$durationText');
           final points = route['overview_polyline']['points'];
           final List<LatLng> polylinePoints = _decodePolyline(points);
+          print('نقاط المسار: ${polylinePoints.length}');
           if (polylinePoints.isNotEmpty) {
             setState(() {
               _polylines = {
                 Polyline(
                   polylineId: const PolylineId('route'),
-                  color: Colors.blue,
+                  color: primaryColor,
                   width: 5,
                   points: polylinePoints,
                 ),
               };
+              _lastRouteLatLng = _currentLatLng;
             });
-            if (_isMapInitialized) {
+            print('تم رسم المسار: _polylines=${_polylines.length}');
+            if (_isMapInitialized && !_isCameraLocked) {
               await _updateCameraToFitRoute(_currentLatLng!, pickupLatLng);
+              setState(() => _isCameraLocked = true);
             }
           } else {
-            print('لا توجد نقاط مسار للاستلام');
+            print('لا توجد نقاط مسار');
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('❌ فشل في رسم المسار، حاول مرة أخرى')),
+              const SnackBar(content: Text('❌ فشل رسم المسار')),
             );
             setState(() => _polylines = {});
           }
         } else {
-          print('لا توجد legs في مسار الاستلام');
+          print('لا توجد legs في المسار');
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('❌ لا يوجد مسار متاح، تحقق من إحداثيات العميل')),
+            const SnackBar(content: Text('❌ لا يوجد مسار متاح')),
           );
           setState(() => _polylines = {});
         }
       } else {
-        print('لا توجد مسارات للاستلام');
+        print('لا توجد مسارات');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ لا يوجد مسار متاح، تحقق من إحداثيات العميل')),
+          const SnackBar(content: Text('❌ لا يوجد مسار متاح')),
         );
-        if (distance < 1) {
-          setState(() {
-            _polylines = {
-              Polyline(
-                polylineId: const PolylineId('manual_route'),
-                color: Colors.red,
-                width: 5,
-                points: [_currentLatLng!, pickupLatLng],
-              ),
-            };
-          });
-        } else {
-          setState(() => _polylines = {});
-        }
-      }
-    } catch (e) {
-      print('استثناء API المسارات (الاستلام): $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ حدث خطأ أثناء جلب المسار، حاول مرة أخرى')),
-      );
-      if (distance < 1) {
-        setState(() {
-          _polylines = {
-            Polyline(
-              polylineId: const PolylineId('manual_route'),
-              color: Colors.red,
-              width: 5,
-              points: [_currentLatLng!, pickupLatLng],
-            ),
-          };
-        });
-      } else {
         setState(() => _polylines = {});
       }
+    } catch (e) {
+      print('استثناء API المسارات: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ خطأ جلب المسار، تحقق من الاتصال')),
+      );
+      setState(() => _polylines = {});
     }
   }
 
   Future<void> _drawRouteToDropoff() async {
+    print('بدء رسم مسار التوصيل: hasPickedUp=$_hasPickedUp, pendingOrder=${_pendingOrder != null}, currentLatLng=$_currentLatLng');
     if (!_hasPickedUp || _pendingOrder == null || _currentLatLng == null) {
       print('تخطي مسار التوصيل: hasPickedUp=$_hasPickedUp, pendingOrder=$_pendingOrder, currentLatLng=$_currentLatLng');
       setState(() => _polylines = {});
       return;
     }
-
-    final dropoffLat = double.tryParse(_pendingOrder!['end_lat'].toString().trim() ?? '');
-    final dropoffLng = double.tryParse(_pendingOrder!['end_lng'].toString().trim() ?? '');
+    final dropoffLat = double.tryParse(_pendingOrder!['end_lat']?.toString().trim() ?? '');
+    final dropoffLng = double.tryParse(_pendingOrder!['end_lng']?.toString().trim() ?? '');
     if (dropoffLat == null ||
         dropoffLng == null ||
         dropoffLat < -90 ||
         dropoffLat > 90 ||
         dropoffLng < -180 ||
         dropoffLng > 180) {
-      print('إحداثيات التوصيل غير صالحة: ${_pendingOrder!['end_lat']}, ${_pendingOrder!['end_lng']}');
+      print('إحداثيات التوصيل غير صالحة: end_lat=${_pendingOrder!['end_lat']}, end_lng=${_pendingOrder!['end_lng']}');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ إحداثيات التسليم غير صالحة، حاول تحديث الطلب')),
+        const SnackBar(content: Text('❌ إحداثيات التسليم غير صالحة')),
       );
       setState(() => _polylines = {});
       return;
     }
-
     final dropoffLatLng = LatLng(dropoffLat, dropoffLng);
-
     final distance = _calculateDistance(_currentLatLng!, dropoffLatLng);
+    print('المسافة إلى التوصيل: $distance كم');
     if (distance > 100) {
       print('مسافة التوصيل كبيرة: $distance كم');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -705,179 +754,133 @@ class _DriverHomePageState extends State<DriverHomePage> {
       setState(() => _polylines = {});
       return;
     }
-
-    const apiKey = 'AIzaSyDGpmZp2VIQqerj6ZOm9k-0ECoDovTAS8Q'; // TODO: انقل لـ .env
+    if (_lastRouteLatLng != null &&
+        _calculateDistance(_currentLatLng!, _lastRouteLatLng!) < 0.05 &&
+        _polylines.isNotEmpty) {
+      print('تخطي إعادة رسم المسار: التغيير في الموقع < 50 متر');
+      return;
+    }
+    const apiKey = 'AIzaSyDGpmZp2VIQqerj6ZOm9k-0ECoDovTAS8Q';
     final url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=${_currentLatLng!.latitude},${_currentLatLng!.longitude}&destination=$dropoffLat,$dropoffLng&mode=driving&region=eg&language=ar&key=$apiKey';
-
+        'https://maps.googleapis.com/maps/api/directions/json?origin=${_currentLatLng!.latitude},${_currentLatLng!.longitude}&destination=$dropoffLat,$dropoffLng&mode=driving&language=ar&key=$apiKey';
+    print('رابط API المسارات: $url');
     try {
       final response = await http.get(Uri.parse(url));
-      print('استجابة API المسارات (التوصيل): ${response.statusCode} - ${response.body}');
+      print('استجابة API المسارات (التوصيل): statusCode=${response.statusCode}');
       if (response.statusCode != 200) {
-        print('خطأ API المسارات (التوصيل): ${response.statusCode} - ${response.body}');
+        print('خطأ HTTP: ${response.statusCode} - ${response.body}');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ فشل في جلب المسار، تحقق من الاتصال بالإنترنت')),
+          const SnackBar(content: Text('❌ فشل جلب المسار، تحقق من الاتصال')),
         );
-        if (distance < 1) {
-          setState(() {
-            _polylines = {
-              Polyline(
-                polylineId: const PolylineId('manual_route'),
-                color: Colors.red,
-                width: 5,
-                points: [_currentLatLng!, dropoffLatLng],
-              ),
-            };
-          });
-        } else {
-          setState(() => _polylines = {});
-        }
+        setState(() => _polylines = {});
         return;
       }
-
       final data = jsonDecode(response.body);
+      print('بيانات API: status=${data['status']}, routes=${data['routes']?.length ?? 0}');
       if (data['status'] != 'OK') {
-        print('حالة API المسارات (التوصيل): ${data['status']} - ${data['error_message']}');
+        print('خطأ API: ${data['status']} - ${data['error_message']}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ خطأ في جلب المسار: ${data['error_message'] ?? 'غير معروف'}')),
+          SnackBar(content: Text('❌ خطأ جلب المسار: ${data['error_message'] ?? 'غير معروف'}')),
         );
-        if (distance < 1) {
-          setState(() {
-            _polylines = {
-              Polyline(
-                polylineId: const PolylineId('manual_route'),
-                color: Colors.red,
-                width: 5,
-                points: [_currentLatLng!, dropoffLatLng],
-              ),
-            };
-          });
-        } else {
-          setState(() => _polylines = {});
-        }
+        setState(() => _polylines = {});
         return;
       }
-
       if (data['routes'] != null && data['routes'].isNotEmpty) {
         final route = data['routes'][0];
         final legs = route['legs'];
         if (legs != null && legs.isNotEmpty) {
           final distanceText = legs[0]['distance']['text'] ?? 'غير معروف';
           final durationText = legs[0]['duration']['text'] ?? 'غير معروف';
-          print('مسافة مسار التوصيل: $distanceText, المدة: $durationText');
-
+          print('مسار التوصيل: مسافة=$distanceText, مدة=$durationText');
           final points = route['overview_polyline']['points'];
           final List<LatLng> polylinePoints = _decodePolyline(points);
+          print('نقاط المسار: ${polylinePoints.length}');
           if (polylinePoints.isNotEmpty) {
             setState(() {
               _polylines = {
                 Polyline(
                   polylineId: const PolylineId('route'),
-                  color: Colors.blue,
+                  color: primaryColor,
                   width: 5,
                   points: polylinePoints,
                 ),
               };
+              _lastRouteLatLng = _currentLatLng;
             });
-            if (_isMapInitialized) {
+            print('تم رسم المسار: _polylines=${_polylines.length}');
+            if (_isMapInitialized && !_isCameraLocked) {
               await _updateCameraToFitRoute(_currentLatLng!, dropoffLatLng);
+              setState(() => _isCameraLocked = true);
             }
           } else {
-            print('لا توجد نقاط مسار للتوصيل');
+            print('لا توجد نقاط مسار');
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('❌ فشل في رسم المسار، حاول مرة أخرى')),
+              const SnackBar(content: Text('❌ فشل رسم المسار')),
             );
             setState(() => _polylines = {});
           }
         } else {
-          print('لا توجد legs في مسار التوصيل');
+          print('لا توجد legs في المسار');
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('❌ لا يوجد مسار متاح، تحقق من إحداثيات التسليم')),
+            const SnackBar(content: Text('❌ لا يوجد مسار متاح')),
           );
           setState(() => _polylines = {});
         }
       } else {
-        print('لا توجد مسارات للتوصيل');
+        print('لا توجد مسارات');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ لا يوجد مسار متاح، تحقق من إحداثيات التسليم')),
+          const SnackBar(content: Text('❌ لا يوجد مسار متاح')),
         );
-        if (distance < 1) {
-          setState(() {
-            _polylines = {
-              Polyline(
-                polylineId: const PolylineId('manual_route'),
-                color: Colors.red,
-                width: 5,
-                points: [_currentLatLng!, dropoffLatLng],
-              ),
-            };
-          });
-        } else {
-          setState(() => _polylines = {});
-        }
-      }
-    } catch (e) {
-      print('استثناء API المسارات (التوصيل): $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ حدث خطأ أثناء جلب المسار، حاول مرة أخرى')),
-      );
-      if (distance < 1) {
-        setState(() {
-          _polylines = {
-            Polyline(
-              polylineId: const PolylineId('manual_route'),
-              color: Colors.red,
-              width: 5,
-              points: [_currentLatLng!, dropoffLatLng],
-            ),
-          };
-        });
-      } else {
         setState(() => _polylines = {});
       }
+    } catch (e) {
+      print('استثناء API المسارات: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ خطأ جلب المسار، تحقق من الاتصال')),
+      );
+      setState(() => _polylines = {});
     }
   }
 
   Future<String> _getAddressFromCoordinates(double lat, double lng) async {
-    const apiKey = 'AIzaSyDGpmZp2VIQqerj6ZOm9k-0ECoDovTAS8Q'; // TODO: انقل لـ .env
+    const apiKey = 'AIzaSyDGpmZp2VIQqerj6ZOm9k-0ECoDovTAS8Q';
     final url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&language=ar&region=eg&key=$apiKey';
-
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&language=ar&key=$apiKey';
+    print('رابط API الجيوكودينج: $url');
     try {
       final response = await http.get(Uri.parse(url));
-      print('استجابة API الجيوكودينج لـ ($lat, $lng): ${response.statusCode} - ${response.body}');
+      print('استجابة API الجيوكودينج لـ ($lat, $lng): ${response.statusCode}');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print('بيانات الجيوكودينج: status=${data['status']}');
         if (data['status'] == 'OK' && data['results'] != null && data['results'].isNotEmpty) {
           final address = data['results'][0]['formatted_address'] ?? 'عنوان غير معروف';
           print('العنوان المجيوكود: $address');
-          return address;
+          return address.length > 80 ? '${address.substring(0, 77)}...' : address;
         } else {
-          print('فشل الجيوكودينج: الحالة=${data['status']}, الخطأ=${data['error_message']}');
-          return 'فشل في جلب العنوان: ${data['error_message'] ?? 'غير معروف'}';
+          print('فشل الجيوكودينج: ${data['status']} - ${data['error_message']}');
+          return 'فشل في جلب العنوان';
         }
       } else {
         print('خطأ HTTP جيوكودينج: ${response.statusCode} - ${response.body}');
-        return 'خطأ في جلب العنوان: HTTP ${response.statusCode}';
+        return 'خطأ في جلب العنوان';
       }
     } catch (e) {
       print('استثناء الجيوكودينج: $e');
-      return 'خطأ في جلب العنوان: $e';
+      return 'خطأ في جلب العنوان';
     }
   }
 
   double _calculateDistance(LatLng start, LatLng end) {
-    const double R = 6371; // نصف قطر الأرض بالكيلومتر
+    const double R = 6371;
     final lat1 = start.latitude * pi / 180;
     final lat2 = end.latitude * pi / 180;
     final deltaLat = (end.latitude - start.latitude) * pi / 180;
     final deltaLng = (end.longitude - start.longitude) * pi / 180;
-
     final a = sin(deltaLat / 2) * sin(deltaLat / 2) +
         cos(lat1) * cos(lat2) * sin(deltaLng / 2) * sin(deltaLng / 2);
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-    return R * c; // المسافة بالكيلومتر
+    return R * c;
   }
 
   Future<void> _updateCameraToFitRoute(LatLng driver, LatLng target) async {
@@ -894,8 +897,9 @@ class _DriverHomePageState extends State<DriverHomePage> {
           ),
         );
         await _mapController!.animateCamera(
-          CameraUpdate.newLatLngBounds(bounds, 50),
+          CameraUpdate.newLatLngBounds(bounds, 100),
         );
+        print('تم تهيئة الكاميرا للمسار: driver=$driver, target=$target');
       } catch (e) {
         print('خطأ تهيئة الكاميرا للمسار: $e');
       }
@@ -906,7 +910,6 @@ class _DriverHomePageState extends State<DriverHomePage> {
     List<LatLng> polyline = [];
     int index = 0, len = encoded.length;
     int lat = 0, lng = 0;
-
     while (index < len) {
       int b, shift = 0, result = 0;
       do {
@@ -916,7 +919,6 @@ class _DriverHomePageState extends State<DriverHomePage> {
       } while (b >= 0x20);
       int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
       lat += dlat;
-
       shift = 0;
       result = 0;
       do {
@@ -926,47 +928,392 @@ class _DriverHomePageState extends State<DriverHomePage> {
       } while (b >= 0x20);
       int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
       lng += dlng;
-
       polyline.add(LatLng(lat / 1E5, lng / 1E5));
     }
     return polyline;
   }
 
+  Widget _buildStatusBar(String? status) {
+    final steps = [
+      {'status': 'pending', 'label': 'في الانتظار', 'icon': Icons.hourglass_empty},
+      {'status': 'accepted', 'label': 'مقبول', 'icon': Icons.check_circle},
+      {'status': 'in_progress', 'label': 'في الطريق', 'icon': Icons.directions_bike},
+      {'status': 'arrived', 'label': 'تم الوصول', 'icon': Icons.location_on},
+      {'status': 'completed', 'label': 'مكتمل', 'icon': Icons.flag},
+      {'status': 'cancelled', 'label': 'ملغى', 'icon': Icons.cancel},
+    ];
+    String effectiveStatus = (status ?? 'pending').toString().length > 20
+        ? '${status!.substring(0, 17)}...'
+        : status ?? 'pending';
+    if (_hasAcceptedOrder && !_hasPickedUp) effectiveStatus = 'accepted';
+    else if (_hasAcceptedOrder && _hasPickedUp) effectiveStatus = 'in_progress';
+    int currentStep = steps.indexWhere((step) => step['status'] == effectiveStatus);
+    if (currentStep == -1) currentStep = 0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        debugPrint('StatusBar constraints: ${constraints.maxWidth}');
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 60,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: steps.length,
+                    itemBuilder: (context, index) {
+                      bool isActive = index <= currentStep;
+                      bool isCancelled = effectiveStatus == 'cancelled' && index == steps.length - 1;
+                      Color color = isCancelled
+                          ? Colors.red
+                          : isActive
+                              ? primaryColor
+                              : Colors.grey[300]!;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleAvatar(
+                                radius: 14,
+                                backgroundColor: color,
+                                child: Icon(
+                                  steps[index]['icon'] as IconData,
+                                  color: accentColor,
+                                  size: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              SizedBox(
+                                width: 60,
+                                child: Text(
+                                  steps[index]['label'] as String,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isActive ? secondaryColor : Colors.grey,
+                                    fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: true,
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (index < steps.length - 1)
+                            Container(
+                              width: 20,
+                              height: 2,
+                              color: index < currentStep ? primaryColor : Colors.grey[300],
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: constraints.maxWidth - 16,
+                  child: Text(
+                    steps[currentStep]['label'] as String,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: effectiveStatus == 'cancelled' ? Colors.red : primaryColor,
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    maxLines: 1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildOrderInfoCard() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        debugPrint('OrderInfoCard constraints: ${constraints.maxWidth}');
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+          child: (!_isOnline || !_isDriverOnline)
+              ? Container(
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.white, Colors.grey.shade50],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+                    ],
+                  ),
+                  child: SizedBox(
+                    width: constraints.maxWidth - 32,
+                    child: const Text(
+                      'أنت غير متاح أو أوفلاين. فعّل الخيارين لاستقبال الطلبات.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      maxLines: 2,
+                    ),
+                  ),
+                )
+              : (_pendingOrder == null && !_hasAcceptedOrder)
+                  ? Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.white, Colors.grey.shade50],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+                        ],
+                      ),
+                      child: SizedBox(
+                        width: constraints.maxWidth - 32,
+                        child: const Text(
+                          'بانتظار طلبات جديدة...',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          maxLines: 2,
+                        ),
+                      ),
+                    )
+                  : Card(
+                      elevation: 8,
+                      margin: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildStatusBar(_pendingOrder?['status']),
+                            const Divider(height: 24),
+                            _buildInfoRow(
+                              Icons.info,
+                              'الحالة: ${(_pendingOrder!['status']?.toString().length ?? 0) > 20 ? '${_pendingOrder!['status'].toString().substring(0, 17)}...' : _pendingOrder!['status']?.toUpperCase() ?? 'غير معروف'}',
+                              primaryColor,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInfoRow(
+                              Icons.directions_car,
+                              'نوع الرحلة: ${(_pendingOrder!['ride_type']?.toString().length ?? 0) > 20 ? '${_pendingOrder!['ride_type'].toString().substring(0, 17)}...' : _pendingOrder!['ride_type'] ?? 'غير محدد'}',
+                              Colors.blue,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInfoRow(
+                              Icons.room_service,
+                              'نوع الخدمة: ${(_pendingOrder!['service_type']?.toString().length ?? 0) > 20 ? '${_pendingOrder!['service_type'].toString().substring(0, 17)}...' : _pendingOrder!['service_type'] ?? 'غير محددة'}',
+                              Colors.orange,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInfoRow(
+                              Icons.payment,
+                              'الدفع: ${(_pendingOrder!['payment_type']?.toString().length ?? 0) > 20 ? '${_pendingOrder!['payment_type'].toString().substring(0, 17)}...' : _pendingOrder!['payment_type'] ?? 'غير معروف'}',
+                              Colors.green,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInfoRow(
+                              Icons.location_on,
+                              'الاستلام: ${_pickupAddress ?? 'جاري التحميل...'}',
+                              Colors.red,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInfoRow(
+                              Icons.flag,
+                              'التوصيل: ${_dropoffAddress ?? 'جاري التحميل...'}',
+                              Colors.blue,
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                if (!_hasAcceptedOrder) ...[
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: ElevatedButton.icon(
+                                        onPressed: _handleAcceptOrder,
+                                        icon: const Icon(Icons.check_circle, color: accentColor),
+                                        label: const Text('قبول', style: TextStyle(color: accentColor)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: ElevatedButton.icon(
+                                        onPressed: _handleDeclineOrder,
+                                        icon: const Icon(Icons.cancel, color: accentColor),
+                                        label: const Text('رفض', style: TextStyle(color: accentColor)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ] else if (!_hasPickedUp) ...[
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: ElevatedButton.icon(
+                                        onPressed: _handlePickupConfirmation,
+                                        icon: const Icon(Icons.check_circle, color: accentColor),
+                                        label: const Text('استلام', style: TextStyle(color: accentColor)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: ElevatedButton.icon(
+                                        onPressed: _handleCancelOrder,
+                                        icon: const Icon(Icons.cancel, color: accentColor),
+                                        label: const Text('إلغاء', style: TextStyle(color: accentColor)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ] else ...[
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: ElevatedButton.icon(
+                                        onPressed: _handleDeliveryConfirmation,
+                                        icon: const Icon(Icons.check_circle, color: accentColor),
+                                        label: const Text('توصيل', style: TextStyle(color: accentColor)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text, Color iconColor) {
+    final truncatedText = text.length > 80 ? '${text.substring(0, 77)}...' : text;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: iconColor, size: 20),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            truncatedText,
+            style: const TextStyle(fontSize: 14, color: secondaryColor),
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+            maxLines: 2,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('بناء واجهة السائق: isLoading=$_isLoading, markers=${_markers.length}, polylines=${_polylines.length}');
     if (_showBigMap) {
       return Scaffold(
         body: Stack(
           children: [
             GoogleMap(
               initialCameraPosition: CameraPosition(
-                target: _currentLatLng ?? const LatLng(26.5570241, 31.6953085),
-                zoom: 16,
+                target: _currentLatLng ?? const LatLng(30.0444, 31.2357),
+                zoom: 15,
               ),
+              markers: _markers,
+              polylines: _polylines,
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
-              zoomControlsEnabled: false,
-              markers: _getMapMarkers(),
-              polylines: _polylines,
+              zoomControlsEnabled: true,
               onMapCreated: (controller) {
+                print('خريطة تم إنشاؤها: controller=$controller');
                 _mapController = controller;
                 setState(() {
                   _isMapInitialized = true;
+                  print('تم تهيئة الخريطة: _isMapInitialized=true');
                 });
-                _updateCameraPosition();
+                if (!_isCameraLocked && _currentLatLng != null) {
+                  _updateCameraPosition();
+                  print('محاولة تحديث الكاميرا عند إنشاء الخريطة: _currentLatLng=$_currentLatLng');
+                } else {
+                  print('تخطي تحديث الكاميرا عند إنشاء الخريطة: isCameraLocked=$_isCameraLocked, currentLatLng=$_currentLatLng');
+                }
+              },
+              onTap: (_) {
+                setState(() {
+                  _showBigMap = false;
+                });
+              },
+              onCameraMoveStarted: () {
+                setState(() => _isCameraLocked = true);
+                print('بدء تحريك الكاميرا بواسطة المستخدم: _isCameraLocked=true');
               },
             ),
             Positioned(
               top: 40,
               right: 20,
               child: FloatingActionButton(
-                backgroundColor: Colors.white,
+                backgroundColor: accentColor,
                 onPressed: () {
                   setState(() {
                     _showBigMap = false;
                   });
                 },
-                child: const Icon(Icons.close, color: Colors.black),
+                child: const Icon(Icons.close, color: secondaryColor),
               ),
             ),
           ],
@@ -975,577 +1322,99 @@ class _DriverHomePageState extends State<DriverHomePage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      body: SafeArea(
-        child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.blueAccent,
-                  strokeWidth: 6,
-                ),
-              )
-            : Column(
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 16),
-                  _buildAvailabilityCard(),
-                  const SizedBox(height: 16),
-                  _buildOnlineModeCard(),
-                  const SizedBox(height: 16),
-                  _buildMiniMap(),
-                  const SizedBox(height: 16),
-                  Expanded(child: _buildPendingOrderCard()),
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blueAccent, Colors.blue.shade700],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+      appBar: AppBar(
+        backgroundColor: primaryColor,
+        title: const Text(
+          'لوحة تحكم السائق',
+          style: TextStyle(color: accentColor, fontWeight: FontWeight.bold),
         ),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("📸 سيتم فتح صفحة الملف الشخصي")),
-              );
-            },
-            child: const CircleAvatar(
-              radius: 32,
-              backgroundImage: AssetImage('assets/images/driver_avatar.png'),
-              backgroundColor: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "مرحبا 👋",
-                  style: TextStyle(fontSize: 16, color: Colors.white70),
-                ),
-                Text(
-                  _userName,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        actions: [
           IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("🔔 سيتم فتح الإشعارات")),
-              );
-            },
-            icon: const Icon(Icons.notifications_none, size: 28, color: Colors.white),
+            icon: const Icon(Icons.refresh, color: accentColor),
+            onPressed: _startFetchingRides,
+            tooltip: 'تحديث',
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildAvailabilityCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
-        ],
-      ),
-      child: Row(
+      body: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
-              shape: BoxShape.circle,
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: _currentLatLng ?? const LatLng(30.0444, 31.2357),
+              zoom: 15,
             ),
-            child: const Icon(Icons.directions_bike, size: 36, color: Colors.green),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _isOnline ? "أنت متاح الآن" : "أنت غير متاح",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const Text(
-                  "تفعيل التوفر لاستقبال الطلبات",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: Switch(
-              key: ValueKey<bool>(_isOnline),
-              value: _isOnline,
-              onChanged: (_) => _toggleOnlineStatus(),
-              activeColor: Colors.green,
-              inactiveThumbColor: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOnlineModeCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.wifi, size: 36, color: Colors.blue),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _isDriverOnline ? "أنت أونلاين الآن" : "أنت أوفلاين",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const Text(
-                  "تفعيل الأونلاين للاتصال بالنظام",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: Switch(
-              key: ValueKey<bool>(_isDriverOnline),
-              value: _isDriverOnline,
-              onChanged: (_) => _toggleDriverOnlineSwitch(),
-              activeColor: Colors.blue,
-              inactiveThumbColor: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMiniMap() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      height: 220,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _currentLatLng ?? const LatLng(26.5570241, 31.6953085),
-                zoom: 16,
-              ),
-              myLocationEnabled: true,
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              markers: _getMapMarkers(),
-              polylines: _polylines,
-              onMapCreated: (controller) {
-                _mapController = controller;
-                setState(() {
-                  _isMapInitialized = true;
-                });
+            markers: _markers,
+            polylines: _polylines,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            zoomControlsEnabled: true,
+            onMapCreated: (controller) {
+              print('خريطة تم إنشاؤها: controller=$controller');
+              _mapController = controller;
+              setState(() {
+                _isMapInitialized = true;
+                print('تم تهيئة الخريطة: _isMapInitialized=true');
+              });
+              if (!_isCameraLocked && _currentLatLng != null) {
                 _updateCameraPosition();
-              },
+                print('محاولة تحديث الكاميرا عند إنشاء الخريطة: _currentLatLng=$_currentLatLng');
+              } else {
+                print('تخطي تحديث الكاميرا عند إنشاء الخريطة: isCameraLocked=$_isCameraLocked, currentLatLng=$_currentLatLng');
+              }
+            },
+            onTap: (_) {
+              setState(() {
+                _showBigMap = true;
+              });
+            },
+            onCameraMoveStarted: () {
+              setState(() => _isCameraLocked = true);
+              print('بدء تحريك الكاميرا بواسطة المستخدم: _isCameraLocked=true');
+            },
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black54,
+              child: const Center(child: CircularProgressIndicator(color: primaryColor)),
             ),
-            Positioned(
-              bottom: 12,
-              right: 12,
-              child: FloatingActionButton(
-                mini: true,
-                backgroundColor: Colors.white,
-                onPressed: () {
-                  if (_currentLatLng != null && _isMapInitialized) {
-                    _updateCameraPosition();
-                  }
-                },
-                child: const Icon(Icons.my_location, color: Colors.blueAccent),
-              ),
-            ),
-            Positioned.fill(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("🗺️ تم الضغط على الخريطة")),
-                    );
-                    setState(() {
-                      _showBigMap = true;
-                    });
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPendingOrderCard() {
-    if (!_isOnline || !_isDriverOnline) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.lock, color: Colors.red, size: 80),
-            const SizedBox(height: 16),
-            const Text(
-              "أنت غير متاح الآن",
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              "قم بتفعيل التوفر لاستقبال الطلبات",
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_pendingOrder == null && !_hasAcceptedOrder) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 100,
-              height: 100,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 80,
-                    height: 80,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 8,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+          Positioned(
+            top: 10,
+            left: 10,
+            right: 10,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Card(
+                    child: SwitchListTile(
+                      title: const Text('متاح', style: TextStyle(color: secondaryColor)),
+                      value: _isOnline,
+                      onChanged: (_) => _toggleOnlineStatus(),
+                      activeColor: primaryColor,
                     ),
                   ),
-                  const Icon(Icons.hourglass_empty, size: 40, color: Colors.blueAccent),
-                ],
-              ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Card(
+                    child: SwitchListTile(
+                      title: const Text('أونلاين', style: TextStyle(color: secondaryColor)),
+                      value: _isDriverOnline,
+                      onChanged: (_) => _toggleDriverOnlineSwitch(),
+                      activeColor: primaryColor,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            const Text(
-              "بانتظار الطلبات...",
-              style: TextStyle(
-                fontSize: 22,
-                color: Colors.blueGrey,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              "جاري البحث عن طلبات جديدة",
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-          ],
-        ),
-      );
-    }
-
-    print('الطلب المنتظر: ${jsonEncode(_pendingOrder)}, _hasAcceptedOrder: $_hasAcceptedOrder, _hasPickedUp: $_hasPickedUp, نوع_الرحلة: ${_pendingOrder?['ride_type']}');
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.white, Colors.grey.shade50],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildOrderInfoCard(),
+          ),
         ],
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_hasAcceptedOrder)
-              Center(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 8,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                            ),
-                          ),
-                          const Icon(Icons.check_circle, size: 40, color: Colors.green),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _hasPickedUp ? "تم الاستلام" : "تم قبول الطلب",
-                      style: const TextStyle(
-                        fontSize: 22,
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            if (_hasAcceptedOrder) const SizedBox(height: 16),
-            const Text(
-              "طلب جديد",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-            ),
-            const Divider(color: Colors.grey, thickness: 0.5),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(Icons.directions_car, size: 24, color: Colors.blueGrey),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    "نوع الرحلة: ${_pendingOrder!['ride_type'] ?? 'غير محدد'}",
-                    style: const TextStyle(fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.room_service, size: 24, color: Colors.blueGrey),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    "نوع الخدمة: ${_pendingOrder!['service_type'] ?? 'غير محددة'}",
-                    style: const TextStyle(fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.payment, size: 24, color: Colors.blueGrey),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    "الدفع: ${_pendingOrder!['payment_type'] ?? 'غير معروف'}",
-                    style: const TextStyle(fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.location_on, size: 24, color: Colors.blueGrey),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    "عنوان الاستلام: ${_pickupAddress ?? 'جاري التحميل...'}",
-                    style: const TextStyle(fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.flag, size: 24, color: Colors.blueGrey),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    "عنوان التوصيل: ${_dropoffAddress ?? 'جاري التحميل...'}",
-                    style: const TextStyle(fontSize: 16),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (!_hasAcceptedOrder) ...[
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        minimumSize: const Size(0, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        shadowColor: Colors.green.withOpacity(0.5),
-                        elevation: 4,
-                      ),
-                      onPressed: _handleAcceptOrder,
-                      child: const Text(
-                        "قبول الطلب",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        minimumSize: const Size(0, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        shadowColor: Colors.red.withOpacity(0.5),
-                        elevation: 4,
-                      ),
-                      onPressed: _handleDeclineOrder,
-                      child: const Text(
-                        "رفض الطلب",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  if (!_hasPickedUp) ...[
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          minimumSize: const Size(0, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          shadowColor: Colors.blue.withOpacity(0.5),
-                          elevation: 4,
-                        ),
-                        onPressed: _handlePickupConfirmation,
-                        child: const Text(
-                          "تم الاستلام",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          minimumSize: const Size(0, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          shadowColor: Colors.red.withOpacity(0.5),
-                          elevation: 4,
-                        ),
-                        onPressed: _handleCancelOrder,
-                        child: const Text(
-                          "إلغاء الطلب",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ] else ...[
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          minimumSize: const Size(0, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          shadowColor: Colors.green.withOpacity(0.5),
-                          elevation: 4,
-                        ),
-                        onPressed: _handleDeliveryConfirmation,
-                        child: const Text(
-                          "تم التوصيل",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }

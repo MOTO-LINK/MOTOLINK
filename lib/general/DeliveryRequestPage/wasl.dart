@@ -1,18 +1,17 @@
+// lib/general/DeliveryRequestPage/DeliveryRequestPage.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:moto/general/DeliveryRequestPage/DelveryRequestServices.dart';
-import 'package:moto/general/DeliveryRequestPage/delivery_anything.dart';
-import 'package:moto/general/DeliveryRequestPage/delivery_cubit.dart';
-import 'package:moto/general/map/utils/widgets/custombuttonnew.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomTextField.dart';
 import 'package:moto/core/widgets/OrderdetailsTextField.dart';
+import 'package:moto/general/DeliveryRequestPage/DelveryRequestServices.dart';
+import 'package:moto/general/map/utils/views/rider_map.dart';
+import 'package:moto/general/map/utils/widgets/custombuttonnew.dart';
 import 'package:moto/models/textfieldmodel.dart';
 import 'package:moto/rider/auth/core/services/storage_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DeliveryRequestPage extends StatefulWidget {
   const DeliveryRequestPage({super.key});
@@ -336,12 +335,12 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Delivery request submitted")));
 
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => BlocProvider(
-            create: (_) => DeliveryCubit(),
-            child: const DeliveryAnything(),
+          builder: (context) => MapScreen(
+            pickupLocation: selectedPickupAddress,
+            dropoffLocation: selectedDropoffAddress,
           ),
         ),
       );
