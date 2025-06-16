@@ -1,13 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomSnackBar.dart';
-import 'package:moto/driver/auth/widgets/Botton.dart';
-import 'package:moto/driver/auth/widgets/UploadImageBox.dart';
+import 'package:moto/driver/auth/services/profileService.dart';
 import 'package:moto/driver/auth/widgets/national_id_input.dart';
+import 'package:moto/driver/auth/widgets/upload_photo.dart'; // استيراد الويدجت الجديدة
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:shared_preferences/shared_preferences.dart';
 
 // الرخصه
 class DriverLicensePage extends StatefulWidget {
@@ -18,26 +22,87 @@ class DriverLicensePage extends StatefulWidget {
 }
 
 class _DriverLicensePageState extends State<DriverLicensePage> {
+  // Controllers and Services
+  final GlobalKey<FormState> _formKey =
+      GlobalKey<FormState>(); // مفتاح للتحقق من الفورم
   final TextEditingController licenseNumberController = TextEditingController();
-  File? licenseImage;
-  final ImagePicker _picker = ImagePicker();
+  final ProfileService _profileService = ProfileService();
 
-  Future<void> pickImage() async {
+  // State variables
+  File? licenseImageFile;
+  String? savedLicenseImageUrl;
+  bool isUploading = false;
+  bool isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
+  }
+
+  // تحميل البيانات المحفوظة عند بدء التشغيل
+  Future<void> _loadSavedData() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        savedLicenseImageUrl = prefs.getString('driver_license_url');
+        licenseNumberController.text =
+            prefs.getString('driver_license_number') ?? '';
+      });
+    }
+  }
+
+  // اختيار الصورة ورفعها
+  Future<void> _pickAndUploadImage() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (pickedFile == null) return;
+
+    setState(() => isUploading = true);
+
     try {
-      final pickedFile = await _picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 80,
+      final tempDir = await getTemporaryDirectory();
+      final targetPath = path.join(
+        tempDir.path,
+        '${DateTime.now().millisecondsSinceEpoch}.jpg',
       );
-      if (pickedFile != null) {
+      final compressedFile = await FlutterImageCompress.compressAndGetFile(
+        pickedFile.path,
+        targetPath,
+        quality: 80,
+        format: CompressFormat.jpeg,
+      );
+
+      if (compressedFile == null) throw Exception("Failed to compress image");
+
+      final imageToUpload = File(compressedFile.path);
+
+      final response = await _profileService.uploadDriverDocument(
+        file: imageToUpload,
+        documentType: "license_front", // تحديد نوع المستند
+      );
+
+      if (mounted && response != null && response.success) {
+        CustomSnackBar(
+          context,
+          response.message.isNotEmpty
+              ? response.message
+              : 'Uploaded successfully',
+        );
         setState(() {
-          licenseImage = File(pickedFile.path);
+          savedLicenseImageUrl = response.data.documentUrl;
         });
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('driver_license_url', response.data.documentUrl);
+      } else {
+        throw Exception(response?.message ?? "Failed to upload image");
       }
-    } on PlatformException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to pick image: ${e.message}')),
-      );
+    } catch (e) {
+      if (mounted) CustomSnackBar(context, e.toString());
+    } finally {
+      if (mounted) setState(() => isUploading = false);
     }
   }
 
@@ -55,58 +120,126 @@ class _DriverLicensePageState extends State<DriverLicensePage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Upload a driver's license Photo",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Ensure that all data is readable, not blurry, and that all corners of the document are visible.",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              const SizedBox(height: 30),
-              Center(
-                child: ImageUploadBox(
-                  title: "Upload license photo",
-                  image: licenseImage,
-                  onTap: () => pickImage(),
-                  primaryColor: colors.secondaryColor,
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  icon: Icons.credit_card_outlined,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Upload a driver's license Photo",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-              ),
-              const SizedBox(height: 30),
-              NationalIdInput(
-                labtext: 'License Number',
-                controller: licenseNumberController,
-              ),
-              const SizedBox(height: 40),
-              // The CustomButton is now used directly here
-              const SizedBox(height: 200),
-
-              Button(
-                text: 'Next',
-                onPressed: () {
-                  if (licenseImage != null &&
-                      licenseNumberController.text.isNotEmpty) {
-                    // Proceed to next step
-                  } else {
-                    CustomSnackBar(
-                      context,
-                      'Please upload the photo and enter the license number',
-                    );
-                  }
-                },
-              ),
-            ],
+                const SizedBox(height: 8),
+                const Text(
+                  "Ensure that all data is readable, not blurry, and that all corners of the document are visible.",
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 30),
+                Center(
+                  // استخدام الويدجت الجديدة التي تدعم علامة الصح
+                  child: ImageUploadfield(
+                    title: "Upload license photo",
+                    imageFile: licenseImageFile,
+                    imageUrl: savedLicenseImageUrl,
+                    isLoading: isUploading,
+                    onTap: () => _pickAndUploadImage(),
+                    primaryColor: colors.secondaryColor,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                // استخدام TextFormField للتحقق من الإدخال
+                TextFormField(
+                  controller: licenseNumberController,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: 'License Number',
+                    hintText: 'Enter the license number',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: colors.secondaryColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the license number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 40),
+                const SizedBox(height: 200),
+                // زر الحفظ مع حالة التحميل
+                GestureDetector(
+                  onTap: isSaving ? null : _onNextPressed,
+                  child: Container(
+                    width: double.infinity,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [const Color(0xFFB5022F), Colors.black],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child:
+                          isSaving
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text(
+                                "Next",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  // دالة الحفظ عند الضغط على زر "التالي"
+  Future<void> _onNextPressed() async {
+    if (savedLicenseImageUrl == null) {
+      CustomSnackBar(context, "Please upload the license photo first");
+      return;
+    }
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    setState(() => isSaving = true);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'driver_license_number',
+        licenseNumberController.text,
+      );
+      if (mounted) {
+        CustomSnackBar(context, 'Data has been saved successfully');
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        CustomSnackBar(context, "An error occurred while saving data: $e");
+      }
+    } finally {
+      if (mounted) setState(() => isSaving = false);
+    }
+  }
 }
-
-

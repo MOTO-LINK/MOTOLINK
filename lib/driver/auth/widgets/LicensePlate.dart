@@ -1,9 +1,17 @@
+// LicensePlate.dart
 import 'package:flutter/material.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/driver/auth/widgets/national_id_input.dart';
 
 class LicensePlateWidget extends StatefulWidget {
-  const LicensePlateWidget({super.key});
+  final TextEditingController numbersController; //
+  final TextEditingController lettersController; //
+
+  const LicensePlateWidget({
+    super.key,
+    required this.numbersController, //
+    required this.lettersController, //
+  });
 
   @override
   State<LicensePlateWidget> createState() => _LicensePlateWidgetState();
@@ -97,7 +105,13 @@ class _LicensePlateWidgetState extends State<LicensePlateWidget> {
   Widget _buildNumbersOnlyInputs() {
     return Row(
       children: [
-        Expanded(flex: 2, child: NationalIdInput(labtext: 'Plate Number')),
+        Expanded(
+          flex: 2,
+          child: NationalIdInput(
+            labtext: 'Plate Number',
+            controller: widget.numbersController,
+          ),
+        ), // استخدام الـ controller الممرر
         const SizedBox(width: 10),
         Expanded(
           flex: 3,
@@ -129,24 +143,36 @@ class _LicensePlateWidgetState extends State<LicensePlateWidget> {
   Widget _buildLettersAndNumbersInputs() {
     return Row(
       children: [
-        Expanded(flex: 3, child: NationalIdInput(labtext: 'Numbers')),
+        Expanded(
+          flex: 3,
+          child: NationalIdInput(
+            labtext: 'Numbers',
+            controller: widget.numbersController,
+          ),
+        ), // استخدام الـ controller الممرر
         const SizedBox(width: 8),
-        _buildLetterInputBox(),
+        _buildLetterInputBox(widget.lettersController), // تمرير الـ controller
         const SizedBox(width: 8),
-        _buildLetterInputBox(),
+        _buildLetterInputBox(
+          null,
+        ), // للتبسيط، إذا كنت تحتاج فقط لـ controller واحد لكل الحروف، وإلا ستحتاج controllers منفصلة.
         const SizedBox(width: 8),
-        _buildLetterInputBox(),
+        _buildLetterInputBox(null), //
       ],
     );
   }
 
-  Widget _buildLetterInputBox() {
+  Widget _buildLetterInputBox(TextEditingController? controller) {
+    //
     return SizedBox(
       width: 50,
       child: TextFormField(
+        controller: controller, // تعيين الـ controller
         textAlign: TextAlign.center,
         maxLength: 1,
+
         decoration: InputDecoration(
+          hintText: "*",
           counterText: "",
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),

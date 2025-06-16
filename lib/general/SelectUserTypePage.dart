@@ -19,7 +19,8 @@ class _SelectUserTypeState extends State<SelectUserType> {
       appBar: CustomAppBar(
         title: "Welcome to Your Journey!",
         imagePath: "assets/images/DELIVERY.png",
-        appBarHeight: 140, onBackPressed: () {  },
+        appBarHeight: 140,
+        onBackPressed: () {},
       ),
       body: Container(
         width: double.infinity,
@@ -106,7 +107,7 @@ class _SelectUserTypeState extends State<SelectUserType> {
                 ),
               ],
             ),
-            SizedBox(height: 100),
+            SizedBox(height: 300),
             Container(
               width: double.infinity,
               height: 60,
@@ -158,7 +159,7 @@ class _SelectUserTypeState extends State<SelectUserType> {
                 ),
               ),
             ),
-            Expanded(child: Container()),
+            // Expanded(child: Container()),
           ],
         ),
       ),

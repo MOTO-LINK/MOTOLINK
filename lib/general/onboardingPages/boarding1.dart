@@ -14,7 +14,7 @@ class _BoardingOneState extends State<BoardingOne> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: ColorsApp().backgroundColor,
       body: SizedBox(
         width: double.infinity,
         child: Column(
