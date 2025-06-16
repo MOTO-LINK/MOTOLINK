@@ -14,7 +14,7 @@ class _BoardingTwoState extends State<BoardingTwo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: ColorsApp().backgroundColor,
       body: SizedBox(
         width: double.infinity,
         child: Column(
@@ -46,8 +46,8 @@ class _BoardingTwoState extends State<BoardingTwo> {
             ),
             SizedBox(height: 50),
             ImageBoarding(
-              image: "assets/images/rider.png",
-              colorBG: ColorsApp().backgroundColor,
+              image: "assets/images/motorcycle.png",
+              colorBG: ColorsApp().primaryColor,
             ),
             Container(
               margin: EdgeInsets.only(top: 50),

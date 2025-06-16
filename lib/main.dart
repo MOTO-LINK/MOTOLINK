@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moto/driver/auth/pages/CriminalRecordPage.dart';
 import 'package:moto/driver/auth/pages/LoginDriverPage.dart';
 import 'package:moto/driver/auth/pages/SignupDriverPage.dart';
+import 'package:moto/driver/auth/pages/VehicleLicensePage.dart';
+import 'package:moto/driver/auth/pages/password/ForgotPassPageDR.dart';
+import 'package:moto/driver/auth/pages/password/ResetPassPageDR.dart';
+import 'package:moto/driver/auth/pages/password/VerficationPageDR.dart';
+import 'package:moto/driver/auth/pages/personalPage.dart';
 import 'package:moto/driver/wallet/pages/accounts_page.dart';
 import 'package:moto/general/DeliveryRequestPage/delivery_anything.dart';
 import 'package:moto/general/DeliveryRequestPage/wasl.dart';
@@ -25,12 +31,12 @@ import 'driver/wallet/pages/dues_page.dart';
 import 'driver/wallet/pages/order_page.dart';
 
 void main() {
-  runApp(MultiBlocProvider(
-    providers: [
-      BlocProvider(create: (_) => WalletCubit()),
-    ],
-    child: const MyApp(),
-  ));
+  runApp(
+    MultiBlocProvider(
+      providers: [BlocProvider(create: (_) => WalletCubit())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -48,19 +54,22 @@ class MyApp extends StatelessWidget {
         "boarding_three": (context) => BoardingThree(),
         "Forgot_Pass_Page": (context) => ForgotpassPage(),
         "Enter_New_Pass_Page": (context) => ResetPassPage(),
-        "Verfication_Page": (context) => VerficodePage(), // ركز هنا الاسم الصحيح
+        "Verfication_Page":
+            (context) => VerficodePage(), // ركز هنا الاسم الصحيح
         "home_page_dafult": (context) => homePageDAFUALT(),
         "Rider_OR_Driver": (context) => SelectUserType(),
         "Signup_Rider_Page": (context) => SignupRiderPage(),
         "Login_Rider_Page": (context) => LoginRiderPage(),
-        "Signup_driver_page": (context) => SignupDriverPage(),
-        "Login_driver_page": (context) => LoginDriverPage(),
         "AccountPage": (context) => AccountsPage(),
         "DuesPage": (context) => DuesPage(),
         "CommissionPage": (context) => CommissionPage(),
         "OrdersPage": (context) => OrdersPage(),
+        'Login_driver_page': (context) => LoginDriverPage(),
+        'Signup_driver_page': (context) => SignupDriverPage(),
+        'Forgot_Pass_Page_driver': (context) => ForgotpassPageDR(),
       },
       home: DriverHomePage(), // تقدر تغيرها حسب صفحة البداية اللي تحب تبدأ بيها
+
     );
   }
 }

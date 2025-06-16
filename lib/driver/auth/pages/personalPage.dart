@@ -1,17 +1,24 @@
+// ===== ملف: personalPage.dart =====
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/driver/auth/services/profileService.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:moto/driver/auth/widgets/upload_photo.dart';
 import 'package:path/path.dart' as path;
-import 'package:shared_preferences/shared_preferences.dart'; // ١. إضافة import لجلب البيانات
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'IDCardPage.dart';
 import 'DriverLicensePage.dart';
 import 'CriminalRecordPage.dart';
+import 'VehicleLicensePage.dart';
+import 'decision_page.dart'; // استيراد الصفحة التي تحتوي على HomePageDefault
+
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({super.key});
@@ -21,20 +28,29 @@ class PersonalPage extends StatefulWidget {
 }
 
 class _PersonalPageState extends State<PersonalPage> {
+  bool _isDataComplete = false;
+  bool _isLoading = true;
+    bool _isUploading = false;
+  String _vehicleType = 'car';
   final ProfileService _profileService = ProfileService();
-  File? _image; // لحفظ الصورة المختارة مؤقتاً
-  bool _isUploading = false;
-  String? _savedProfilePictureUrl; // لحفظ رابط الصورة القادم من الخادم
 
-  // ٢. إضافة دالة initState ليتم استدعاؤها عند فتح الصفحة أول مرة
+  // يمكنك إضافة متغيرات أخرى لحفظ الـ URLs والصور إذا أردت عرض علامة (صح) بجانب كل عنصر
+  String? _profilePicUrl;
+  String? _idFrontUrl;
+  String? _idBackUrl;
+  String? _driverLicenseUrl;
+  String? _criminalRecordUrl;
+  String? _vehicleLicenseFrontUrl;
+  String? _vehicleLicenseBackUrl;
+  File? _image; // لحفظ الصورة المختارة مؤقتاً
+String? _savedProfilePictureUrl;
   @override
   void initState() {
     super.initState();
-    _loadProfilePicture(); // استدعاء دالة تحميل الصورة عند بدء التشغيل
+    _loadAndCheckData();
   }
 
-  // ٣. دالة جديدة لقراءة رابط الصورة المحفوظ من SharedPreferences
-  Future<void> _loadProfilePicture() async {
+Future<void> _loadProfilePicture() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
@@ -43,7 +59,6 @@ class _PersonalPageState extends State<PersonalPage> {
     }
   }
 
-  // دالة لاختيار الصورة وضغطها ورفعها
   Future<void> _pickAndCompressImage() async {
     final pickedFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -129,8 +144,74 @@ class _PersonalPageState extends State<PersonalPage> {
     }
   }
 
-  void _navigateTo(BuildContext context, Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+  Future<void> _loadAndCheckData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final prefs = await SharedPreferences.getInstance();
+
+    _profilePicUrl = prefs.getString('profile_picture');
+    _idFrontUrl = prefs.getString('national_id_front_url');
+    _idBackUrl = prefs.getString('national_id_back_url');
+    _driverLicenseUrl = prefs.getString(
+      'driver_license_url',
+    ); 
+    _criminalRecordUrl = prefs.getString(
+      'criminal_record_url',
+    ); 
+    _vehicleLicenseFrontUrl = prefs.getString('vehicle_license_front_url');
+    _vehicleLicenseBackUrl = prefs.getString('vehicle_license_back_url');
+    _vehicleType = prefs.getString('vehicleType') ?? 'car';
+    if (_profilePicUrl != null &&
+        _idFrontUrl != null &&
+        _idBackUrl != null &&
+        _driverLicenseUrl != null &&
+        _criminalRecordUrl != null &&
+        _vehicleLicenseFrontUrl != null &&
+        _vehicleLicenseBackUrl != null) {
+      setState(() {
+        _isDataComplete = true;
+      });
+    } else {
+      setState(() {
+        _isDataComplete = false;
+      });
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _navigateTo(BuildContext context, Widget page) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    _loadAndCheckData(); 
+  }
+
+  String getVehicleName(String type) {
+    switch (type.toLowerCase()) {
+      case 'motorcycle':
+        return "motorcycle";
+      case 'rickshaw':
+        return "rickshaw";
+      case 'scooter':
+        return 'scotor';
+      default:
+        return 'car';
+    }
+  }
+
+  Future<void> _confirmAndGoHome() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isProfileComplete', true);
+
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePageDefault()),
+        (route) => false,
+      );
+    }
   }
 
   @override
@@ -138,17 +219,22 @@ class _PersonalPageState extends State<PersonalPage> {
     return Scaffold(
       backgroundColor: ColorsApp().backgroundColor,
       appBar: CustomAppBar(
-        title: "Complete your personal\ninformation",
+        title: "Complete the verification\ninformation",
         imagePath: "assets/images/DELIVERY.png",
-        onBackPressed: () {},
+        onBackPressed: () {
+          
+        },
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(15),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // يمكنك وضع ويدجت رفع الصورة الشخصية هنا
+                    const SizedBox(height: 20),
               Center(
                 child: GestureDetector(
                   onTap: _isUploading ? null : _pickAndCompressImage,
@@ -202,54 +288,104 @@ class _PersonalPageState extends State<PersonalPage> {
               ),
               const SizedBox(height: 30),
 
-              // --- قسم بيانات السائق ---
-              const Padding(
-                padding: EdgeInsets.only(left: 12.0),
-                child: Text(
-                  "Driver Data",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+                    const SizedBox(height: 30),
+                    buildSectionHeader("Driver's Information"),
+                    _buildBox(
+                      context,
+                      "ID Card (front and back)",
+                      const IdCardPage(),
+                      _idFrontUrl != null && _idBackUrl != null,
+                    ),
+                    _buildBox(
+                      context,
+                      "Driving License",
+                      const DriverLicensePage(),
+                      _driverLicenseUrl != null,
+                    ),
+                    _buildBox(
+                      context,
+                      "Criminal Record",
+                      const CriminalRecordPage(),
+                      _criminalRecordUrl != null,
+                    ),
+                    const SizedBox(height: 20),
+                    buildSectionHeader("Vehicle Information"),
+                    _buildBox(
+                      context,
+                      'License ${getVehicleName(_vehicleType)}',
+                      const VehicleLicensePage(),
+                      _vehicleLicenseFrontUrl != null &&
+                          _vehicleLicenseBackUrl != null,
+                    ),
+                    const SizedBox(height: 40),
+                    if (_isDataComplete)
+                      GestureDetector(
+                        onTap: _confirmAndGoHome,
+                        child: Container(
+                          width: double.infinity,
+                          height: 55,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFB5022F), Colors.black],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "Confirm and Start",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              _buildBox(
-                context,
-                "Front and Back of the ID Card",
-                const IdCardPage(),
-              ),
-              _buildBox(context, "Driver's License", const DriverLicensePage()),
-              _buildBox(context, 'Criminal Record', const CriminalRecordPage()),
-              const SizedBox(height: 20),
+    );
+  }
 
-              // --- قسم بيانات السيارة ---
-              const Padding(
-                padding: EdgeInsets.only(left: 12.0),
-                child: Text(
-                  "Car Data",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              _buildBox(context, 'Car License', const CriminalRecordPage()),
-            ],
-          ),
+  Widget buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12.0, bottom: 8.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
         ),
       ),
     );
   }
 
-  Widget _buildBox(BuildContext context, String txt, Widget page) {
+  Widget _buildBox(
+    BuildContext context,
+    String txt,
+    Widget page,
+    bool isCompleted,
+  ) {
     return GestureDetector(
       onTap: () => _navigateTo(context, page),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
         decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: ColorsApp().secondaryColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 3,
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -258,11 +394,14 @@ class _PersonalPageState extends State<PersonalPage> {
               txt,
               style: const TextStyle(fontSize: 15, color: Colors.black),
             ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 20,
-              color: Color(0xFFB5022F),
-            ),
+            // إظهار أيقونة صح عند اكتمال العنصر
+            isCompleted
+                ? const Icon(Icons.check_circle, color: Colors.green)
+                : const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 20,
+                  color: Color(0xFFB5022F),
+                ),
           ],
         ),
       ),

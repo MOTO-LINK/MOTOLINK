@@ -20,13 +20,10 @@ class IdCardPage extends StatefulWidget {
 }
 
 class _IdCardPageState extends State<IdCardPage> {
-  // Controllers and Services
-  final GlobalKey<FormState> _formKey =
-      GlobalKey<FormState>(); // Key for validation
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController idNumberController = TextEditingController();
   final ProfileService _profileService = ProfileService();
 
-  // State variables
   File? frontImageFile;
   File? backImageFile;
   String? savedFrontImageUrl;
@@ -108,6 +105,18 @@ class _IdCardPageState extends State<IdCardPage> {
       } else {
         setState(() => isFront ? frontImageFile = null : backImageFile = null);
         throw Exception(response?.message ?? "Failed to upload image");
+      }
+      final prefs = await SharedPreferences.getInstance();
+      if (isFront) {
+        await prefs.setString(
+          'national_id_front_url',
+          response.data.documentUrl,
+        );
+      } else {
+        await prefs.setString(
+          'national_id_back_url',
+          response.data.documentUrl,
+        );
       }
     } catch (e) {
       if (mounted) CustomSnackBar(context, e.toString());
@@ -246,7 +255,7 @@ class _IdCardPageState extends State<IdCardPage> {
       return;
     }
     if (!_formKey.currentState!.validate()) {
-      CustomSnackBar(context, 'الرجاء إدخال رقم قومي صحيح');
+      CustomSnackBar(context, "Please enter a valid national ID number");
       return;
     }
     setState(() => isSaving = true);
@@ -254,10 +263,9 @@ class _IdCardPageState extends State<IdCardPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('national_id_number', idNumberController.text);
-
       if (mounted) {
         CustomSnackBar(context, 'The data has been saved successfully');
-        // TODO: Navigate to the next page
+        Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted)

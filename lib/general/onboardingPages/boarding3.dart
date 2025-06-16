@@ -14,7 +14,7 @@ class _BoardingThreeState extends State<BoardingThree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: ColorsApp().backgroundColor,
       body: SizedBox(
         width: double.infinity,
         child: Column(
@@ -46,8 +46,8 @@ class _BoardingThreeState extends State<BoardingThree> {
             ),
             SizedBox(height: 50),
             ImageBoarding(
-              image: "assets/images/rider.png",
-              colorBG: ColorsApp().buttonColor,
+              image: "assets/images/car_removebg.png",
+              colorBG: ColorsApp().primaryColor,
             ),
             Container(
               margin: EdgeInsets.only(top: 50),

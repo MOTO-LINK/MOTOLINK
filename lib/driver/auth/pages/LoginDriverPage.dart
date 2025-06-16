@@ -4,10 +4,15 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomSnackBar.dart';
+import 'package:moto/driver/auth/pages/SignupDriverPage.dart';
+import 'package:moto/driver/auth/pages/decision_page.dart';
+import 'package:moto/driver/auth/pages/password/ForgotPassPageDR.dart';
 import 'package:moto/general/core/models/login_response_model.dart';
 import 'package:moto/general/core/service/auth_service.dart';
 import 'package:moto/general/core/service/storage_service.dart';
 import 'package:moto/rider/auth/widgets/customText.dart';
+import 'package:moto/rider/home/dafualthome.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginDriverPage extends StatefulWidget {
   const LoginDriverPage({super.key});
@@ -133,7 +138,12 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, "Forgot_Pass_Page_driver");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotpassPageDR(),
+                          ),
+                        );
                       },
                       child: Text(
                         "Forgot Password ?",
@@ -141,7 +151,7 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 40),
+                  SizedBox(height: 350),
                   GestureDetector(
                     onTap: _handleLoginDriver,
                     child: Container(
@@ -168,7 +178,7 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  SizedBox(height: 5),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -179,7 +189,12 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushNamed("Signup_driver_page");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SignupDriverPage(),
+                            ),
+                          );
                         },
                         child: const Text(
                           "Sign Up",
@@ -203,35 +218,32 @@ class _LoginRiderPageState extends State<LoginDriverPage> {
   Future<void> _handleLoginDriver() async {
     if (formState.currentState!.validate()) {
       setState(() => isLoading = true);
-
       try {
         final response = await _authService.login(
           phone: _phoneController.text.trim(),
           password: _passwordController.text.trim(),
         );
 
-        //print("User login Data: ${response.toJson()}");
         if (!mounted) return;
-        setState(() => isLoading = false);
 
         if (response is LoginResponseModel) {
-          // مؤقتا هندخله على الهوم على طول
           await storageService.saveLoginSession(response);
-          CustomSnackBar(context, 'Login Successful!');
-          Navigator.pushReplacementNamed(context, "home_page_dafult");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DecisionPage()),
+          );
         } else if (response is LoginErrorResponse) {
-          CustomSnackBar(context, 'Error: ${response.error.message}');
+          CustomSnackBar(context, 'ERROR: ${response.error.message}');
         } else {
-          CustomSnackBar(context, 'Unexpected response format.');
-          print("Unexpected response: $response");
+          CustomSnackBar(context, 'ERROR');
         }
       } catch (e) {
-        setState(() => isLoading = false);
-        CustomSnackBar(
-          context,
-          'Something went wrong. Please try again later.',
-        );
+        CustomSnackBar(context, 'حدث خطأ. الرجاء المحاولة مرة أخرى.');
         print("Login Exception: $e");
+      } finally {
+        if (mounted) {
+          setState(() => isLoading = false);
+        }
       }
     }
   }

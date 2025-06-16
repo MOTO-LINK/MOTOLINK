@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomSnackBar.dart';
-import 'package:moto/core/widgets/custom_button.dart';
+import 'package:moto/driver/auth/pages/LoginDriverPage.dart';
+import 'package:moto/driver/auth/pages/password/ResetPassPageDR.dart'; // ستحتاج لإنشاء هذا الملف
 import 'package:moto/general/core/models/login_response_model.dart';
 import 'package:moto/general/core/service/auth_service.dart';
 
 class VerficodePageDR extends StatefulWidget {
-  const VerficodePageDR({super.key});
+  final String phone;
+  final bool isForPasswordReset;
+
+  const VerficodePageDR({
+    super.key,
+    required this.phone,
+    this.isForPasswordReset = false,
+  });
 
   @override
   State<VerficodePageDR> createState() => _VerficodePageDRState();
@@ -15,130 +23,104 @@ class VerficodePageDR extends StatefulWidget {
 
 class _VerficodePageDRState extends State<VerficodePageDR> {
   final TextEditingController codeController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
-  late String phone;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments as Map?;
-    phone = args?['phone'] ?? '';
-    print("Phone received in VerficodePage: $phone");
-    if (phone.isEmpty) {
-      CustomSnackBar(context, "Phone number is missing.");
-      Navigator.pop(context);
+  Future<void> _handleNext() async {
+    if (codeController.text.length != 6) {
+      CustomSnackBar(context, "Enter the 6-digit secret code");
+      return;
     }
+    setState(() => _isLoading = true);
+
+    if (widget.isForPasswordReset) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => ResetPassPageDR(
+                phone: widget.phone,
+                code: codeController.text.trim(),
+              ),
+        ),
+      );
+    } else {
+      final result = await _authService.verify(
+        phone: widget.phone,
+        code: codeController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (result is String) {
+        CustomSnackBar(context, "Account activation successful! Please log in");
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginDriverPage()),
+          (route) => false,
+        );
+      } else if (result is LoginErrorResponse) {
+        CustomSnackBar(context, result.error.message);
+      } else {
+CustomSnackBar(context, "An unexpected error occurred or the code is invalid");      }
+    }
+    setState(() => _isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorsApp().backgroundColor,
-      resizeToAvoidBottomInset: true,
       appBar: CustomAppBar(
-        title:
-            "Recover your password!\nYou will receive a message\ncontaining a secret code to\nconfirm your phone number.",
+        title: "Activate the account",
         imagePath: "assets/images/DELIVERY.png",
         appBarHeight: 150,
         onBackPressed: () {},
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(12),
-            child: Column(
-              children: [
-                SizedBox(height: 120),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 70, vertical: 50),
-                  child: RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        color: ColorsApp().primaryColor,
-                        fontSize: 20,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const SizedBox(height: 50),
+            const Text("Enter the secret code", style: TextStyle(fontSize: 20)),
+            const SizedBox(height: 30),
+            TextFormField(
+              controller: codeController,
+              maxLength: 6,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: "Enter the secret code.",
+                hintText: "Enter the 6-digit secret code",
+                counterText: "",
+              ),
+            ),
+            const SizedBox(height: 40),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : GestureDetector(
+                  onTap: _handleNext,
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFB5022F), Colors.black],
                       ),
-                      children: [TextSpan(text: "Enter the secret code.")],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Next",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-
-                SizedBox(
-                  width: 250,
-                  height: 60,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: codeController,
-                          maxLength: 6,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(hintText: "Enter code"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                /*SizedBox(
-                  width: 250,
-                  height: 60,
-                  child: Row(
-                    children: [
-                      Expanded(child: InputCode(data: "start")),
-                      SizedBox(width: 7),
-                      Expanded(child: InputCode(data: "center")),
-                      SizedBox(width: 7),
-                      Expanded(child: InputCode(data: "center")),
-                      SizedBox(width: 7),
-                      Expanded(child: InputCode(data: "end")),
-                    ],
-                  ),
-                ),*/
-                /*SizedBox(height: 6),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    "Resend code",
-                    style: TextStyle(color: ColorsApp().primaryColor),
-                  ),
-                ),
-                SizedBox(height: 20),
-                CustomButton(txt: "Next", nameNextPage: "Enter_New_Pass_Page"),
-              */
-                CustomButton(
-                  txt: "Next",
-                  nameNextPage: "",
-                  onPressed: () async {
-                    if (codeController.text.length != 6) {
-                      CustomSnackBar(context, "Please enter the 6-digit code.");
-                      return;
-                    }
-
-                    final auth = AuthService();
-                    final result = await auth.verify(
-                      phone: phone,
-                      code: codeController.text.trim(),
-                    );
-
-                    if (!mounted) return;
-
-                    if (result is String) {
-                      CustomSnackBar(context, "Phone verified successfully!");
-                      Navigator.pushReplacementNamed(
-                        context,
-                        "Login_driver_page",
-                      );
-                    } else if (result is LoginErrorResponse) {
-                      CustomSnackBar(context, result.error.message);
-                    } else {
-                      CustomSnackBar(context, "Unexpected error occurred.");
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );

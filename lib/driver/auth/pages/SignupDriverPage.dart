@@ -13,6 +13,16 @@ class SignupDriverPage extends StatefulWidget {
 }
 
 class _SignupRiderPageState extends State<SignupDriverPage> {
+  final GlobalKey<FormState> formState = GlobalKey();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+
+      TextEditingController();
+
   bool isVisabiltyPass1 = true;
   bool isVisabiltyPass2 = true;
   String? email;
@@ -21,20 +31,30 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
   String? phoneNumber;
   String? confirmPassword;
 
-  final GlobalKey<FormState> formState = GlobalKey();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-  TextEditingController();
+  void _navigateToVehicleSelection() {
+    if (formState.currentState!.validate()) {
+      final personalData = {
+        'name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'dob': _dateController.text.trim(),
+        'password': _passwordController.text,
+      };
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SelectVehiclePage(personalData: personalData),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorsApp().backgroundColor,
       appBar: CustomAppBar(
-        title: "Welcome,\nCreate your account",
+        title: "Welcome, \nCreate your new account",
         imagePath: "assets/images/DELIVERY.png",
         appBarHeight: 110,
         onBackPressed: () {},
@@ -82,7 +102,8 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                     name = data;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
+
                 Text(
                   "*Phone Number",
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -126,7 +147,8 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                     phoneNumber = data;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
+
                 Text("*Email", style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 5),
                 TextFormField(
@@ -164,7 +186,8 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                     email = data;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
+
                 Text(
                   "*Date of Birth",
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -216,7 +239,8 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                     }
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
+
                 Text(
                   "*Password",
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -276,7 +300,8 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                     password = data;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
+
                 Text(
                   "*Confirm the password",
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -337,21 +362,18 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                   },
                 ),
                 SizedBox(height: 40),
-
                 GestureDetector(
-                  onTap: navigateToVehicleSelection,
+                  onTap: _navigateToVehicleSelection,
                   child: Container(
                     width: double.infinity,
                     height: 55,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [Color(0xFFB5022F), Colors.black],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
                       ),
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         "Next",
                         style: TextStyle(
@@ -363,21 +385,14 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 3),
-
+                const SizedBox(height: 3),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Have an account?",
-                      style: TextStyle(color: Colors.black),
-                    ),
-
+                    const Text("Have an account?"),
                     TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed("Login_driver_page");
-                      },
-                      child: Text(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
                         "Login",
                         style: TextStyle(
                           color: Color(0xFFB5022F),
@@ -394,7 +409,6 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
       ),
     );
   }
-
   void navigateToVehicleSelection() {
     if (formState.currentState!.validate()) {
       final personalData = {
@@ -412,4 +426,5 @@ class _SignupRiderPageState extends State<SignupDriverPage> {
       );
     }
   }
+
 }

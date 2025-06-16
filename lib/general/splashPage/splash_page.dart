@@ -32,7 +32,7 @@ class _SplashViewState extends State<SplashView>
       body: Center(
         child: SlideTransition(
           position: slidingAnimation,
-          child: Image.asset("assets/images/logo_transparent.png", scale: 3),
+          child: Image.asset("assets/images/DELIVERY.png", scale: 3),
         ),
       ),
     );
