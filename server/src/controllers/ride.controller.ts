@@ -327,12 +327,12 @@ class RideController {
 					startLocation,
 					endLocation
 				});
-			};
+			}
 
 			res.status(200).json({
 				success: true,
 				data: {
-					"activeRides": activeRidesDetails
+					activeRides: activeRidesDetails
 				}
 			});
 		} catch (error) {
@@ -480,7 +480,8 @@ class RideController {
 
 	async updateRideStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
-			const driverId = req.user!.user_id;
+			const userId = req.user!.user_id;
+			const userType = req.user!.user_type;
 			const { requestId } = req.params;
 			const { status } = req.body;
 
@@ -498,7 +499,12 @@ class RideController {
 
 			// Verify driver owns this ride
 			const rideRequest = await rideRequestModel.findById(requestId);
-			if (!rideRequest || rideRequest.driver_id !== driverId) {
+			if (
+				(status !== "completed" && userType === UserType.RIDER) ||
+				!rideRequest ||
+				(rideRequest.driver_id !== userId && rideRequest.rider_id !== userId) ||
+				(status === "completed" && userType === UserType.DRIVER)
+			) {
 				res.status(403).json({
 					success: false,
 					error: {
@@ -514,6 +520,17 @@ class RideController {
 
 			// Handle ride completion
 			if (status === "completed") {
+				const driverId = rideRequest.driver_id;
+				if (!driverId) {
+					res.status(400).json({
+						success: false,
+						error: {
+							code: "DRIVER_NOT_FOUND",
+							message: "Driver not found for this ride"
+						}
+					});
+					return;
+				}
 				const transaction = await rideTransactionModel.findByRequestId(requestId);
 				if (!transaction) {
 					res.status(400).json({

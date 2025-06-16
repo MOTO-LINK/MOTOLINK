@@ -32,7 +32,7 @@ router.post(
 );
 router.patch(
 	"/:requestId/status",
-	authorizeRoles(UserType.DRIVER),
+	authorizeRoles(UserType.DRIVER, UserType.RIDER),
 	rideController.updateRideStatus
 );
 
