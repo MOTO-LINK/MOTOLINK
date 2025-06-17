@@ -22,10 +22,12 @@ import RepresentativesPage from "@/Dashboard/pages/WorkFlowPages/Representatives
 import ProhibitedRepresentatives from "@/Dashboard/pages/WorkFlowPages/Representatives/ProhibitedRepresentatives"
 import ComplaintsSecondPage from "@/Dashboard/pages/Complaints/ComplaintsSecondPage"
 import FinancialsSecondPage from "@/Dashboard/pages/Financials/FinancialsSecondPage"
+import Home from "@/Dashboard/pages/Home/Home"
 export const router=createBrowserRouter(
      createRoutesFromElements(
-        <>
-            <Route path="/" element={<LoginDashboard/>} />
+        <>   
+            <Route path="/" element={<Home/>} /> 
+            <Route path="/LoginDashboard" element={<LoginDashboard/>} />
             <Route path="/dashboard/RestartPassword" element={<RestartPassword/>} />
             <Route path="/dashboard/RestartPasswordPage2" element={<RestartPasswordPage2/>} />
             <Route path="/dashboard/RestartPasswordPage3" element={<RestartPasswordPage3/>} />

@@ -1,0 +1,22 @@
+.floating-dust {
+    position: fixed;
+    inset: 0;
+    background-size: contain;
+    background-repeat:no-repeat;
+    background-position: center;
+    opacity: 0.05;
+    animation: floatDust 40s infinite linear;
+  }
+  
+  @keyframes floatDust {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(-20px, -20px) scale(1.02);
+    }
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+  }
+  

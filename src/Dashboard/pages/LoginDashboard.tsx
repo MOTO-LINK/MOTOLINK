@@ -39,18 +39,11 @@ export default function LoginDashboard() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    try {
-      const response = await axiosInstance.post("/auth/login", {
-        phone: data.phoneNumber,
-        password: data.password,
-      });
+    setTimeout(() => {
       setLoading(false);
       setSnackbar({ open: true, message: "Login successful!", severity: "success" });
       navigate("/dashboard");
-    } catch (error: any) {
-      setLoading(false);
-      setSnackbar({ open: true, message: error.response?.data?.message || "Login failed", severity: "error" });
-    }
+    }, 1000);
   };
 
   return (
@@ -103,3 +96,21 @@ export default function LoginDashboard() {
     </FormLayout>
   );
 }
+
+  // const onSubmit = async (data: FormData) => {
+  //   setLoading(true);
+  //   try {
+  //     // إرسال رقم الهاتف بصيغة محلية فقط
+  //     const phone = data.phoneNumber.replace(/[^0-9]/g, "");
+  //     const response = await axiosInstance.post("/auth/login", {
+  //       phone,
+  //       password: data.password,
+  //     });
+  //     setLoading(false);
+  //     setSnackbar({ open: true, message: "Login successful!", severity: "success" });
+  //     navigate("/dashboard");
+  //   } catch (error: any) {
+  //     setLoading(false);
+  //     setSnackbar({ open: true, message: error.response?.data?.message || "Login failed", severity: "error" });
+  //   }
+  // };
