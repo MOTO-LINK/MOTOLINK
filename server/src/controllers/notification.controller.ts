@@ -92,7 +92,7 @@ class NotificationController {
 				return;
 			}
 
-			if (!(notificationType in ["system", "ride", "message"])) {
+			if (!(["system", "ride", "message"].includes(notificationType))) {
 				res.status(400).json({
 					success: false,
 					error: {
