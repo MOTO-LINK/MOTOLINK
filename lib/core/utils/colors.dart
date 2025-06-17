@@ -12,4 +12,6 @@ class ColorsApp {
   Color TextField = const Color(0xFF525050);
   Color shadowColor = const Color(0xFFB0C4DE);
   Color SkipColor = Colors.grey;
+
+  get accentColor => null;
 }

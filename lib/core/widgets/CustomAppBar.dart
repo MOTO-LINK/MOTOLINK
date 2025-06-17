@@ -10,6 +10,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final String? amount;
   final bool? centerTitle;
+  final Color? backgroundColor;
+  final TextStyle? titleStyle; // اجعلها اختيارية
 
   const CustomAppBar({
     super.key,
@@ -18,8 +20,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.icon,
     this.onIconPressed,
     this.appBarHeight = 100,
-    this.showBackButton = false, required Null Function() onBackPressed,
-    this.amount, this.centerTitle = false,
+    this.showBackButton = false,
+    required Null Function() onBackPressed,
+    this.amount,
+    this.centerTitle = false,
+    this.backgroundColor,
+    this.titleStyle, // ليست مطلوبة
   });
 
   @override
@@ -30,17 +36,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       centerTitle: centerTitle,
       automaticallyImplyLeading: false,
-      // لو عايزه السهم يظهر هعمل showBackButton true
-      leading:
-          showBackButton
-              ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.of(context).maybePop(),
-              )
-              : null,
+      backgroundColor: backgroundColor,
+      elevation: 0,
+      leading: showBackButton
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).maybePop(),
+            )
+          : null,
       toolbarHeight: appBarHeight,
       actions: [
-        (amount != null)?Text(amount! , style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600 , color: Colors.white)):Text(""),
+        (amount != null)
+            ? Text(amount!,
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white))
+            : const SizedBox.shrink(),
         if (icon != null)
           IconButton(
             onPressed: onIconPressed ?? () {},
@@ -48,33 +60,35 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
       ],
       flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFB5022F), Colors.black],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-        ),
+        decoration: backgroundColor == null
+            ? const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFB5022F), Colors.black],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              )
+            : null,
         child: Align(
           alignment: Alignment.bottomRight,
-          child:
-              imagePath != null
-                  ? Image.asset(imagePath!, width: 130, height: 130)
-                  : const SizedBox.shrink(),
+          child: imagePath != null
+              ? Image.asset(imagePath!, width: 130, height: 130)
+              : const SizedBox.shrink(),
         ),
       ),
       title: Text(
         title ?? '',
-        style: const TextStyle(
-          fontSize: 20,
-          color: Colors.white,
-          fontFamily: 'Delivery',
-          fontWeight: FontWeight.bold,
-        ),
+        style: titleStyle ??
+            const TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+              fontFamily: 'Delivery',
+              fontWeight: FontWeight.bold,
+            ),
       ),
     );
   }

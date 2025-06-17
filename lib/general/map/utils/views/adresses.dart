@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:moto/general/map/utils/Services/SendAdress.dart';
 import 'package:moto/rider/auth/core/services/storage_service.dart';
+import 'package:moto/rider/home/dafualthome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
@@ -216,8 +217,13 @@ class _AdressesState extends State<Adresses> {
       appBar: CustomAppBar(
         title: 'Adresses',
         imagePath: 'assets/images/DELIVERY.png',
+        showBackButton: true,
         onBackPressed: () {
-          Navigator.pop(context);
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const homePage()),
+            (route) => false,
+          );
         },
       ),
       body: Column(

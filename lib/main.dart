@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         "Enter_New_Pass_Page": (context) => ResetPassPage(),
         "Verfication_Page":
             (context) => VerficodePage(), // ركز هنا الاسم الصحيح
-        "home_page_dafult": (context) => homePageDAFUALT(),
+        "home_page_dafult": (context) => homePage(),
         "Rider_OR_Driver": (context) => SelectUserType(),
         "Signup_Rider_Page": (context) => SignupRiderPage(),
         "Login_Rider_Page": (context) => LoginRiderPage(),
@@ -68,7 +68,7 @@ class MyApp extends StatelessWidget {
         'Signup_driver_page': (context) => SignupDriverPage(),
         'Forgot_Pass_Page_driver': (context) => ForgotpassPageDR(),
       },
-      home: DriverHomePage(), // تقدر تغيرها حسب صفحة البداية اللي تحب تبدأ بيها
+      home: homePage(), // تقدر تغيرها حسب صفحة البداية اللي تحب تبدأ بيها
 
     );
   }

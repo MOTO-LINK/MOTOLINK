@@ -11,7 +11,11 @@ class DeliveryService {
     required String description,
     required int quantity,
     required double weight,
-    required String paymentMethod,  
+    required String paymentMethod,
+    required String rideType,
+    double? totalValue,
+    String? notes,
+    DateTime? scheduledTime,
   }) async {
     final url = Uri.parse('$baseUrl/rides/request');
 
@@ -40,9 +44,8 @@ class DeliveryService {
         "latitude": dropoffLatitude,
         "longitude": dropoffLongitude,
       },
-      "vehicleType": "motorcycle",
+      "vehicleType": rideType,
       "serviceType": "delivery",
-      "paymentMethod": paymentMethod,
       "packageDetails": {
         "items": [
           {
@@ -50,8 +53,13 @@ class DeliveryService {
             "quantity": quantity,
             "weight": weight
           }
-        ]
-      }
+        ],
+        "totalValue": totalValue ?? 0,
+        "notes": notes ?? ""
+      },
+      "paymentMethod": paymentMethod,
+      "scheduledTime": scheduledTime?.toIso8601String(),
+      "notes": notes ?? ""
     };
 
     try {

@@ -1,4 +1,3 @@
-// lib/general/DeliveryRequestPage/DeliveryRequestPage.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -14,7 +13,8 @@ import 'package:moto/rider/auth/core/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DeliveryRequestPage extends StatefulWidget {
-  const DeliveryRequestPage({super.key});
+  final String? initialRideType; // لإستقبال نوع المركبة من الخارج
+  const DeliveryRequestPage({super.key, this.initialRideType});
 
   @override
   State<DeliveryRequestPage> createState() => _DeliveryRequestPageState();
@@ -34,11 +34,15 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
   List<String> paymentMethods = ['cash'];
   List<Map<String, dynamic>> savedAddresses = [];
 
+  late String selectedRideType;
+  List<String> rideTypes = ['motorcycle', 'scooter', 'rickshaw'];
+
   String? currentToken;
 
   @override
   void initState() {
     super.initState();
+    selectedRideType = widget.initialRideType ?? 'motorcycle';
     _init();
   }
 
@@ -93,6 +97,21 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
             SizedBox(height: 20),
 
             buildLocationField('Dropoff Location', dropoffLocation, false),
+            SizedBox(height: 20),
+
+            buildTitle('*Ride Type'),
+            CustomTextfield(
+              Textfieldmodels: Textfieldmodel(
+                Icon(FontAwesome.motorcycle),
+                TextInputType.text,
+                TextEditingController(text: selectedRideType),
+                "Select ride type",
+                true,
+                () => _selectRideType(),
+                prefixIcon: Icon(FontAwesome.arrow_circle_o_right),
+              ),
+              color: ColorsApp(),
+            ),
             SizedBox(height: 20),
 
             buildTitle('*Contact Number'),
@@ -313,12 +332,64 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
     );
   }
 
+  void _selectRideType() async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          height: 250,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 60,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: ColorsApp().secondaryColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              ...rideTypes.map((type) {
+                return ListTile(
+                  leading: Icon(FontAwesome.motorcycle, color: ColorsApp().secondaryColor),
+                  title: Text(type),
+                  onTap: () {
+                    setState(() {
+                      selectedRideType = type;
+                      Navigator.pop(context);
+                    });
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void submitRequest() async {
+    // التحقق من صحة البيانات
     if (selectedPickupAddress == null ||
         selectedDropoffAddress == null ||
-        descriptionController.text.isEmpty) {
+        descriptionController.text.isEmpty ||
+        phoneController.text.isEmpty ||
+        selectedDateTime == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please complete all fields")));
+      return;
+    }
+
+    // تحقق من رقم الهاتف (يجب أن يكون 11 رقم)
+    final phone = phoneController.text.trim();
+    final phoneRegExp = RegExp(r'^\d{11}$');
+    if (!phoneRegExp.hasMatch(phone)) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Phone number must be 11 digits")));
       return;
     }
 
@@ -327,8 +398,12 @@ class _DeliveryRequestPageState extends State<DeliveryRequestPage> {
       dropoffLocation: selectedDropoffAddress!,
       description: descriptionController.text,
       quantity: 1,
-      weight: 2,
+      weight: 2.0,
       paymentMethod: selectedPayment,
+      rideType: selectedRideType,
+      totalValue: 0,
+      notes: "",
+      scheduledTime: selectedDateTime,
     );
 
     if (success) {
