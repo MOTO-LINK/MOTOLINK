@@ -11,6 +11,6 @@ router.get("/", notificationController.getNotifications);
 router.put("/read/:notificationId", notificationController.markAsRead);
 router.put("/read/all", notificationController.markAllAsRead);
 
-router.post("/", authorizeRoles(UserType.ADMIN), notificationController.createNotification);
+router.post("/:userId", authorizeRoles(UserType.ADMIN), notificationController.createNotification);
 
 export default router;

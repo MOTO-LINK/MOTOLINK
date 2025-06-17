@@ -78,7 +78,7 @@ class NotificationController {
 
 	async createNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
-			const userId = req.user!.user_id;
+			const userId = req.params.userId;
 			const { notificationType, messageContent } = req.body;
 
 			if (!notificationType || !messageContent) {
