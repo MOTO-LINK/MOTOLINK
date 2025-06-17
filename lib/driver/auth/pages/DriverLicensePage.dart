@@ -7,8 +7,7 @@ import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/CustomAppBar.dart';
 import 'package:moto/core/widgets/CustomSnackBar.dart';
 import 'package:moto/driver/auth/services/profileService.dart';
-import 'package:moto/driver/auth/widgets/national_id_input.dart';
-import 'package:moto/driver/auth/widgets/upload_photo.dart'; // استيراد الويدجت الجديدة
+import 'package:moto/driver/auth/widgets/upload_photo.dart'; 
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,9 +21,8 @@ class DriverLicensePage extends StatefulWidget {
 }
 
 class _DriverLicensePageState extends State<DriverLicensePage> {
-  // Controllers and Services
   final GlobalKey<FormState> _formKey =
-      GlobalKey<FormState>(); // مفتاح للتحقق من الفورم
+      GlobalKey<FormState>(); 
   final TextEditingController licenseNumberController = TextEditingController();
   final ProfileService _profileService = ProfileService();
 
@@ -39,8 +37,6 @@ class _DriverLicensePageState extends State<DriverLicensePage> {
     super.initState();
     _loadSavedData();
   }
-
-  // تحميل البيانات المحفوظة عند بدء التشغيل
   Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
@@ -52,7 +48,6 @@ class _DriverLicensePageState extends State<DriverLicensePage> {
     }
   }
 
-  // اختيار الصورة ورفعها
   Future<void> _pickAndUploadImage() async {
     final pickedFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -80,7 +75,7 @@ class _DriverLicensePageState extends State<DriverLicensePage> {
 
       final response = await _profileService.uploadDriverDocument(
         file: imageToUpload,
-        documentType: "license_front", // تحديد نوع المستند
+        documentType: "license_front",
       );
 
       if (mounted && response != null && response.success) {
@@ -136,7 +131,6 @@ class _DriverLicensePageState extends State<DriverLicensePage> {
                 ),
                 const SizedBox(height: 30),
                 Center(
-                  // استخدام الويدجت الجديدة التي تدعم علامة الصح
                   child: ImageUploadfield(
                     title: "Upload license photo",
                     imageFile: licenseImageFile,
@@ -147,7 +141,6 @@ class _DriverLicensePageState extends State<DriverLicensePage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                // استخدام TextFormField للتحقق من الإدخال
                 TextFormField(
                   controller: licenseNumberController,
                   keyboardType: TextInputType.text,
@@ -174,7 +167,6 @@ class _DriverLicensePageState extends State<DriverLicensePage> {
                 ),
                 const SizedBox(height: 40),
                 const SizedBox(height: 200),
-                // زر الحفظ مع حالة التحميل
                 GestureDetector(
                   onTap: isSaving ? null : _onNextPressed,
                   child: Container(
@@ -213,7 +205,6 @@ class _DriverLicensePageState extends State<DriverLicensePage> {
     );
   }
 
-  // دالة الحفظ عند الضغط على زر "التالي"
   Future<void> _onNextPressed() async {
     if (savedLicenseImageUrl == null) {
       CustomSnackBar(context, "Please upload the license photo first");

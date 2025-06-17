@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/custom_button.dart';
 import 'package:moto/general/onboardingPages/boarding_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BoardingThree extends StatefulWidget {
   const BoardingThree({super.key});
@@ -33,8 +34,11 @@ class _BoardingThreeState extends State<BoardingThree> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: MaterialButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed("Login_Rider_Page");
+                    onPressed: () async{
+                      final pref = await SharedPreferences.getInstance();
+                      pref.setBool("isOnBoardingSeen", true);
+                      Navigator.of(context).pushNamed("Rider_OR_Driver");
+                      //Navigator.of(context).pushNamed("Login_Rider_Page");
                     },
                     child: Text(
                       "Skip",
@@ -90,7 +94,10 @@ class _BoardingThreeState extends State<BoardingThree> {
             Expanded(child: Container()),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: CustomButton(txt: "Next", nameNextPage: "Rider_OR_Driver"),
+              child: CustomButton(txt: "Next", nameNextPage: "Rider_OR_Driver",onPressed: () async {
+                final pref = await SharedPreferences.getInstance();
+                pref.setBool("isOnBoardingSeen", true);
+              }),
             ),
             Expanded(child: Container()),
           ],

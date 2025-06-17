@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moto/core/utils/colors.dart';
 import 'package:moto/core/widgets/custom_button.dart';
 import 'package:moto/general/onboardingPages/boarding_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BoardingOne extends StatefulWidget {
   const BoardingOne({super.key});
@@ -33,8 +34,11 @@ class _BoardingOneState extends State<BoardingOne> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: MaterialButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed("Login_Rider_Page");
+                    onPressed: () async {
+                      //Navigator.of(context).pushNamed("Login_Rider_Page");
+                      final pref = await SharedPreferences.getInstance();
+                      pref.setBool("isOnBoardingSeen", true);
+                      Navigator.of(context).pushNamed("Rider_OR_Driver");
                     },
                     child: Text(
                       "Skip",

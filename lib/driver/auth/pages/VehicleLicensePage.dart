@@ -87,10 +87,10 @@ class _VehicleLicensePageState extends State<VehicleLicensePage> {
       );
 
       final documentType =
-          isFront ? "vehicle_license_front" : "vehicle_license_back";
+          isFront ? "vehicle_registration_front" : "vehicle_registration_back";
       final response = await _profileService.uploadDriverDocument(
         file: imageToUpload,
-        documentType: "license_front",
+        documentType: documentType,
       );
 
       if (mounted && response != null && response.success) {
