@@ -76,6 +76,44 @@ class NotificationController {
 		}
 	}
 
+	async createNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
+		try {
+			const userId = req.user!.user_id;
+			const { notificationType, messageContent } = req.body;
+
+			if (!notificationType || !messageContent) {
+				res.status(400).json({
+					success: false,
+					error: {
+						code: "MISSING_FIELDS",
+						message: "Notification type and message are required"
+					}
+				})
+				return;
+			}
+
+			if (!(notificationType in ["system", "ride", "message"])) {
+				res.status(400).json({
+					success: false,
+					error: {
+						code: "INVALID_NOTIFICATION_TYPE",
+						message: "Invalid notification type"
+					}
+				})
+				return;
+			}
+
+			await notificationModel.create({ user_id: userId, notification_type: notificationType, message_content: messageContent });
+
+			res.status(200).json({
+				success: true,
+				message: "Notification created successfully"
+			});
+		} catch (error) {
+			next(error);
+		}
+	}
+
 /**	async updatePushToken(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			const userId = req.user!.user_id;
