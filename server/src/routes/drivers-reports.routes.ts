@@ -10,13 +10,13 @@ const router = Router();
  * @desc    Get drivers summary statistics (total, online, verified, available)
  * @access  Private (Admin only)
  */
-router.get('/summary', authenticateToken, authorizeRoles(UserType.ADMIN), driversReportsController.getDriversSummary);
+router.get('/summary', driversReportsController.getDriversSummary);
 
 /**
  * @route   GET /api/drivers-reports/details
  * @desc    Get drivers with detailed information and pagination
  * @access  Private (Admin only)
  */
-router.get('/details', authenticateToken, authorizeRoles(UserType.ADMIN), driversReportsController.getDriversDetails);
+router.get('/details', driversReportsController.getDriversDetails);
 
 export default router;

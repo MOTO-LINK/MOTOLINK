@@ -4,6 +4,8 @@ import { authenticateToken, authorizeRoles } from "../middleware/auth.middleware
 import DashboardRoutes from "./dashboard.routes";
 import { UserType } from "../utils/types";
 import reportRoutes from "./report.routes";
+import driverFinancialReports from "./drivers-reports.routes"
+import ridesFinancialReports from "./rides-reports.routes"
 
 const router = Router();
 
@@ -26,5 +28,8 @@ router.use("/dashboard", DashboardRoutes);
 
 // Report management
 router.use("/reports", reportRoutes);
+
+router.use("/financial-reports/drivers", driverFinancialReports)
+router.use("/financial-reports/rides", ridesFinancialReports)
 
 export default router;

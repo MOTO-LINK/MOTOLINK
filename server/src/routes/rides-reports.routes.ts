@@ -10,13 +10,13 @@ const router = Router();
  * @desc    Get ride summary statistics (total riders, rides, completed/canceled)
  * @access  Private (Admin only)
  */
-router.get('/summary', authenticateToken, authorizeRoles(UserType.ADMIN), ridesReportsController.getRidesSummary);
+router.get('/summary', ridesReportsController.getRidesSummary);
 
 /**
  * @route   GET /api/rides-reports/latest
  * @desc    Get latest rides with details and pagination
  * @access  Private (Admin only)
  */
-router.get('/latest', authenticateToken, authorizeRoles(UserType.ADMIN), ridesReportsController.getLatestRides);
+router.get('/latest', ridesReportsController.getLatestRides);
 
 export default router;
