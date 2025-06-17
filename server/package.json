@@ -1,6 +1,6 @@
 {
   "name": "motolink",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A REST API server for Motolink app",
   "main": "./dist/server.js",
   "scripts": {

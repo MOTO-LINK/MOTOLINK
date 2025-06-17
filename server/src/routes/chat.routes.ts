@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { ChatController } from "../controllers/chat.controller";
-import { authenticateToken as authenticate } from "../middleware/auth.middleware";
+import { authenticateToken } from "../middleware/auth.middleware";
 import { RequestHandler } from "express";
 
 const router = Router();
 const chatController = new ChatController();
-router.use(authenticate);
+router.use(authenticateToken);
 
 // SSE endpoint
 router.get("/subscribe", (chatController.subscribe.bind(chatController) as RequestHandler));
